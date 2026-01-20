@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "watch sample",
+      "cwd": "${workspaceFolder}/tests/bookshop",
+      "runtimeExecutable": "cds",
+      "runtimeArgs": ["watch"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
