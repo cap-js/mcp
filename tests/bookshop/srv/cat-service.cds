@@ -1,6 +1,6 @@
 using {sap.capire.bookshop as my} from '../db/schema';
 
-@mcp
+@protocol: 'mcp'
 service CatalogService {
   entity Books as
     projection on my.Books {

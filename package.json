@@ -1,18 +1,29 @@
 {
   "name": "cap-mcp",
   "version": "1.0.0",
-  "description": "",
+  "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "main": "cds-plugin.js",
   "directories": {
     "test": "tests"
   },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
   "peerDependencies": {
-    "@sap/cds": "^9"
+    "@sap/cds": "^9",
+    "express": "^4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "inspect": "npx @modelcontextprotocol/inspector"
   },
-  "keywords": [],
+  "keywords": [
+    "cap",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agent"
+  ],
   "author": "",
   "license": "ISC",
   "workspaces": [

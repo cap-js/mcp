@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "dependencies": {
-    "cap-mcp": "file:../../"
+    "cap-mcp": "file:../../",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2"
