@@ -1,4 +1,4 @@
-> **Important**
+> [!CAUTION]  
 >
 > This is a PoC implementation. Do not use it productively.
 
