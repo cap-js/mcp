@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap/xssec": "^4",
     "cap-mcp": "file:../../",
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2"
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9"
   },
   "scripts": {
     "start": "cds-serve"
@@ -22,7 +25,11 @@
         "[production]": {
           "model": "db/hana"
         }
-      }
+      },
+      "[production]": {
+        "auth": "xsuaa"
+      },
+      "application-logging": true
     }
   }
 }
