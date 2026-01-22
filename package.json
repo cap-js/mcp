@@ -15,7 +15,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "inspect": "npx @modelcontextprotocol/inspector"
+    "inspect": "npx @modelcontextprotocol/inspector",
+    "watch:sample": "cds w tests/bookshop"
   },
   "keywords": [
     "cap",

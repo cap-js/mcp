@@ -11,3 +11,14 @@ if (!protocols.mcp) {
     impl: require.resolve('./lib')
   }
 }
+
+// Write provided MCP Servers to root opencode config
+const opencodeConfig = require('./lib/opencode-config')
+cds.once('listening', ({ url }) => {
+  const mcpServices = cds.service.providers.filter(srv =>
+    srv.endpoints.some(ep => ep.kind === 'mcp')
+  )
+  if (mcpServices.length > 0) {
+    opencodeConfig.export(mcpServices, url)
+  }
+})
