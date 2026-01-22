@@ -11,4 +11,6 @@ service CatalogService {
       createdBy,
       modifiedBy
     };
+
+    entity Genres as projection on my.Genres;
 }
