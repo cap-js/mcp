@@ -17,9 +17,6 @@
   },
   "private": true,
   "cds": {
-    "features": {
-      "generic_read_tool": true
-    },
     "requires": {
       "db-ext": {
         "[development]": {
