@@ -126,7 +126,10 @@ describe('read_query', () => {
     })
 
     it('returns book data with all expected fields populated', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books', filter: { ID: 201 } })
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['ID'] }, '=', { val: 201 }] 
+      })
       expect(error).to.be.null
       const book = content.data[0]
       expect(book.ID).to.equal(201)
@@ -138,15 +141,133 @@ describe('read_query', () => {
   })
 
   describe('filter', () => {
-    it('filters by string field', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books', filter: { title: 'Jane Eyre' } })
+    it('filters by equality', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['title'] }, '=', { val: 'Jane Eyre' }] 
+      })
       expect(error).to.be.null
       expect(content.count).to.equal(1)
       expect(content.data[0].title).to.equal('Jane Eyre')
     })
 
+    it('filters by comparison (greater than)', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['stock'] }, '>', { val: 10 }] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(book => expect(book.stock).to.be.greaterThan(10))
+    })
+
+    it('filters by comparison (less than)', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['price'] }, '<', { val: 12 }] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(book => expect(book.price).to.be.lessThan(12))
+    })
+
+    it('filters with AND condition', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [
+          { ref: ['stock'] }, '>', { val: 0 }, 
+          'and', 
+          { ref: ['price'] }, '<', { val: 15 }
+        ] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(book => {
+        expect(book.stock).to.be.greaterThan(0)
+        expect(book.price).to.be.lessThan(15)
+      })
+    })
+
+    it('filters with OR condition', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [
+          { ref: ['ID'] }, '=', { val: 201 }, 
+          'or', 
+          { ref: ['ID'] }, '=', { val: 207 }
+        ] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(2)
+      const ids = content.data.map(b => b.ID)
+      expect(ids).to.include(201)
+      expect(ids).to.include(207)
+    })
+
+    it('filters with IN clause', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [
+          { ref: ['ID'] }, 
+          'in', 
+          { list: [{ val: 201 }, { val: 207 }, { val: 251 }] }
+        ] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(3)
+      const ids = content.data.map(b => b.ID)
+      expect(ids).to.include(201)
+      expect(ids).to.include(207)
+      expect(ids).to.include(251)
+    })
+
+    it('filters with LIKE clause', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['title'] }, 'like', { val: '%Raven%' }] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(book => expect(book.title).to.include('Raven'))
+    })
+
+    it('filters with BETWEEN clause', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [
+          { ref: ['stock'] }, 
+          'between', 
+          { val: 10 }, 
+          'and', 
+          { val: 15 }
+        ] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(book => {
+        expect(book.stock).to.be.at.least(10)
+        expect(book.stock).to.be.at.most(15)
+      })
+    })
+
+    it('filters with nested xpr for grouping', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [
+          { xpr: [{ ref: ['ID'] }, '=', { val: 201 }] }, 
+          'or', 
+          { xpr: [{ ref: ['ID'] }, '=', { val: 252 }] }
+        ] 
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(2)
+    })
+
     it('returns empty array when filter matches nothing', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books', filter: { ID: 99999 } })
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        filter: [{ ref: ['ID'] }, '=', { val: 99999 }] 
+      })
       expect(error).to.be.null
       expect(content.count).to.equal(0)
       expect(content.data).to.be.an('array').that.is.empty
@@ -283,7 +404,9 @@ describe('Per-Entity Tools', () => {
     })
 
     it('filters with read_Books tool', async () => {
-      const { content, error } = await callTool('read_Books', { filter: { ID: 201 } })
+      const { content, error } = await callTool('read_Books', { 
+        filter: [{ ref: ['ID'] }, '=', { val: 201 }] 
+      })
       expect(error).to.be.null
       expect(content.count).to.equal(1)
       expect(content.data[0].ID).to.equal(201)
