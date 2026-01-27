@@ -115,7 +115,7 @@ describe('read_query', () => {
     })
 
     it('queries Genres entity and returns genre hierarchy', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Genres' })
+      const { content, error } = await callTool('read_query', { entity: 'Genres', limit: 50 })
       expect(error).to.be.null
       expect(content.entity).to.equal('Genres')
       expect(content.count).to.equal(42)
@@ -294,31 +294,17 @@ describe('read_query', () => {
   })
 
   describe('pagination', () => {
-    it('limits results with top', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books', top: 2 })
+    it('limits results with limit parameter', async () => {
+      const { content, error } = await callTool('read_query', { entity: 'Books', limit: 2 })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
       expect(content.data).to.have.lengthOf(2)
     })
 
-    it('skips results', async () => {
-      const { content: all, error: err1 } = await callTool('read_query', { entity: 'Books' })
-      expect(err1).to.be.null
-      const { content, error: err2 } = await callTool('read_query', { entity: 'Books', skip: 2 })
-      expect(err2).to.be.null
-      expect(content.count).to.equal(all.count - 2)
-    })
-
-    it('combines top and skip for pagination', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books', top: 2, skip: 1 })
+    it('uses default limit of 20', async () => {
+      const { content, error } = await callTool('read_query', { entity: 'Genres' })
       expect(error).to.be.null
-      expect(content.count).to.equal(2)
-    })
-
-    it('uses default top of 100', async () => {
-      const { content, error } = await callTool('read_query', { entity: 'Books' })
-      expect(error).to.be.null
-      expect(content.count).to.be.at.most(100)
+      expect(content.count).to.equal(20)
     })
   })
 
@@ -394,7 +380,7 @@ describe('Per-Entity Tools', () => {
     })
 
     it('executes read_Genres tool and returns genre names', async () => {
-      const { content, error } = await callTool('read_Genres')
+      const { content, error } = await callTool('read_Genres', { limit: 50 })
       expect(error).to.be.null
       expect(content.entity).to.equal('Genres')
       expect(content.count).to.equal(42)
@@ -421,9 +407,10 @@ describe('Per-Entity Tools', () => {
     })
 
     it('paginates with read_Books tool', async () => {
-      const { content, error } = await callTool('read_Books', { top: 2, skip: 1 })
+      const { content, error } = await callTool('read_Books', { limit: 2 })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
+      expect(content.data).to.have.lengthOf(2)
     })
   })
 })
