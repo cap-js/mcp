@@ -10,8 +10,8 @@
       "use_custom_summarize_output_template": false
     },
     "review": {
-      "auto_generate_review": true,
-      "auto_run_on_draft_pr": true,
+      "auto_generate_review": false,
+      "auto_run_on_draft_pr": false,
       "use_custom_review_focus": false
     }
   }

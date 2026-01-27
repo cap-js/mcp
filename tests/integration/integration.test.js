@@ -334,6 +334,42 @@ describe('read_query', () => {
       const ids = content.data.map(b => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => a - b))
     })
+
+    it('orders by single field descending', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        orderBy: 'title', 
+        sort: 'desc',
+        select: ['title'] 
+      })
+      expect(error).to.be.null
+      const titles = content.data.map(b => b.title)
+      expect(titles).to.eql([...titles].sort().reverse())
+    })
+
+    it('orders by single field ascending explicitly', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        orderBy: 'title', 
+        sort: 'asc',
+        select: ['title'] 
+      })
+      expect(error).to.be.null
+      const titles = content.data.map(b => b.title)
+      expect(titles).to.eql([...titles].sort())
+    })
+
+    it('orders by ID descending', async () => {
+      const { content, error } = await callTool('read_query', { 
+        entity: 'Books', 
+        orderBy: 'ID', 
+        sort: 'desc',
+        select: ['ID'] 
+      })
+      expect(error).to.be.null
+      const ids = content.data.map(b => b.ID)
+      expect(ids).to.eql([...ids].sort((a, b) => b - a))
+    })
   })
 
 })
