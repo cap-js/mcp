@@ -10,6 +10,16 @@
       "runtimeArgs": ["watch"],
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Execute tests",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
     }
   ]
 }

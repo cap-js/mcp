@@ -1,5 +1,5 @@
 _schema-version: 3.3.0
-ID: bookshop
+ID: bookshop-mcp-poc
 version: 1.0.0
 description: "A simple CAP project."
 parameters:
@@ -15,7 +15,7 @@ build-parameters:
         - npx cds build --production
         - cp cap-mcp-1.0.0.tgz ./gen/srv
 modules:
-  - name: bookshop-srv
+  - name: bookshop-mcp-poc-srv
     type: nodejs
     path: gen/srv
     parameters:
@@ -28,18 +28,18 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: bookshop-auth
-      - name: bookshop-db
-      - name: bookshop-logging
+      - name: bookshop-mcp-poc-auth
+      - name: bookshop-mcp-poc-db
+      - name: bookshop-mcp-poc-logging
 
-  - name: bookshop-db-deployer
+  - name: bookshop-mcp-poc-db-deployer
     type: hdb
     path: gen/db
     parameters:
       buildpack: nodejs_buildpack
     requires:
-      - name: bookshop-db
-  - name: bookshop
+      - name: bookshop-mcp-poc-db
+  - name: bookshop-mcp-poc
     type: approuter.nodejs
     path: app/router
     parameters:
@@ -53,8 +53,8 @@ modules:
           name: srv-api # must be used in xs-app.json as well
           url: ~{srv-url}
           forwardAuthToken: true
-      - name: bookshop-auth
-      - name: bookshop-logging
+      - name: bookshop-mcp-poc-auth
+      - name: bookshop-mcp-poc-logging
     provides:
       - name: app-api
         properties:
@@ -62,14 +62,14 @@ modules:
           app-uri: ${default-uri}
 
 resources:
-  - name: bookshop-auth
+  - name: bookshop-mcp-poc-auth
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
       service-plan: application
       path: ./xs-security.json
       config:
-        xsappname: bookshop-${org}-${space}
+        xsappname: bookshop-mcp-poc-${org}-${space}
         tenant-mode: dedicated
         oauth2-configuration:
           credential-types:
@@ -78,18 +78,18 @@ resources:
           redirect-uris:
             - https://*~{app-api/app-uri}/**
         role-collections:
-          - name: 'admin (bookshop ${org}-${space})'
+          - name: 'admin (bookshop-mcp-poc ${org}-${space})'
             description: 'generated'
             role-template-references:
               - '$XSAPPNAME.admin'
     requires:
       - name: app-api
-  - name: bookshop-db
+  - name: bookshop-mcp-poc-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
-  - name: bookshop-logging
+  - name: bookshop-mcp-poc-logging
     type: org.cloudfoundry.managed-service
     parameters:
       service: application-logs
