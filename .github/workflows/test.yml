@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, solinas]
     timeout-minutes: 3
     strategy:
       fail-fast: false
