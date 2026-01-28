@@ -33,24 +33,34 @@ module.exports =
     };
 
     const sendRequest = async (method, params = {}) => {
-      const response = await test.POST(
-        endpoint,
-        {
-          jsonrpc: "2.0",
-          id: ++requestId,
-          method,
-          params,
-        },
-        { headers: getHeaders() },
-      );
+      try {
+        const response = await test.POST(
+          endpoint,
+          {
+            jsonrpc: "2.0",
+            id: ++requestId,
+            method,
+            params,
+          },
+          { headers: getHeaders() },
+        );
 
-      const newSessionId = response.headers?.["mcp-session-id"];
-      if (newSessionId) {
-        sessionId = newSessionId;
+        const newSessionId = response.headers?.["mcp-session-id"];
+        if (newSessionId) {
+          sessionId = newSessionId;
+        }
+
+        return parseResponseStream(response.data);
+      } catch (err) {
+        // Handle HTTP errors (401, 403) from authorization failures
+        if (err.response?.data) {
+          return err.response.data;
+        }
+        throw err;
       }
-
-      return parseResponseStream(response.data);
     };
+
+    let initError = null;
 
     const initialize = async () => {
       const initResponse = await sendRequest("initialize", {
@@ -58,6 +68,12 @@ module.exports =
         capabilities: {},
         clientInfo: { name: "test-client", version: "1.0.0" },
       });
+
+      // If initialization failed (authorization error), don't send notification
+      if (initResponse.error) {
+        initError = initResponse;
+        return initResponse;
+      }
 
       await test.POST(
         endpoint,
@@ -72,12 +88,22 @@ module.exports =
     };
 
     const mcp = async (method, params = {}) => {
-      if (!sessionId) await initialize();
+      if (!sessionId && !initError) await initialize();
+      // If initialization failed, return the error for any subsequent request
+      if (initError) return initError;
       return sendRequest(method, params);
     };
 
     const callTool = async (name, args = {}) => {
       const res = await mcp("tools/call", { name, arguments: args });
+      // Handle JSON-RPC error (e.g., authorization failure during initialization)
+      if (res.error) {
+        return {
+          ...res,
+          content: null,
+          error: res.error.message,
+        };
+      }
       return {
         ...res,
         content: res.result.isError

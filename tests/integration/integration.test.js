@@ -374,10 +374,19 @@ describe('Auth', () => {
   it('rejects read_query with 401', async () => {
     const { mcp } = mcpClient('/mcp/admin')
     const response = await mcp('tools/call', { name: 'read_query', arguments: { entity: 'Books' } })
-    expect(response.error || response.result?.isError).to.be.true
-    const errorText = response.error?.message || response.result?.content?.[0]?.text || ''
-    expect(errorText).to.match(/401/i)
-    expect(errorText).to.match(/authoriz/i)
+    expect(response.error).to.exist
+    expect(response.error.code).to.equal(-32001)
+    expect(response.error.message).to.match(/401/i)
+    expect(response.error.message).to.match(/authoriz/i)
+  })
+
+  it('rejects describe_model with 401 when unauthenticated', async () => {
+    const { mcp } = mcpClient('/mcp/admin')
+    const response = await mcp('tools/call', { name: 'describe_model', arguments: {} })
+    expect(response.error).to.exist
+    expect(response.error.code).to.equal(-32001)
+    expect(response.error.message).to.match(/401/i)
+    expect(response.error.message).to.match(/authoriz/i)
   })
 
   describe('unauthorized user (bob - no admin role)', () => {
@@ -388,10 +397,11 @@ describe('Auth', () => {
       expect(error).to.match(/authoriz/i)
     })
 
-    it('allows describe_model (metadata only)', async () => {
+    it('rejects describe_model with 403', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'bob:')
       const { error } = await callTool('describe_model')
-      expect(error).to.be.null
+      expect(error).to.match(/403/i)
+      expect(error).to.match(/authoriz/i)
     })
   })
 
@@ -406,6 +416,107 @@ describe('Auth', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { error } = await callTool('describe_model')
       expect(error).to.be.null
+    })
+  })
+})
+
+describe('Entity-Level Authorization (RestrictedService)', () => {
+  describe('alice (admin role)', () => {
+    const aliceClient = () => mcpClient('/mcp/restricted', 'alice:')
+
+    it('lists tools with filtered entity enum (Books, Genres)', async () => {
+      const { mcp } = aliceClient()
+      const response = await mcp('tools/list')
+      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
+      expect(entityEnum).to.include('Books')
+      expect(entityEnum).to.include('Genres')
+      expect(entityEnum).to.not.include('Authors')
+    })
+
+    it('describe_model only shows accessible entities', async () => {
+      const { callTool } = aliceClient()
+      const { content, error } = await callTool('describe_model')
+      expect(error).to.be.null
+      expect(content.entities).to.have.property('Books')
+      expect(content.entities).to.have.property('Genres')
+      expect(content.entities).to.not.have.property('Authors')
+    })
+
+    it('read_query works for accessible entity (Books)', async () => {
+      const { callTool } = aliceClient()
+      const { content, error } = await callTool('read_query', { entity: 'Books' })
+      expect(error).to.be.null
+      expect(content.entity).to.equal('Books')
+    })
+
+    it('read_query rejects inaccessible entity (Authors) via schema validation', async () => {
+      const { callTool } = aliceClient()
+      const { error } = await callTool('read_query', { entity: 'Authors' })
+      expect(error).to.match(/invalid/i)
+    })
+  })
+
+  describe('bob (no roles)', () => {
+    const bobClient = () => mcpClient('/mcp/restricted', 'bob:')
+
+    it('only shows Genres in entity enum (public entity)', async () => {
+      const { mcp } = bobClient()
+      const response = await mcp('tools/list')
+      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
+      expect(entityEnum).to.deep.equal(['Genres'])
+    })
+
+    it('describe_model only shows Genres', async () => {
+      const { callTool } = bobClient()
+      const { content, error } = await callTool('describe_model')
+      expect(error).to.be.null
+      expect(Object.keys(content.entities)).to.deep.equal(['Genres'])
+    })
+  })
+
+  describe('unauthenticated', () => {
+    const anonClient = () => mcpClient('/mcp/restricted')
+
+    it('only shows Genres in entity enum (public entity)', async () => {
+      const { mcp } = anonClient()
+      const response = await mcp('tools/list')
+      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
+      expect(entityEnum).to.deep.equal(['Genres'])
+    })
+  })
+})
+
+describe('No Accessible Entities (FullyRestrictedService)', () => {
+  describe('alice (admin role)', () => {
+    it('can access Books entity only', async () => {
+      const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
+      const response = await mcp('tools/list')
+      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
+      expect(entityEnum).to.deep.equal(['Books'])
+    })
+  })
+
+  describe('bob (no roles) - no accessible entities', () => {
+    it('returns 403 when no entities accessible', async () => {
+      const { mcp } = mcpClient('/mcp/fully-restricted', 'bob:')
+      const response = await mcp('tools/list')
+      expect(response.error).to.exist
+      expect(response.error.code).to.equal(-32003)
+      expect(response.error.message).to.match(/403/i)
+    })
+  })
+
+  describe('unauthenticated - no accessible entities', () => {
+    it('returns 401 when no entities accessible', async () => {
+      const { mcp } = mcpClient('/mcp/fully-restricted')
+      const response = await mcp('tools/list')
+      expect(response.error).to.exist
+      expect(response.error.code).to.equal(-32001)
+      expect(response.error.message).to.match(/401/i)
     })
   })
 })
