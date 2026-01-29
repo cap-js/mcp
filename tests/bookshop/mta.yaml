@@ -10,7 +10,7 @@ build-parameters:
       commands:
         - npm unlink cap-mcp
         - npm pack ../../
-        - npm i npm i cap-mcp-1.0.0.tgz
+        - npm i cap-mcp-1.0.0.tgz
         - npm ci
         - npx cds build --production
         - cp cap-mcp-1.0.0.tgz ./gen/srv
