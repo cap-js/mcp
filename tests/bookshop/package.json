@@ -17,6 +17,9 @@
   },
   "private": true,
   "cds": {
+    "features": {
+      "mcp_per_entity_tool": false
+    },
     "requires": {
       "db-ext": {
         "[development]": {
