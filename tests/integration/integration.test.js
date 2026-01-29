@@ -88,6 +88,32 @@ describe('describe_model', () => {
     expect(content.entities.Books.elements.title.description).to.include("book's title")
     expect(content.entities.Books.elements.descr.description).to.include("brief synopsis")
   })
+
+  it('excludes draft elements from draft-enabled entities', async () => {
+    const { callTool } = mcpClient('/mcp/admin', 'alice:')
+    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    expect(error).to.be.null
+    const elementNames = Object.keys(content.entities.Books.elements)
+    expect(elementNames).to.include('ID')
+    expect(elementNames).to.include('title')
+    expect(elementNames).to.not.include('IsActiveEntity')
+    expect(elementNames).to.not.include('HasActiveEntity')
+    expect(elementNames).to.not.include('HasDraftEntity')
+    expect(elementNames).to.not.include('DraftAdministrativeData')
+    expect(elementNames).to.not.include('DraftAdministrativeData_DraftUUID')
+    expect(elementNames).to.not.include('SiblingEntity')
+  })
+
+  it('excludes localized elements from draft-enabled entities', async () => {
+    const { callTool } = mcpClient('/mcp/admin', 'alice:')
+    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    expect(error).to.be.null
+    const elementNames = Object.keys(content.entities.Books.elements)
+    expect(elementNames).to.include('ID')
+    expect(elementNames).to.include('title')
+    expect(elementNames).to.not.include('localized')
+    expect(elementNames).to.not.include('texts')
+  })
 })
 
 describe('read_query', () => {
