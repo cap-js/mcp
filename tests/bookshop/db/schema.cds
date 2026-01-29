@@ -10,7 +10,9 @@ namespace sap.capire.bookshop;
 entity Books : managed {
   key ID       : Integer;
       author   : Association to Authors @mandatory;
+      /** The book's title, used for display and search */
       title    : localized String       @mandatory;
+      /** A brief synopsis of the book's content */
       descr    : localized String;
       genre    : Association to Genres;
       stock    : Integer;

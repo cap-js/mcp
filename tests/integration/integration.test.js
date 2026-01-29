@@ -73,6 +73,21 @@ describe('describe_model', () => {
     expect(genreElement.isAssociation).to.be.true
     expect(genreElement).to.have.property('target')
   })
+
+  it('includes doc comments from CDS files', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe_model', { entity: 'Genres' })
+    expect(error).to.be.null
+    expect(content.entities.Genres.description).to.include('Hierarchically organized Code List')
+  })
+
+  it('includes doc comments for elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    expect(error).to.be.null
+    expect(content.entities.Books.elements.title.description).to.include("book's title")
+    expect(content.entities.Books.elements.descr.description).to.include("brief synopsis")
+  })
 })
 
 describe('read_query', () => {
