@@ -297,6 +297,66 @@ describe('read_query', () => {
     })
   })
 
+  describe('select with path expressions', () => {
+    it('supports to-one association path expression', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['title', 'genre.name'],
+        limit: 3
+      })
+      expect(error).to.be.null
+      expect(content.data[0]).to.have.property('title')
+      expect(content.data[0]).to.have.property('genre_name')
+    })
+
+    it('supports deep path expressions (multiple levels)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['title', 'genre.parent.name'],
+        limit: 3
+      })
+      expect(error).to.be.null
+      expect(content.data[0]).to.have.property('title')
+      expect(content.data[0]).to.have.property('genre_parent_name')
+    })
+
+    it('mixes simple fields and path expressions', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['ID', 'title', 'genre.name'],
+        filter: [{ ref: ['ID'] }, '=', { val: 201 }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0]).to.have.property('ID')
+      expect(content.data[0]).to.have.property('title')
+      expect(content.data[0]).to.have.property('genre_name')
+    })
+
+    it('rejects invalid path with non-existent element', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre.invalid_field']
+      })
+      expect(error).to.match(/Invalid select/)
+      expect(error).to.match(/genre.invalid_field/)
+    })
+
+    it('rejects path starting with non-existent element', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['nonexistent.name']
+      })
+      expect(error).to.match(/Invalid select/)
+      expect(error).to.match(/nonexistent/)
+    })
+  })
+
   describe('pagination', () => {
     it('limits results with limit parameter', async () => {
       const { callTool } = mcpClient()
