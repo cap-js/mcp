@@ -1,5 +1,5 @@
 {
-  "name": "cap-mcp",
+  "name": "mcp-adapter",
   "version": "1.0.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "main": "cds-plugin.js",

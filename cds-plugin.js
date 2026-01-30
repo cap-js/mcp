@@ -11,7 +11,8 @@ const protocols = cds.env.protocols ??= {}
 if (!protocols.mcp) {
   protocols.mcp = {
     path: '/mcp',
-    impl: require.resolve('./lib')
+    impl: require.resolve('./lib'),
+    clients: {}
   }
 }
 
