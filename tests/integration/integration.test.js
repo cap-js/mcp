@@ -641,6 +641,177 @@ describe('read_query', () => {
       }
     })
   })
+
+  describe('distinct', () => {
+    it('returns distinct values for selected field', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID'],
+        distinct: true
+      })
+      expect(error).to.be.null
+      // Each genre_ID should appear only once
+      const genreIds = content.data.map(b => b.genre_ID)
+      const uniqueIds = [...new Set(genreIds)]
+      expect(genreIds.length).to.equal(uniqueIds.length)
+    })
+
+    it('returns distinct combinations of multiple fields', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID', 'currency_code'],
+        distinct: true
+      })
+      expect(error).to.be.null
+      // Each combination should be unique
+      const combinations = content.data.map(b => `${b.genre_ID}-${b.currency_code}`)
+      const uniqueCombinations = [...new Set(combinations)]
+      expect(combinations.length).to.equal(uniqueCombinations.length)
+    })
+
+    it('works with distinct and orderBy', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID'],
+        distinct: true,
+        orderBy: 'genre_ID',
+        sort: 'asc'
+      })
+      expect(error).to.be.null
+      const genreIds = content.data.map(b => b.genre_ID)
+      // Should be sorted and unique
+      expect(genreIds.length).to.equal([...new Set(genreIds)].length)
+      for (let i = 1; i < genreIds.length; i++) {
+        expect(genreIds[i - 1] <= genreIds[i]).to.be.true
+      }
+    })
+
+    it('works with distinct and filter', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['currency_code'],
+        distinct: true,
+        filter: [{ ref: ['stock'] }, '>', { val: 0 }]
+      })
+      expect(error).to.be.null
+      const codes = content.data.map(b => b.currency_code)
+      expect(codes.length).to.equal([...new Set(codes)].length)
+    })
+  })
+
+  describe('one', () => {
+    it('returns single object instead of array', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      expect(content.data).to.not.be.an('array')
+      expect(content.data).to.have.property('ID')
+      expect(content.data).to.have.property('title')
+      expect(content).to.not.have.property('count')
+    })
+
+    it('returns null when no match found', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        filter: [{ ref: ['ID'] }, '=', { val: 99999 }],
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.null
+    })
+
+    it('returns specific record with filter', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        filter: [{ ref: ['ID'] }, '=', { val: 201 }],
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      expect(content.data.ID).to.equal(201)
+      expect(content.data.title).to.equal('Wuthering Heights')
+    })
+
+    it('respects orderBy and returns first result', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        orderBy: 'title',
+        sort: 'asc',
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      // First book alphabetically
+      expect(content.data.title).to.equal('Catweazle')
+    })
+
+    it('respects orderBy descending and returns first result', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        orderBy: 'title',
+        sort: 'desc',
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      // Last book alphabetically (first in desc order)
+      expect(content.data.title).to.equal('Wuthering Heights')
+    })
+
+    it('works with select to limit fields', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['ID', 'title'],
+        filter: [{ ref: ['ID'] }, '=', { val: 201 }],
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.property('ID')
+      expect(content.data).to.have.property('title')
+      expect(content.data).to.not.have.property('stock')
+      expect(content.data).to.not.have.property('price')
+    })
+
+    it('works with distinct and one together', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID'],
+        distinct: true,
+        orderBy: 'genre_ID',
+        sort: 'asc',
+        one: true
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      expect(content.data).to.have.property('genre_ID')
+    })
+
+    it('ignores limit when one is specified', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        one: true,
+        limit: 100 // Should be ignored
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('object')
+      expect(content.data).to.not.be.an('array')
+    })
+  })
 })
 
 describe('Auth', () => {
