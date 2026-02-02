@@ -469,6 +469,178 @@ describe('read_query', () => {
       expect(ids).to.eql([...ids].sort((a, b) => b - a))
     })
   })
+
+  describe('groupBy', () => {
+    it('groups by single field', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID'],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // Each genre_ID should appear only once
+      const genreIds = content.data.map(b => b.genre_ID)
+      const uniqueIds = [...new Set(genreIds)]
+      expect(genreIds.length).to.equal(uniqueIds.length)
+    })
+
+    it('groups by multiple fields', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: ['genre_ID', 'stock'],
+        groupBy: ['genre_ID', 'stock']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // Each combination should be unique
+      const combinations = content.data.map(b => `${b.genre_ID}-${b.stock}`)
+      const uniqueCombinations = [...new Set(combinations)]
+      expect(combinations.length).to.equal(uniqueCombinations.length)
+    })
+
+    it('groups with count(*) aggregate', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'count', args: ['*'], as: 'bookCount' }
+        ],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('bookCount')
+        expect(row.bookCount).to.be.a('number')
+        expect(row.bookCount).to.be.greaterThan(0)
+      })
+    })
+
+    it('groups with sum aggregate', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'sum', args: [{ ref: ['stock'] }], as: 'totalStock' }
+        ],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('totalStock')
+        expect(row.totalStock).to.be.a('number')
+      })
+    })
+
+    it('groups with avg aggregate', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'avg', args: [{ ref: ['price'] }], as: 'avgPrice' }
+        ],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('avgPrice')
+        expect(row.avgPrice).to.be.a('number')
+      })
+    })
+
+    it('groups with min/max aggregates', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'min', args: [{ ref: ['price'] }], as: 'minPrice' },
+          { func: 'max', args: [{ ref: ['price'] }], as: 'maxPrice' }
+        ],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('minPrice')
+        expect(row).to.have.property('maxPrice')
+        expect(row.minPrice).to.be.at.most(row.maxPrice)
+      })
+    })
+
+    it('groups with filter (WHERE before GROUP BY)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'count', args: ['*'], as: 'bookCount' }
+        ],
+        filter: [{ ref: ['stock'] }, '>', { val: 5 }],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('bookCount')
+      })
+    })
+
+    it('groups with multiple aggregates', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'count', args: ['*'], as: 'bookCount' },
+          { func: 'sum', args: [{ ref: ['stock'] }], as: 'totalStock' },
+          { func: 'avg', args: [{ ref: ['price'] }], as: 'avgPrice' }
+        ],
+        groupBy: ['genre_ID']
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row).to.have.property('genre_ID')
+        expect(row).to.have.property('bookCount')
+        expect(row).to.have.property('totalStock')
+        expect(row).to.have.property('avgPrice')
+      })
+    })
+
+    it('groups with orderBy on aggregate result', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('read_query', {
+        entity: 'Books',
+        select: [
+          'genre_ID',
+          { func: 'count', args: ['*'], as: 'bookCount' }
+        ],
+        groupBy: ['genre_ID'],
+        orderBy: 'bookCount',
+        sort: 'desc'
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // Verify descending order
+      for (let i = 1; i < content.data.length; i++) {
+        expect(content.data[i - 1].bookCount).to.be.at.least(content.data[i].bookCount)
+      }
+    })
+  })
 })
 
 describe('Auth', () => {
