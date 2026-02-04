@@ -20,6 +20,17 @@
       "runtimeArgs": ["test"],
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
+    },
+        {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Execute tests hybrid",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test:hybrid"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
     }
+
   ]
 }

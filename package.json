@@ -19,8 +19,10 @@
   },
   "scripts": {
     "test": "npx jest --silent",
+    "test:hybrid": "cds bind --exec -- npm run test",
     "inspect": "npx @modelcontextprotocol/inspector",
-    "watch:sample": "cds w tests/bookshop"
+    "watch:sample": "cds w tests/bookshop",
+    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop"
   },
   "keywords": [
     "cap",
@@ -31,6 +33,14 @@
   ],
   "author": "",
   "license": "ISC",
+  "cds": {
+    "log": {
+      "levels": {
+        "sql": "info",
+        "cds": "info"
+      }
+    }
+  },
   "workspaces": [
     "tests/*"
   ]
