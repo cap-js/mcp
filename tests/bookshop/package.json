@@ -5,6 +5,7 @@
   "dependencies": {
     "@cap-js/hana": "^2",
     "@sap/xssec": "^4",
+    "@toon-format/toon": "^2.1.0",
     "cap-mcp": "file:../../",
     "zod": "^4.3.5"
   },
@@ -18,7 +19,8 @@
   "private": true,
   "cds": {
     "features": {
-      "mcp_per_entity_tool": false
+      "mcp_per_entity_tool": false,
+      "mcp_format_toon": false
     },
     "requires": {
       "db-ext": {

@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "*",
+    "@toon-format/toon": "^2.1.0",
     "jest": "^30.0.0"
   },
   "peerDependencies": {
