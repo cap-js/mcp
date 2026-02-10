@@ -1,6 +1,6 @@
 > [!CAUTION]  
 >
-> This is a PoC implementation. Do not use it productively. If you want to try it out, we are happy to receive feedback for further improvements.
+> This is in beta phase. Do not use it productively. If you want to try it out, we are happy to receive feedback for further improvements.
 
 # Protocol Adapter for MCP
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption.
