@@ -13,14 +13,10 @@ npm add git+https://github.tools.sap/cap/mcp-adapter.git
 ```
 
 ## Usage
-MCP is just another protocol, simply annotate your existing service as for any other protocol:
+MCP is just another protocol, simply annotate your existing service as for any other protocol, for example:
 
 ```cds
-@mcp
-// or @protocol: 'mcp'
-service CatalogService {
-  entity Books as projection on my.Books;
-}
+annotate CatalogService with @mcp;
 ```
 
 You can start an MCP-Inspector to explore and test the created MCP-servers:
@@ -28,6 +24,7 @@ You can start an MCP-Inspector to explore and test the created MCP-servers:
 ```bash
 npx @modelcontextprotocol/inspector
 ```
+The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `read_query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
 
 ## Generated Tools
 In general, this adapter only creates tools to read data from the service. Any data manipulation is currently out of scope for this implementation. 
