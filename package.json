@@ -12,7 +12,7 @@
   },
   "peerDependencies": {
     "@sap/cds": "^9",
-    "express": "^4"
+    "express": "^4 || ^5.0.0"
   },
   "scripts": {
     "test": "npx jest --silent",
