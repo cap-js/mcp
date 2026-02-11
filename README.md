@@ -26,6 +26,8 @@ npx @modelcontextprotocol/inspector
 ```
 The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `read_query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
 
+The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `read_query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
+
 ## Generated Tools
 In general, this adapter only creates tools to read data from the service. Any data manipulation is currently out of scope for this implementation. 
 

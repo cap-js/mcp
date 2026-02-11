@@ -1,4 +1,5 @@
 const cds = require('@sap/cds')
+const DEBUG = cds.debug('mcp')
 
 // Enable doc comments in CSN for better AI context
 cds.env.cdsc = { ...cds.env.cdsc, docComment: true }
@@ -21,6 +22,7 @@ cds.once('listening', ({ url }) => {
     srv.endpoints.some(ep => ep.kind === 'mcp')
   )
   if (mcpServices.length > 0) {
+    DEBUG?.('registering MCP services:', mcpServices.map(srv => srv.name))
     require('./lib/clients').exportAll(mcpServices, url)
   }
 })
