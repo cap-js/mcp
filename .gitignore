@@ -34,5 +34,6 @@ mta_archives/
 @cds-models
 
 tests/bookshop/package-lock.json
+tests/bookshop/*.tgz
 
 AGENTS.md

@@ -4,9 +4,9 @@
   "description": "A simple CAP project.",
   "dependencies": {
     "@cap-js/hana": "^2",
+    "@cap-js/mcp": "file:../../",
     "@sap/xssec": "^4",
     "@toon-format/toon": "^2.1.0",
-    "cap-mcp": "file:../../",
     "zod": "^4.3.5"
   },
   "devDependencies": {

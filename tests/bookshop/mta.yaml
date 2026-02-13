@@ -8,12 +8,11 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm unlink cap-mcp
         - npm pack ../../
-        - npm i cap-mcp-1.0.0.tgz
+        - npm i cap-js-mcp-1.0.0.tgz
         - npm ci
         - npx cds build --production
-        - cp cap-mcp-1.0.0.tgz ./gen/srv
+        - cp cap-js-mcp-1.0.0.tgz ./gen/srv
 modules:
   - name: bookshop-mcp-poc-srv
     type: nodejs
