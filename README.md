@@ -8,7 +8,7 @@ This is a protocol adapter for the MCP protocol to expose CAP services for agent
 ## Installation
 Currently, the package is only available in the internal registry, hence a `.npmrc` file in your project folder is required that includes:
 
-```json
+```
 registry=https://int.repositories.cloud.sap/artifactory/api/npm/build-milestones-npm/
 ```
 This line specifies that also packages from the internal nexus can be downloaded.
