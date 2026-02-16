@@ -35,5 +35,6 @@ mta_archives/
 
 tests/bookshop/package-lock.json
 tests/bookshop/*.tgz
+tests/bookshop/.npmrc
 
 AGENTS.md

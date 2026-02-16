@@ -6,10 +6,15 @@
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption.
 
 ## Installation
-To test the plugin, add it as a dependency to your project:
+Currently, the package is only available in the internal registry, hence a `.npmrc` file in your project folder is required that includes:
+
+```json
+registry=https://int.repositories.cloud.sap/artifactory/api/npm/build-milestones-npm/
+```
+This line specifies that also packages from the internal nexus can be downloaded.
 
 ```bash
-npm add git+https://github.tools.sap/cap/mcp-adapter.git
+npm i @cap-js/mcp
 ```
 
 ## Usage

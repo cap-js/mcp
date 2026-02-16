@@ -1,7 +1,12 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
+  "files": [
+    "lib",
+    "cds-plugin.js",
+    "README.md"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0"
   },
