@@ -22,7 +22,7 @@
   "scripts": {
     "test": "npx jest --silent",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "inspect": "npx @modelcontextprotocol/inspector",
+    "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop"
   },

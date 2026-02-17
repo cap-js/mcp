@@ -5,6 +5,18 @@
 # Protocol Adapter for MCP
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption.
 
+## Trying out the sample
+You find a sample in this repository in `tests/bookshop`. You can start it via:
+
+```bash
+npm run watch:sample
+```
+
+In a new terminal, you can then start the MCP inspector to explore the provided MCP servers:
+```bash
+npm run inspect
+```
+
 ## Installation
 Currently, the package is only available in the internal registry, hence a `.npmrc` file in your project folder is required that includes:
 
