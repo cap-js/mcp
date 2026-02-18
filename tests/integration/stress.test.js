@@ -12,7 +12,7 @@ describe('Stress Test', () => {
   it('handles sequential MCP requests', async () => {
     for (let i = 0; i < SEQUENTIAL_REQUEST_COUNT; i++) {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         limit: 1
       })
@@ -27,7 +27,7 @@ describe('Stress Test', () => {
     for (let batch = 0; batch < batchCount; batch++) {
       const promises = Array.from({ length: PARALLEL_BATCH_SIZE }, () => {
         const { callTool } = mcpClient()
-        return callTool('read_query', { entity: 'Books', limit: 1 })
+        return callTool('query', { entity: 'Books', limit: 1 })
       })
 
       const results = await Promise.all(promises)

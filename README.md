@@ -53,20 +53,20 @@ The adapter creates an MCP-server per CAP-service. Each server is by default ser
 ### Default behaviour
 By default, the adapter creates the following two tools.
 
-#### `describe_model`
+#### `describe`
 This tool returns information about the entities and their elements exposed by the service. If no parameter is provided, all exposed entities are described (with respect of the authorization). The optional parameter `entity` can be used to describe only a specific entity. An enum is provided to list all available entities.
 
 #### `read_query`
 This tool is used to read data from the service. The only mandatory parameter is `entity`, which is an enum listing all entities exposed by the service. This tool takes all provided parameters and translates them to a CQN query, which is eventually executed with the service via `service.run(query)`.
 
-- `filter`: Provides filtering capabilities. Expects a CQN where clause as array of tokens.
+- `where`: Provides filtering capabilities. Expects a CQN where clause as array of tokens.
 - `select`: Provides selection capabilities. Expects an array of strings with the elements to select. Supports path expressions along associations.
 - `limit`: Limits the number of returned results. Defaults to 20.
 - `orderBy`: Provides ordering capabilities. Expects an array of elements to filter by.
 - `sort`: Either `asc` or `desc`. Defaults to `asc`.
 
 ### Per entity tool configuration
-It is possible to create one `read_<entity>` tool per exposed entity by enabling the feature flag `mcp_per_entity_tool`. These tools behaves exactly like the `read_query` tool, but does not require the `entity` parameter, as it is already bound to a specific entity. The `describe_model` tool is still created without changes.
+It is possible to create one `read_<entity>` tool per exposed entity by enabling the feature flag `mcp_per_entity_tool`. These tools behaves exactly like the `read_query` tool, but does not require the `entity` parameter, as it is already bound to a specific entity. The `describe` tool is still created without changes.
 
 The Per entity tool configuration is intentionally not the default behaviour, as it may lead to a bloated context for LLMs, depending on the number of entities exposed by the service. This can introduce higher costs, lower performance and quality for LLM especially considering [context rot](https://research.trychroma.com/context-rot).
 
@@ -108,7 +108,7 @@ cds.env.protocols.mcp.clients.myClient = {
 </details>
 
 ## Authorization
-As this adapter takes the incoming read request and transforms it to a CQN query, all existing authorization mechanisms in CAP are supported out of the box for the reading of data. Besides that, the adapter also respects the authorization for the `describe_model` tool, meaning that only entities the user is authorized to access are described. This behaviour also prevents bloating the agent's context window with domain information that it cannot access. 
+As this adapter takes the incoming read request and transforms it to a CQN query, all existing authorization mechanisms in CAP are supported out of the box for the reading of data. Besides that, the adapter also respects the authorization for the `describe` tool, meaning that only entities the user is authorized to access are described. This behaviour also prevents bloating the agent's context window with domain information that it cannot access. 
 
 ## Limitations
 The current implementation only supports reading data. Creating, updating or deleting data is currently out of scope.

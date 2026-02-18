@@ -15,18 +15,18 @@ describe('Per-Entity Tools', () => {
       expect(toolNames).to.include('read_Genres')
     })
 
-    it('has describe_model tool', async () => {
+    it('has describe tool', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.include('describe_model')
+      expect(toolNames).to.include('describe')
     })
 
-    it('does not have generic read_query tool', async () => {
+    it('does not have generic query tool', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.not.include('read_query')
+      expect(toolNames).to.not.include('query')
     })
   })
 
@@ -56,7 +56,7 @@ describe('Per-Entity Tools', () => {
     it('filters with read_Books tool', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('read_Books', { 
-        filter: [{ ref: ['ID'] }, '=', { val: 201 }] 
+        where: [{ ref: ['ID'] }, '=', { val: 201 }] 
       })
       expect(error).to.be.null
       expect(content.count).to.equal(1)

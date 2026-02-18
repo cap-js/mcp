@@ -12,12 +12,12 @@ describe('MCP Protocol', () => {
     expect(response.result.serverInfo).to.have.property('name')
   })
 
-  it('lists read_query and describe_model tools', async () => {
+  it('lists query and describe tools', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
     const toolNames = response.result.tools.map(t => t.name)
-    expect(toolNames).to.include('read_query')
-    expect(toolNames).to.include('describe_model')
+    expect(toolNames).to.include('query')
+    expect(toolNames).to.include('describe')
   })
 
   it('does not have per-entity tools by default', async () => {
@@ -31,17 +31,17 @@ describe('MCP Protocol', () => {
   it('includes tool descriptions and input schemas', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+    const readQueryTool = response.result.tools.find(t => t.name === 'query')
     expect(readQueryTool).to.have.property('description')
     expect(readQueryTool).to.have.property('inputSchema')
     expect(readQueryTool.inputSchema).to.have.property('properties')
   })
 })
 
-describe('describe_model', () => {
+describe('describe', () => {
   it('describes all entities when no param given', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model')
+    const { content, error } = await callTool('describe')
     expect(error).to.be.null
     expect(content.service).to.equal('CatalogService')
     expect(content.entities).to.have.property('Books')
@@ -50,7 +50,7 @@ describe('describe_model', () => {
 
   it('describes specific entity when param given', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     expect(content.entities).to.have.property('Books')
     expect(content.entities).to.not.have.property('Genres')
@@ -58,7 +58,7 @@ describe('describe_model', () => {
 
   it('includes element metadata', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     const idElement = content.entities.Books.elements.ID
     expect(idElement.type).to.equal('cds.Integer')
@@ -67,7 +67,7 @@ describe('describe_model', () => {
 
   it('identifies associations', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     const genreElement = content.entities.Books.elements.genre
     expect(genreElement.isAssociation).to.be.true
@@ -76,14 +76,14 @@ describe('describe_model', () => {
 
   it('includes doc comments from CDS files', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model', { entity: 'Genres' })
+    const { content, error } = await callTool('describe', { entity: 'Genres' })
     expect(error).to.be.null
     expect(content.entities.Genres.description).to.include('Hierarchically organized Code List')
   })
 
   it('includes doc comments for elements', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     expect(content.entities.Books.elements.title.description).to.include("book's title")
     expect(content.entities.Books.elements.descr.description).to.include("brief synopsis")
@@ -91,7 +91,7 @@ describe('describe_model', () => {
 
   it('excludes draft elements from draft-enabled entities', async () => {
     const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Books.elements)
     expect(elementNames).to.include('ID')
@@ -106,7 +106,7 @@ describe('describe_model', () => {
 
   it('excludes localized elements from draft-enabled entities', async () => {
     const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe_model', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Books.elements)
     expect(elementNames).to.include('ID')
@@ -116,11 +116,11 @@ describe('describe_model', () => {
   })
 })
 
-describe('read_query', () => {
+describe('query', () => {
   describe('basic queries', () => {
     it('queries Books entity and returns all 5 books', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books' })
+      const { content, error } = await callTool('query', { entity: 'Books' })
       expect(error).to.be.null
       expect(content.entity).to.equal('Books')
       expect(content.count).to.equal(5)
@@ -132,7 +132,7 @@ describe('read_query', () => {
 
     it('queries Genres entity and returns genre hierarchy', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Genres', limit: 50 })
+      const { content, error } = await callTool('query', { entity: 'Genres', limit: 50 })
       expect(error).to.be.null
       expect(content.entity).to.equal('Genres')
       expect(content.count).to.equal(42)
@@ -144,9 +144,9 @@ describe('read_query', () => {
 
     it('returns book data with all expected fields populated', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['ID'] }, '=', { val: 201 }] 
+        where: [{ ref: ['ID'] }, '=', { val: 201 }] 
       })
       expect(error).to.be.null
       const book = content.data[0]
@@ -158,12 +158,12 @@ describe('read_query', () => {
     })
   })
 
-  describe('filter', () => {
+  describe('where', () => {
     it('filters by equality', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['title'] }, '=', { val: 'Jane Eyre' }] 
+        where: [{ ref: ['title'] }, '=', { val: 'Jane Eyre' }] 
       })
       expect(error).to.be.null
       expect(content.count).to.equal(1)
@@ -172,9 +172,9 @@ describe('read_query', () => {
 
     it('filters by comparison (greater than)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['stock'] }, '>', { val: 10 }] 
+        where: [{ ref: ['stock'] }, '>', { val: 10 }] 
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
@@ -183,9 +183,9 @@ describe('read_query', () => {
 
     it('filters by comparison (less than)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['price'] }, '<', { val: 12 }] 
+        where: [{ ref: ['price'] }, '<', { val: 12 }] 
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
@@ -194,9 +194,9 @@ describe('read_query', () => {
 
     it('filters with AND condition', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [
+        where: [
           { ref: ['stock'] }, '>', { val: 0 }, 
           'and', 
           { ref: ['price'] }, '<', { val: 15 }
@@ -212,9 +212,9 @@ describe('read_query', () => {
 
     it('filters with OR condition', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [
+        where: [
           { ref: ['ID'] }, '=', { val: 201 }, 
           'or', 
           { ref: ['ID'] }, '=', { val: 207 }
@@ -229,9 +229,9 @@ describe('read_query', () => {
 
     it('filters with IN clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [
+        where: [
           { ref: ['ID'] }, 
           'in', 
           { list: [{ val: 201 }, { val: 207 }, { val: 251 }] }
@@ -247,9 +247,9 @@ describe('read_query', () => {
 
     it('filters with LIKE clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['title'] }, 'like', { val: '%Raven%' }] 
+        where: [{ ref: ['title'] }, 'like', { val: '%Raven%' }] 
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
@@ -258,9 +258,9 @@ describe('read_query', () => {
 
     it('filters with BETWEEN clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [
+        where: [
           { ref: ['stock'] }, 
           'between', 
           { val: 10 }, 
@@ -278,9 +278,9 @@ describe('read_query', () => {
 
     it('filters with nested xpr for grouping', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [
+        where: [
           { xpr: [{ ref: ['ID'] }, '=', { val: 201 }] }, 
           'or', 
           { xpr: [{ ref: ['ID'] }, '=', { val: 252 }] }
@@ -290,11 +290,11 @@ describe('read_query', () => {
       expect(content.count).to.equal(2)
     })
 
-    it('returns empty array when filter matches nothing', async () => {
+    it('returns empty array when where matches nothing', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        filter: [{ ref: ['ID'] }, '=', { val: 99999 }] 
+        where: [{ ref: ['ID'] }, '=', { val: 99999 }] 
       })
       expect(error).to.be.null
       expect(content.count).to.equal(0)
@@ -305,7 +305,7 @@ describe('read_query', () => {
   describe('select', () => {
     it('selects specific fields only', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', select: ['ID', 'title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', select: ['ID', 'title'] })
       expect(error).to.be.null
       const book = content.data[0]
       expect(book).to.have.property('ID')
@@ -316,7 +316,7 @@ describe('read_query', () => {
 
     it('selects single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', select: ['title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', select: ['title'] })
       expect(error).to.be.null
       expect(content.data[0]).to.have.property('title')
       expect(Object.keys(content.data[0])).to.have.lengthOf(1)
@@ -326,7 +326,7 @@ describe('read_query', () => {
   describe('select with path expressions', () => {
     it('supports to-one association path expression', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['title', 'genre.name'],
         limit: 3
@@ -338,7 +338,7 @@ describe('read_query', () => {
 
     it('supports deep path expressions (multiple levels)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['title', 'genre.parent.name'],
         limit: 3
@@ -350,10 +350,10 @@ describe('read_query', () => {
 
     it('mixes simple fields and path expressions', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['ID', 'title', 'genre.name'],
-        filter: [{ ref: ['ID'] }, '=', { val: 201 }]
+        where: [{ ref: ['ID'] }, '=', { val: 201 }]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(1)
@@ -364,7 +364,7 @@ describe('read_query', () => {
 
     it('rejects invalid path with non-existent element', async () => {
       const { callTool } = mcpClient()
-      const { error } = await callTool('read_query', {
+      const { error } = await callTool('query', {
         entity: 'Books',
         select: ['genre.invalid_field']
       })
@@ -374,7 +374,7 @@ describe('read_query', () => {
 
     it('rejects path starting with non-existent element', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['nonexistent.name']
       })
@@ -386,7 +386,7 @@ describe('read_query', () => {
   describe('pagination', () => {
     it('limits results with limit parameter', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', limit: 2 })
+      const { content, error } = await callTool('query', { entity: 'Books', limit: 2 })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
       expect(content.data).to.have.lengthOf(2)
@@ -394,7 +394,7 @@ describe('read_query', () => {
 
     it('uses default limit of 20', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Genres' })
+      const { content, error } = await callTool('query', { entity: 'Genres' })
       expect(error).to.be.null
       expect(content.count).to.equal(20)
     })
@@ -403,7 +403,7 @@ describe('read_query', () => {
   describe('orderBy', () => {
     it('orders by single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', orderBy: 'title', select: ['title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: 'title', select: ['title'] })
       expect(error).to.be.null
       const titles = content.data.map(b => b.title)
       expect(titles).to.eql([...titles].sort())
@@ -411,7 +411,7 @@ describe('read_query', () => {
 
     it('orders by array of fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', orderBy: ['stock', 'title'], select: ['stock', 'title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: ['stock', 'title'], select: ['stock', 'title'] })
       expect(error).to.be.null
       for (let i = 1; i < content.data.length; i++) {
         const prev = content.data[i - 1]
@@ -424,7 +424,7 @@ describe('read_query', () => {
 
     it('orders by ID', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books', orderBy: 'ID', select: ['ID'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: 'ID', select: ['ID'] })
       expect(error).to.be.null
       const ids = content.data.map(b => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => a - b))
@@ -432,7 +432,7 @@ describe('read_query', () => {
 
     it('orders by single field descending', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
         orderBy: 'title', 
         sort: 'desc',
@@ -445,7 +445,7 @@ describe('read_query', () => {
 
     it('orders by single field ascending explicitly', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
         orderBy: 'title', 
         sort: 'asc',
@@ -458,7 +458,7 @@ describe('read_query', () => {
 
     it('orders by ID descending', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', { 
+      const { content, error } = await callTool('query', { 
         entity: 'Books', 
         orderBy: 'ID', 
         sort: 'desc',
@@ -473,7 +473,7 @@ describe('read_query', () => {
   describe('groupBy', () => {
     it('groups by single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID'],
         groupBy: ['genre_ID']
@@ -488,7 +488,7 @@ describe('read_query', () => {
 
     it('groups by multiple fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID', 'stock'],
         groupBy: ['genre_ID', 'stock']
@@ -503,7 +503,7 @@ describe('read_query', () => {
 
     it('groups with count(*) aggregate', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -523,7 +523,7 @@ describe('read_query', () => {
 
     it('groups with sum aggregate', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -542,7 +542,7 @@ describe('read_query', () => {
 
     it('groups with avg aggregate', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -561,7 +561,7 @@ describe('read_query', () => {
 
     it('groups with min/max aggregates', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -580,15 +580,15 @@ describe('read_query', () => {
       })
     })
 
-    it('groups with filter (WHERE before GROUP BY)', async () => {
+    it('groups with where (WHERE before GROUP BY)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
           { func: 'count', args: ['*'], as: 'bookCount' }
         ],
-        filter: [{ ref: ['stock'] }, '>', { val: 5 }],
+        where: [{ ref: ['stock'] }, '>', { val: 5 }],
         groupBy: ['genre_ID']
       })
       expect(error).to.be.null
@@ -601,7 +601,7 @@ describe('read_query', () => {
 
     it('groups with multiple aggregates', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -623,7 +623,7 @@ describe('read_query', () => {
 
     it('groups with orderBy on aggregate result', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
           'genre_ID',
@@ -645,7 +645,7 @@ describe('read_query', () => {
   describe.skip('distinct', () => {
     it('returns distinct values for selected field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID'],
         distinct: true
@@ -659,7 +659,7 @@ describe('read_query', () => {
 
     it('returns distinct combinations of multiple fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID', 'currency_code'],
         distinct: true
@@ -673,7 +673,7 @@ describe('read_query', () => {
 
     it('works with distinct and orderBy', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID'],
         distinct: true,
@@ -689,13 +689,13 @@ describe('read_query', () => {
       }
     })
 
-    it('works with distinct and filter', async () => {
+    it('works with distinct and where', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['currency_code'],
         distinct: true,
-        filter: [{ ref: ['stock'] }, '>', { val: 0 }]
+        where: [{ ref: ['stock'] }, '>', { val: 0 }]
       })
       expect(error).to.be.null
       const codes = content.data.map(b => b.currency_code)
@@ -706,7 +706,7 @@ describe('read_query', () => {
   describe('one', () => {
     it('returns single object instead of array', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         one: true
       })
@@ -720,20 +720,20 @@ describe('read_query', () => {
 
     it('returns null when no match found', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
-        filter: [{ ref: ['ID'] }, '=', { val: 99999 }],
+        where: [{ ref: ['ID'] }, '=', { val: 99999 }],
         one: true
       })
       expect(error).to.be.null
       expect(content.data).to.be.null
     })
 
-    it('returns specific record with filter', async () => {
+    it('returns specific record with where', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
-        filter: [{ ref: ['ID'] }, '=', { val: 201 }],
+        where: [{ ref: ['ID'] }, '=', { val: 201 }],
         one: true
       })
       expect(error).to.be.null
@@ -744,7 +744,7 @@ describe('read_query', () => {
 
     it('respects orderBy and returns first result', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         orderBy: 'title',
         sort: 'asc',
@@ -758,7 +758,7 @@ describe('read_query', () => {
 
     it('respects orderBy descending and returns first result', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         orderBy: 'title',
         sort: 'desc',
@@ -772,10 +772,10 @@ describe('read_query', () => {
 
     it('works with select to limit fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['ID', 'title'],
-        filter: [{ ref: ['ID'] }, '=', { val: 201 }],
+        where: [{ ref: ['ID'] }, '=', { val: 201 }],
         one: true
       })
       expect(error).to.be.null
@@ -787,7 +787,7 @@ describe('read_query', () => {
 
     it('works with distinct and one together', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         select: ['genre_ID'],
         distinct: true,
@@ -802,7 +802,7 @@ describe('read_query', () => {
 
     it('ignores limit when one is specified', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('read_query', {
+      const { content, error } = await callTool('query', {
         entity: 'Books',
         one: true,
         limit: 100 // Should be ignored
@@ -815,18 +815,18 @@ describe('read_query', () => {
 })
 
 describe('Auth', () => {
-  it('rejects read_query with 401', async () => {
+  it('rejects query with 401', async () => {
     const { mcp } = mcpClient('/mcp/admin')
-    const response = await mcp('tools/call', { name: 'read_query', arguments: { entity: 'Books' } })
+    const response = await mcp('tools/call', { name: 'query', arguments: { entity: 'Books' } })
     expect(response.error).to.exist
     expect(response.error.code).to.equal(-32001)
     expect(response.error.message).to.match(/401/i)
     expect(response.error.message).to.match(/authoriz/i)
   })
 
-  it('rejects describe_model with 401 when unauthenticated', async () => {
+  it('rejects describe with 401 when unauthenticated', async () => {
     const { mcp } = mcpClient('/mcp/admin')
-    const response = await mcp('tools/call', { name: 'describe_model', arguments: {} })
+    const response = await mcp('tools/call', { name: 'describe', arguments: {} })
     expect(response.error).to.exist
     expect(response.error.code).to.equal(-32001)
     expect(response.error.message).to.match(/401/i)
@@ -834,31 +834,31 @@ describe('Auth', () => {
   })
 
   describe('unauthorized user (bob - no admin role)', () => {
-    it('rejects read_query with 403', async () => {
+    it('rejects query with 403', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'bob:')
-      const { error } = await callTool('read_query', { entity: 'Books' })
+      const { error } = await callTool('query', { entity: 'Books' })
       expect(error).to.match(/403/i)
       expect(error).to.match(/authoriz/i)
     })
 
-    it('rejects describe_model with 403', async () => {
+    it('rejects describe with 403', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'bob:')
-      const { error } = await callTool('describe_model')
+      const { error } = await callTool('describe')
       expect(error).to.match(/403/i)
       expect(error).to.match(/authoriz/i)
     })
   })
 
   describe('authorized user (alice - admin role)', () => {
-    it('allows read_query', async () => {
+    it('allows query', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
-      const { error } = await callTool('read_query', { entity: 'Books' })
+      const { error } = await callTool('query', { entity: 'Books' })
       expect(error).to.be.null
     })
 
-    it('allows describe_model', async () => {
+    it('allows describe', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
-      const { error } = await callTool('describe_model')
+      const { error } = await callTool('describe')
       expect(error).to.be.null
     })
   })
@@ -871,32 +871,32 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('lists tools with filtered entity enum (Books, Genres)', async () => {
       const { mcp } = aliceClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.include('Books')
       expect(entityEnum).to.include('Genres')
       expect(entityEnum).to.not.include('Authors')
     })
 
-    it('describe_model only shows accessible entities', async () => {
+    it('describe only shows accessible entities', async () => {
       const { callTool } = aliceClient()
-      const { content, error } = await callTool('describe_model')
+      const { content, error } = await callTool('describe')
       expect(error).to.be.null
       expect(content.entities).to.have.property('Books')
       expect(content.entities).to.have.property('Genres')
       expect(content.entities).to.not.have.property('Authors')
     })
 
-    it('read_query works for accessible entity (Books)', async () => {
+    it('query works for accessible entity (Books)', async () => {
       const { callTool } = aliceClient()
-      const { content, error } = await callTool('read_query', { entity: 'Books' })
+      const { content, error } = await callTool('query', { entity: 'Books' })
       expect(error).to.be.null
       expect(content.entity).to.equal('Books')
     })
 
-    it('read_query rejects inaccessible entity (Authors) via schema validation', async () => {
+    it('query rejects inaccessible entity (Authors) via schema validation', async () => {
       const { callTool } = aliceClient()
-      const { error } = await callTool('read_query', { entity: 'Authors' })
+      const { error } = await callTool('query', { entity: 'Authors' })
       expect(error).to.match(/invalid/i)
     })
   })
@@ -907,14 +907,14 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('only shows Genres in entity enum (public entity)', async () => {
       const { mcp } = bobClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.deep.equal(['Genres'])
     })
 
-    it('describe_model only shows Genres', async () => {
+    it('describe only shows Genres', async () => {
       const { callTool } = bobClient()
-      const { content, error } = await callTool('describe_model')
+      const { content, error } = await callTool('describe')
       expect(error).to.be.null
       expect(Object.keys(content.entities)).to.deep.equal(['Genres'])
     })
@@ -926,7 +926,7 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('only shows Genres in entity enum (public entity)', async () => {
       const { mcp } = anonClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.deep.equal(['Genres'])
     })
@@ -938,7 +938,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
     it('can access Books entity only', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'read_query')
+      const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.deep.equal(['Books'])
     })

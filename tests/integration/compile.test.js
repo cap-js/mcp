@@ -22,18 +22,18 @@ describe('cds compile -2 mcp', () => {
   })
 
   describe('default mode (generic tools)', () => {
-    it('generates read_query tool', async () => {
+    it('generates query tool', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
       const result = JSON.parse(stdout)
       const toolNames = result.services.CatalogService.tools.map(t => t.name)
-      expect(toolNames).toContain('read_query')
+      expect(toolNames).toContain('query')
     })
 
-    it('generates describe_model tool', async () => {
+    it('generates describe tool', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
       const result = JSON.parse(stdout)
       const toolNames = result.services.CatalogService.tools.map(t => t.name)
-      expect(toolNames).toContain('describe_model')
+      expect(toolNames).toContain('describe')
     })
 
     it('does not generate per-entity tools', async () => {
@@ -44,10 +44,10 @@ describe('cds compile -2 mcp', () => {
       expect(toolNames).not.toContain('read_Genres')
     })
 
-    it('read_query has entity enum with available entities', async () => {
+    it('query has entity enum with available entities', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
       const result = JSON.parse(stdout)
-      const readQuery = result.services.CatalogService.tools.find(t => t.name === 'read_query')
+      const readQuery = result.services.CatalogService.tools.find(t => t.name === 'query')
       const entityEnum = readQuery.inputSchema.properties.entity.enum
       expect(entityEnum).toContain('Books')
       expect(entityEnum).toContain('Genres')
@@ -71,34 +71,34 @@ describe('cds compile -2 mcp', () => {
       expect(toolNames).toContain('read_Genres')
     })
 
-    it('generates describe_model tool', async () => {
+    it('generates describe tool', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { 
         cwd: bookshopPath, 
         env: perEntityEnv 
       })
       const result = JSON.parse(stdout)
       const toolNames = result.services.CatalogService.tools.map(t => t.name)
-      expect(toolNames).toContain('describe_model')
+      expect(toolNames).toContain('describe')
     })
 
-    it('does not generate read_query tool', async () => {
+    it('does not generate query tool', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { 
         cwd: bookshopPath, 
         env: perEntityEnv 
       })
       const result = JSON.parse(stdout)
       const toolNames = result.services.CatalogService.tools.map(t => t.name)
-      expect(toolNames).not.toContain('read_query')
+      expect(toolNames).not.toContain('query')
     })
   })
 
   describe('input schema structure', () => {
-    it('has filter, select, limit, orderBy, sort properties', async () => {
+    it('has where, select, limit, orderBy, sort properties', async () => {
       const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
       const result = JSON.parse(stdout)
-      const readQuery = result.services.CatalogService.tools.find(t => t.name === 'read_query')
+      const readQuery = result.services.CatalogService.tools.find(t => t.name === 'query')
       const props = readQuery.inputSchema.properties
-      expect(props).toHaveProperty('filter')
+      expect(props).toHaveProperty('where')
       expect(props).toHaveProperty('select')
       expect(props).toHaveProperty('limit')
       expect(props).toHaveProperty('orderBy')
