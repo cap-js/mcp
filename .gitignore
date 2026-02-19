@@ -38,3 +38,6 @@ tests/bookshop/*.tgz
 tests/bookshop/.npmrc
 
 AGENTS.md
+
+# Test Coverage
+junit.xml

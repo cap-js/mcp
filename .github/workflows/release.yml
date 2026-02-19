@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  XMAKE_PROJECT_ID: ght-cap-mcp-adapter
+  XMAKE_RELEASE_MODE: stage  # or 'promote' or 'stage_and_promote'
+
+jobs:
+
+  # Pre-release: upload test results and run BlackDuck scans
+  upload-test-results:
+    uses: cap/.github/.github/workflows/pre-release.yml@main
+    secrets:
+      cumulus-token: ${{ secrets.CUMULUS_TOKEN_CDS_UMBRELLA }}
+    with:
+      # See https://onboarding.hyperspace.tools.sap/pipelines/47130/extensible/config/cumulusUpload
+      cumulus-pipeline-id: 'ddf05dd6-2543-4caa-b659-c8e123441ccb'
+      cobertura-file: 'coverage/cobertura-coverage.xml'
+      junit-file: 'junit.xml'
+      release-branch: 'release'
+      npm-script: 'test:reporting'
+
+  blackduck-scans:
+    uses: cap/.github/.github/workflows/scans.yml@main
+    secrets: inherit
+    with:
+      project: CDSUMBRELLA
+
+  # Release: run matrix and publish to artifactory
+  matrix:
+    needs: [upload-test-results, blackduck-scans]
+    uses: cap/.github/.github/workflows/matrix.yml@main
+    secrets: inherit
+
+  artifactory:
+    needs: [upload-test-results, blackduck-scans]
+    runs-on: [self-hosted, solinas-medium]
+    steps:
+      - uses: cap/.github/.github/actions/release@main
+        with:
+          xmake-token: ${{ secrets.XMAKE_TOKEN }}
+          xmake-user: ${{ secrets.XMAKE_USER }}
+          # mode: stage # default
+          # treeish: release # default
+
+  # Post-release: create GitHub release
+  create-github-release:
+    needs: [matrix, artifactory]
+    uses: cap/.github/.github/workflows/create-gh-release.yml@main
+    secrets: inherit

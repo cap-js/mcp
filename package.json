@@ -1,11 +1,12 @@
 {
   "name": "@cap-js/mcp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
     "lib",
     "cds-plugin.js",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0"
@@ -20,11 +21,12 @@
     "express": "^4 || ^5.0.0"
   },
   "scripts": {
-    "test": "npx jest --silent",
-    "test:hybrid": "cds bind --exec -- npm run test",
-    "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
     "watch:sample": "cds w tests/bookshop",
-    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop"
+    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
+    "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
+    "test": "npx jest",
+    "test:hybrid": "cds bind --exec -- npm run test",
+    "test:reporting": "npx jest --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura"
   },
   "keywords": [
     "cap",
@@ -33,8 +35,8 @@
     "ai",
     "agent"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "SAP SE (https://www.sap.com)",
+  "license": "SEE LICENSE IN LICENSE",
   "cds": {
     "log": {
       "levels": {
