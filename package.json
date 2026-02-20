@@ -14,7 +14,8 @@
   "devDependencies": {
     "@cap-js/cds-test": "*",
     "@toon-format/toon": "^2.1.0",
-    "jest": "^30.0.0"
+    "jest": "^30.0.0",
+    "jest-junit": "^16.0.0"
   },
   "peerDependencies": {
     "@sap/cds": "^9",

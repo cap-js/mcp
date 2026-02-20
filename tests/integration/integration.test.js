@@ -945,22 +945,20 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
   })
 
   describe('bob (no roles) - no accessible entities', () => {
-    it('returns 403 when no entities accessible', async () => {
+    it('returns empty tool list when no entities accessible', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted', 'bob:')
       const response = await mcp('tools/list')
-      expect(response.error).to.exist
-      expect(response.error.code).to.equal(-32003)
-      expect(response.error.message).to.match(/403/i)
+      expect(response.error).to.not.exist
+      expect(response.result.tools).to.be.an('array').that.is.empty
     })
   })
 
   describe('unauthenticated - no accessible entities', () => {
-    it('returns 401 when no entities accessible', async () => {
+    it('returns empty tool list when no entities accessible', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted')
       const response = await mcp('tools/list')
-      expect(response.error).to.exist
-      expect(response.error.code).to.equal(-32001)
-      expect(response.error.message).to.match(/401/i)
+      expect(response.error).to.not.exist
+      expect(response.result.tools).to.be.an('array').that.is.empty
     })
   })
 })
