@@ -7,7 +7,7 @@
     "@cap-js/mcp": "file:../../",
     "@sap/xssec": "^4",
     "@toon-format/toon": "^2.1.0",
-    "zod": "^4.3.5"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2",

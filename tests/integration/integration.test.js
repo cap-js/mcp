@@ -48,12 +48,13 @@ describe('describe', () => {
     expect(content.entities).to.have.property('Genres')
   })
 
-  it('describes specific entity when param given', async () => {
+  it('describes specific entity when param given (no actions)', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { entity: 'Books' })
     expect(error).to.be.null
     expect(content.entities).to.have.property('Books')
     expect(content.entities).to.not.have.property('Genres')
+    expect(content).to.not.have.property('actions')
   })
 
   it('includes element metadata', async () => {
@@ -113,6 +114,113 @@ describe('describe', () => {
     expect(elementNames).to.include('title')
     expect(elementNames).to.not.include('localized')
     expect(elementNames).to.not.include('texts')
+  })
+
+  it('lists actions in describe output', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    expect(content.actions).to.have.property('sum')
+    expect(content.actions).to.have.property('stock')
+    expect(content.actions).to.have.property('add')
+  })
+
+  it('includes action kind (action vs function)', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    expect(content.actions.sum.kind).to.equal('function')
+    expect(content.actions.stock.kind).to.equal('function')
+    expect(content.actions.add.kind).to.equal('action')
+  })
+
+  it('includes action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    // sum has x and y parameters
+    expect(content.actions.sum.parameters).to.have.property('x')
+    expect(content.actions.sum.parameters).to.have.property('y')
+    expect(content.actions.sum.parameters.x.type).to.equal('cds.Integer')
+    expect(content.actions.sum.parameters.y.type).to.equal('cds.Integer')
+    // stock has id parameter
+    expect(content.actions.stock.parameters).to.have.property('id')
+    expect(content.actions.stock.parameters.id.type).to.equal('cds.Integer')
+    // add has x and to parameters
+    expect(content.actions.add.parameters).to.have.property('x')
+    expect(content.actions.add.parameters).to.have.property('to')
+  })
+
+  it('includes action return type', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    // All return Integer
+    expect(content.actions.sum.returns).to.equal('cds.Integer')
+    expect(content.actions.stock.returns).to.equal('cds.Integer')
+    expect(content.actions.add.returns).to.equal('cds.Integer')
+  })
+
+  it('includes action descriptions', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    expect(content.actions.sum.description).to.include('Add two integers')
+    expect(content.actions.stock.description).to.include('stock')
+    expect(content.actions.add.description).to.include('accumulator')
+  })
+
+  it('schema includes action dropdown', async () => {
+    const { mcp } = mcpClient()
+    const response = await mcp('tools/list')
+    const describeTool = response.result.tools.find(t => t.name === 'describe')
+    expect(describeTool.inputSchema.properties).to.have.property('action')
+    const actionEnum = describeTool.inputSchema.properties.action.enum
+    expect(actionEnum).to.include('sum')
+    expect(actionEnum).to.include('stock')
+    expect(actionEnum).to.include('add')
+  })
+
+  it('filters by specific action', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: 'sum' })
+    expect(error).to.be.null
+    expect(content.actions).to.have.property('sum')
+    expect(content.actions).to.not.have.property('add')
+  })
+
+  it('returns only action when filtering by action only (no entities)', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: 'sum' })
+    expect(error).to.be.null
+    // Should NOT have entities when only action is specified
+    expect(content).to.not.have.property('entities')
+    // Only the requested action
+    expect(content.actions).to.have.property('sum')
+    expect(Object.keys(content.actions)).to.deep.equal(['sum'])
+  })
+
+  it('filters by both entity and action independently', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { 
+      entity: 'Books', 
+      action: 'add' 
+    })
+    expect(error).to.be.null
+    // Only Books entity
+    expect(content.entities).to.have.property('Books')
+    expect(content.entities).to.not.have.property('Genres')
+    // Only add action
+    expect(content.actions).to.have.property('add')
+    expect(content.actions).to.not.have.property('sum')
+  })
+
+  it('schema omits action field when no actions exist', async () => {
+    // FullyRestrictedService has no actions defined
+    const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
+    const response = await mcp('tools/list')
+    const describeTool = response.result.tools.find(t => t.name === 'describe')
+    expect(describeTool.inputSchema.properties).to.not.have.property('action')
   })
 })
 

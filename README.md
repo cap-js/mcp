@@ -41,34 +41,38 @@ You can start an MCP-Inspector to explore and test the created MCP-servers:
 ```bash
 npx @modelcontextprotocol/inspector
 ```
-The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `read_query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
-
-The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `read_query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
+The inspector should automatically open in your browser. Enter the URL of your service (`http://localhost:4004/mcp/catalog` for the provided sample) and click connect. Go to the `tools` tab and click `List Tools`. To get data, click on the `query` tool, select an entity, scroll down and click `Run Tool`. If you connect to a restricted service, make sure to provide the `Authorization` header in the `Authentication` section. For the `AdminService` of the sample, you need to be logged in as admin, the value of the `Authorization` header should be `Basic YWxpY2U6`.
 
 ## Generated Tools
-In general, this adapter only creates tools to read data from the service. Any data manipulation is currently out of scope for this implementation. 
-
-The adapter creates an MCP-server per CAP-service. Each server is by default served under `/mcp/<service>`. Each CAP-application can expose multiple  MCP-servers.
+The adapter creates an MCP-server per CAP-service. Each server is by default served under `/mcp/<service>`. Each CAP-application can expose multiple MCP-servers.
 
 ### Default behaviour
-By default, the adapter creates the following two tools.
+By default, the adapter creates the following tools.
 
 #### `describe`
-This tool returns information about the entities and their elements exposed by the service. If no parameter is provided, all exposed entities are described (with respect of the authorization). The optional parameter `entity` can be used to describe only a specific entity. An enum is provided to list all available entities.
+This tool returns information about the entities, elements, and unbound actions/functions exposed by the service. If no parameters are provided, all exposed entities and actions/functions are described (with respect of the authorization).
+- The optional parameter `entity` can be used to describe only a specific entity.
+- The optional parameter `action` can be used to describe only a specific action or function.
+- If both parameters are provided, both the specified entity and action/function are returned.
 
-#### `read_query`
+#### `query`
 This tool is used to read data from the service. The only mandatory parameter is `entity`, which is an enum listing all entities exposed by the service. This tool takes all provided parameters and translates them to a CQN query, which is eventually executed with the service via `service.run(query)`.
 
 - `where`: Provides filtering capabilities. Expects a CQN where clause as array of tokens.
-- `select`: Provides selection capabilities. Expects an array of strings with the elements to select. Supports path expressions along associations.
+- `select`: Provides selection capabilities. Expects an array of strings or aggregate expressions with the elements to select. Supports path expressions along associations.
+- `groupBy`: Provides grouping capabilities for aggregation queries.
 - `limit`: Limits the number of returned results. Defaults to 20.
-- `orderBy`: Provides ordering capabilities. Expects an array of elements to filter by.
+- `orderBy`: Provides ordering capabilities. Expects an array of elements to order by.
 - `sort`: Either `asc` or `desc`. Defaults to `asc`.
+- `distinct`: Return only unique/distinct rows.
+- `one`: Return a single record object instead of an array.
 
-### Per entity tool configuration
-It is possible to create one `read_<entity>` tool per exposed entity by enabling the feature flag `mcp_per_entity_tool`. These tools behaves exactly like the `read_query` tool, but does not require the `entity` parameter, as it is already bound to a specific entity. The `describe` tool is still created without changes.
+#### `call_action`
+This tool is used to invoke unbound actions and functions defined in the service. It is only generated if the service exposes at least one unbound action or function.
 
-The Per entity tool configuration is intentionally not the default behaviour, as it may lead to a bloated context for LLMs, depending on the number of entities exposed by the service. This can introduce higher costs, lower performance and quality for LLM especially considering [context rot](https://research.trychroma.com/context-rot).
+- `action`: The name of the action or function to call. An enum is provided listing all available actions/functions.
+- `parameters`: An object containing the parameters for the action/function. Use `describe` to discover available parameters.
+
 
 ## Automatic Client configuration
 This adapter also provides automatic client-configurations for several local MCP-clients when an application is started locally. This can be used to directly test the provided MCP-servers without going through the deployment process. 
@@ -111,7 +115,7 @@ cds.env.protocols.mcp.clients.myClient = {
 As this adapter takes the incoming read request and transforms it to a CQN query, all existing authorization mechanisms in CAP are supported out of the box for the reading of data. Besides that, the adapter also respects the authorization for the `describe` tool, meaning that only entities the user is authorized to access are described. This behaviour also prevents bloating the agent's context window with domain information that it cannot access. 
 
 ## Limitations
-The current implementation only supports reading data. Creating, updating or deleting data is currently out of scope.
+The current implementation supports reading data and calling unbound actions/functions. Bound actions and creating, updating or deleting data is currently out of scope.
 
 ## Demo
 The demo video starts with local usage with Opencode, then proceeds to do the same with Joule.

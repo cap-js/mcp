@@ -13,5 +13,25 @@ module.exports = class AdminService extends cds.ApplicationService { init() {
     const { ID:id2 } = await SELECT.one.from(Books.drafts).columns('max(ID) as ID')
     req.data.ID = Math.max(id1||0, id2||0) + 1
   })
+
+  // Simple arithmetic - something OData can't do
+  this.on('sum', (req) => {
+    const { x, y } = req.data
+    return (x || 0) + (y || 0)
+  })
+
+  // Lookup stock for a book by ID
+  this.on('stock', async (req) => {
+    const { id } = req.data
+    const book = await SELECT.one.from(Books).where({ ID: id }).columns('stock')
+    return book?.stock ?? 0
+  })
+
+  // Action: add x to accumulator 'to'
+  this.on('add', (req) => {
+    const { x, to } = req.data
+    return (x || 0) + (to || 0)
+  })
+
   return super.init()
 }}
