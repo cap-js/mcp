@@ -13,7 +13,7 @@
   },
   "overrides": {
     "minimatch": "^10.2.1",
-    "glob": "^11.0.0"
+    "glob": "^13.0.0"
   },
   "devDependencies": {
     "@cap-js/cds-test": "*",
