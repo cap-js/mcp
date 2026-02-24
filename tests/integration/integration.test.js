@@ -12,6 +12,23 @@ describe('MCP Protocol', () => {
     expect(response.result.serverInfo).to.have.property('name')
   })
 
+  it('handles invalid JSON body gracefully', async () => {
+    const response = await fetch(`${test.url}/mcp/catalog`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'this is not valid json {'
+    })
+
+    // Server should not crash - should return an error response
+    // MCP SDK returns 406 for invalid JSON with a JSON-RPC error
+    expect(response.status).to.equal(406)
+
+    const result = await response.json()
+    expect(result.jsonrpc).to.equal('2.0')
+    expect(result.error).to.exist
+    expect(result.id).to.be.null
+  })
+
   it('lists query and describe tools', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
