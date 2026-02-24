@@ -42,3 +42,4 @@ AGENTS.md
 
 # Test Coverage
 junit.xml
+coverage/
