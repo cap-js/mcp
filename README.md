@@ -3,7 +3,7 @@
 > This is in beta phase. Do not use it productively. If you want to try it out, we are happy to receive feedback for further improvements.
 
 # Protocol Adapter for MCP
-This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption.
+This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the offical [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
 
 ## Trying out the sample
 You find a sample in this repository in `tests/bookshop`. You can start it via:
