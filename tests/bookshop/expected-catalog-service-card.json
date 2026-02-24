@@ -1,0 +1,363 @@
+{
+  "$schema": "https://pages.github.tools.sap/CPA/mcp-protocol/spec-v1/mcp-server-card-spec.schema.json",
+  "name": "<namespace>/catalog",
+  "title": "CatalogService",
+  "version": "1.0.0",
+  "supportedProtocolVersions": [
+    "2025-11-25"
+  ],
+  "description": "MCP server for CatalogService",
+  "instructions": "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions.",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "<baseUrl>/mcp/catalog"
+    }
+  ],
+  "capabilities": {
+    "tools": {}
+  },
+  "tools": [
+    {
+      "name": "query",
+      "description": "Query any entity in CatalogService service. Use describe to discover available entities and their fields.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "string",
+            "enum": [
+              "Books",
+              "Genres"
+            ],
+            "description": "The entity to query"
+          },
+          "where": {
+            "description": "CQN where clause as array of tokens. Format: [expr, operator, expr, keyword?, expr, operator, expr, ...]\n\nExpressions:\n- Field reference: { \"ref\": [\"fieldName\"] }\n- Literal value: { \"val\": value }\n- List of values: { \"list\": [{ \"val\": v1 }, { \"val\": v2 }] }\n- Nested expression: { \"xpr\": [...tokens...] }",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "select": {
+            "description": "List of fields or aggregate expressions to return.\n- Field name: \"fieldName\" or \"association.field\" for path expressions\n- Aggregate: { \"func\": \"count|sum|avg|min|max\", \"args\": [\"*\"] or [{ \"ref\": [\"field\"] }], \"as\": \"alias\" }\n\nExamples:\n- [\"title\", \"price\"] - select fields\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [\"author_ID\", { \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }], \"as\": \"totalStock\" }] - group field + aggregate",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "func": {
+                      "type": "string",
+                      "enum": [
+                        "count",
+                        "sum",
+                        "avg",
+                        "min",
+                        "max"
+                      ],
+                      "description": "Aggregate function name"
+                    },
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "*"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "ref": {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "ref"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "description": "Function arguments: [\"*\"] for count(*), or [{ ref: [\"field\"] }] for field aggregates"
+                    },
+                    "as": {
+                      "description": "Result column alias",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "func",
+                    "args"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "groupBy": {
+            "description": "Field(s) to group results by for aggregation queries. Use with aggregate functions in select.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "description": "Maximum number of results to return (default: 20)",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "orderBy": {
+            "description": "Field(s) to sort results by",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "sort": {
+            "description": "Sort direction: ascending (default) or descending",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          "distinct": {
+            "description": "Return only unique/distinct rows",
+            "type": "boolean"
+          },
+          "one": {
+            "description": "Return a single record object instead of an array. Implies limit of 1.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "val": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "val"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/$defs/__schema1"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "xpr": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema0"
+                    }
+                  }
+                },
+                "required": [
+                  "xpr"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "=",
+                  "==",
+                  "!=",
+                  "<",
+                  "<=",
+                  ">",
+                  ">="
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "in",
+                  "like",
+                  "and",
+                  "or",
+                  "not",
+                  "between"
+                ]
+              }
+            ]
+          },
+          "__schema1": {
+            "type": "object",
+            "properties": {
+              "list": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ref": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "ref"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "val": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "val"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "$ref": "#/$defs/__schema1"
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "list"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "name": "describe",
+      "description": "Describe the data model of CatalogService service. Returns all entities and unbound actions and functions by default. Use 'entity' to get only that entity's details, or 'action' to get only that action's/function's details. Specify both to get details about a specific entity and action/function.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "entity": {
+            "description": "Specific entity name to describe. If omitted, describes all entities.",
+            "type": "string",
+            "enum": [
+              "Books",
+              "Genres"
+            ]
+          },
+          "action": {
+            "description": "Specific action or function to describe. If omitted, describes all actions and functions.",
+            "type": "string",
+            "enum": [
+              "sum",
+              "stock",
+              "add"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "call_action",
+      "description": "Call an unbound action or function in CatalogService service. Use describe_model to discover available actions and their parameters.",
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "sum",
+              "stock",
+              "add"
+            ],
+            "description": "The action or function to call"
+          },
+          "parameters": {
+            "description": "Parameters for the action. Use describe to see available parameters.",
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

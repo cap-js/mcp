@@ -32,7 +32,8 @@
     "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
     "test": "npx jest",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "test:reporting": "npx jest --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura"
+    "test:reporting": "npx jest --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
+    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"
   },
   "keywords": [
     "cap",
@@ -52,6 +53,7 @@
     }
   },
   "workspaces": [
-    "tests/*"
+    "tests/*",
+    "ord/"
   ]
 }

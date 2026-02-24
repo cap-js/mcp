@@ -21,7 +21,7 @@
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
     },
-        {
+    {
       "type": "pwa-node",
       "request": "launch",
       "name": "Execute tests hybrid",
@@ -30,7 +30,18 @@
       "runtimeArgs": ["run", "test:hybrid"],
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Compile sample 2 mcp",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "compile:sample"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
     }
+
 
   ]
 }
