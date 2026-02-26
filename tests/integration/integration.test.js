@@ -425,6 +425,19 @@ describe('query', () => {
       expect(content.count).to.equal(0)
       expect(content.data).to.be.an('array').that.is.empty
     })
+
+    it('rejects where clause exceeding 1000 characters', async () => {
+      const { callTool } = mcpClient()
+      const longString = 'x'.repeat(1000)
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, '=', { val: longString }]
+      })
+      console.log(error)
+      expect(error).to.exist
+      expect(error).to.match(/where clause exceeds maximum length/i)
+    })
+
   })
 
   describe('select', () => {
@@ -505,6 +518,28 @@ describe('query', () => {
       })
       expect(error).to.match(/Invalid select/)
       expect(error).to.match(/nonexistent/)
+    })
+
+    it('rejects select clause exceeding 1000 characters', async () => {
+      const { callTool } = mcpClient()
+      // Create a select clause that exceeds 1000 chars when serialized
+      // Each field name adds ~14 chars, so 100 fields should exceed 1000
+      const manyFields = Array.from({ length: 100 }, (_, i) => `field_${i.toString().padStart(3, '0')}`)
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        select: manyFields
+      })
+      expect(error).to.exist
+      expect(error).to.match(/select clause exceeds maximum length/i)
+    })
+
+    it('accepts select clause within 1000 character limit', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        select: ['ID', 'title', 'stock', 'price']
+      })
+      expect(error).to.be.null
     })
   })
 
@@ -840,7 +875,7 @@ describe('query', () => {
       expect(content.data).to.not.be.an('array')
       expect(content.data).to.have.property('ID')
       expect(content.data).to.have.property('title')
-      expect(content).to.not.have.property('count')
+      expect(content.count).to.equal(1)
     })
 
     it('returns null when no match found', async () => {

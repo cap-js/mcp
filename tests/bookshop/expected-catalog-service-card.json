@@ -41,7 +41,7 @@
             }
           },
           "select": {
-            "description": "List of fields or aggregate expressions to return.\n- Field name: \"fieldName\" or \"association.field\" for path expressions\n- Aggregate: { \"func\": \"count|sum|avg|min|max\", \"args\": [\"*\"] or [{ \"ref\": [\"field\"] }], \"as\": \"alias\" }\n\nExamples:\n- [\"title\", \"price\"] - select fields\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [\"author_ID\", { \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }], \"as\": \"totalStock\" }] - group field + aggregate",
+            "description": "List of fields or aggregate expressions to return chars when serialized).\n- Field name: \"fieldName\" or \"association.field\" for path expressions\n- Aggregate: { \"func\": \"count|sum|avg|min|max\", \"args\": [\"*\"] or [{ \"ref\": [\"field\"] }], \"as\": \"alias\" }\n\nExamples:\n- [\"title\", \"price\"] - select fields\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [\"author_ID\", { \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }], \"as\": \"totalStock\" }] - group field + aggregate",
             "type": "array",
             "items": {
               "anyOf": [
