@@ -9,7 +9,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.27.0"
+    "@modelcontextprotocol/sdk": "^1.27.0",
+    "@toon-format/toon": "^2.1.0"
   },
   "overrides": {
     "minimatch": "^10.2.1",
@@ -18,7 +19,6 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "*",
-    "@toon-format/toon": "^2.1.0",
     "jest": "^30.2.0",
     "jest-junit": "^16.0.0"
   },

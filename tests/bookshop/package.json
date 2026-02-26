@@ -20,7 +20,7 @@
   "cds": {
     "features": {
       "mcp_per_entity_tool": false,
-      "mcp_format_toon": false
+      "mcp_format_json": true
     },
     "requires": {
       "db-ext": {
