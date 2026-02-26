@@ -300,6 +300,11 @@
             "additionalProperties": false
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
       }
     },
     {
@@ -328,6 +333,11 @@
           }
         },
         "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
       }
     },
     {
@@ -357,6 +367,12 @@
           "action"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
       }
     }
   ]
