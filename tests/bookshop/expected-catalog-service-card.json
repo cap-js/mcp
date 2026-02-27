@@ -342,7 +342,7 @@
     },
     {
       "name": "call_action",
-      "description": "Call an unbound action or function in CatalogService service. Use describe_model to discover available actions and their parameters.",
+      "description": "Call an unbound action or function in CatalogService service. Use describe to discover available actions and their parameters.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
