@@ -19,7 +19,7 @@
   "private": true,
   "cds": {
     "features": {
-      "mcp_per_entity_tool": false,
+      "mcp_per_action_tool": false,
       "mcp_format_json": true
     },
     "requires": {
