@@ -18,6 +18,10 @@ entity Books : managed {
       stock    : Integer;
       price    : Price;
       currency : Currency;
+      chapters : Composition of one {
+          key ID : Integer;
+          title  : String;
+      }
 }
 
 entity Authors : managed {

@@ -3,7 +3,7 @@ async function parseResponseStream(data) {
   return JSON.parse(str.split('\n').find(l => l.startsWith('data: ')).slice(6))
 }
 
-module.exports = (test) => (endpoint = '/mcp/catalog', auth = null) => {
+module.exports = (test) => (endpoint = '/mcp/catalog', auth = null, locale = null) => {
   let requestId = 0
 
   const getHeaders = () => {
@@ -13,6 +13,9 @@ module.exports = (test) => (endpoint = '/mcp/catalog', auth = null) => {
     }
     if (auth) {
       headers['Authorization'] = `Basic ${Buffer.from(auth).toString('base64')}`
+    }
+    if (locale) {
+      headers['Accept-Language'] = locale
     }
     return headers
   }

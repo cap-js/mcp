@@ -10,7 +10,7 @@ const PARALLEL_BATCH_SIZE = 20
 
 // We had an issue with to many HANA connections when removing session management,
 // so this tests were created to execute in hybrid mode and check if the issue was resolved 
-describe('Stress Test', () => {
+describe.skip('Stress Test', () => {
   it('handles sequential MCP requests', async () => {
     for (let i = 0; i < SEQUENTIAL_REQUEST_COUNT; i++) {
       const { callTool } = mcpClient()

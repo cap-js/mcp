@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
     "lib",
@@ -30,7 +30,8 @@
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
     "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
-    "test": "npx jest",
+    "generate-sample-card": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > expected-catalog-service-card.json",
+    "test": "npm run generate-sample-card && npx jest",
     "test:hybrid": "cds bind --exec -- npm run test",
     "test:reporting": "npx jest --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"

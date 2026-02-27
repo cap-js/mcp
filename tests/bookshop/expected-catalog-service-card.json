@@ -6,7 +6,7 @@
   "supportedProtocolVersions": [
     "2025-11-25"
   ],
-  "description": "MCP server for CatalogService",
+  "description": "Catalog service for browsing books\n\nProvides read access to the book catalog including genres and author information.",
   "instructions": "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions.",
   "remotes": [
     {
@@ -309,13 +309,13 @@
     },
     {
       "name": "describe",
-      "description": "Describe the data model of CatalogService service. Returns all entities and unbound actions and functions by default. Use 'entity' to get only that entity's details, or 'action' to get only that action's/function's details. Specify both to get details about a specific entity and action/function.",
+      "description": "Describe the data model of CatalogService service. Returns an overview of all entities and actions with descriptions. Specify 'entity' to get element details, or 'action' to get parameter details.",
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
           "entity": {
-            "description": "Specific entity name to describe. If omitted, describes all entities.",
+            "description": "Specific entity to get element details for.",
             "type": "string",
             "enum": [
               "Books",
@@ -323,7 +323,7 @@
             ]
           },
           "action": {
-            "description": "Specific action or function to describe. If omitted, describes all actions and functions.",
+            "description": "Specific action or function to get parameter details for.",
             "type": "string",
             "enum": [
               "sum",
