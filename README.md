@@ -26,6 +26,25 @@ This tool is used to invoke unbound actions and functions defined in the service
 - `action`: The name of the action or function to call. An enum is provided listing all available actions/functions.
 - `parameters`: An object containing the parameters for the action/function. Use `describe` to discover available parameters.
 
+#### Per-Action Tools
+Instead of a generic `call_action` tool, you can expose each action/function as its own dedicated tool. This gives AI agents better discoverability and typed parameter schemas.
+
+Enable via configuration:
+```json
+{
+  "cds": {
+    "features": {
+      "mcp_per_action_tool": true
+    }
+  }
+}
+```
+
+When enabled:
+- Each action becomes a tool named after the action (e.g., `sum`, `stock`, `add`)
+- Parameters are exposed directly on the tool with proper types
+- The generic `call_action` tool is no longer registered
+
 ## Demo
 The demo video starts with local usage with Opencode, then proceeds to do the same with Joule.
 It is to large for GH, so:
