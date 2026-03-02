@@ -1,6 +1,18 @@
+const cds = require('@sap/cds')
+
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
   return JSON.parse(str.split('\n').find(l => l.startsWith('data: ')).slice(6))
+}
+
+function parseContent(text) {
+  // Check if JSON format is enabled
+  if (cds.env.features?.mcp_format_json) {
+    return JSON.parse(text)
+  }
+  // Use toon format (default) - require works via Jest mock in tests/setup.js
+  const toon = require('@toon-format/toon')
+  return toon.decode(text)
 }
 
 module.exports = (test) => (endpoint = '/mcp/catalog', auth = null, locale = null) => {
@@ -48,7 +60,7 @@ module.exports = (test) => (endpoint = '/mcp/catalog', auth = null, locale = nul
     }
     return {
       ...res,
-      content: res.result.isError ? null : JSON.parse(res.result.content[0].text),
+      content: res.result.isError ? null : parseContent(res.result.content[0].text),
       error: res.result.isError ? res.result.content[0].text : null
     }
   }
