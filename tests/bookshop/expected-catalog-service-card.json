@@ -1,17 +1,17 @@
 {
   "$schema": "https://pages.github.tools.sap/CPA/mcp-protocol/spec-v1/mcp-server-card-spec.schema.json",
-  "name": "<namespace>/catalog",
+  "name": "sap.cds.services/catalog",
   "title": "CatalogService",
   "version": "1.0.0",
   "supportedProtocolVersions": [
     "2025-11-25"
   ],
-  "description": "Catalog service for browsing books\n\nProvides read access to the book catalog including genres and author information.",
+  "description": "Catalog service for browsing books\n\nProvides read access to the book catalog including genres and au",
   "instructions": "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions.",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "<baseUrl>/mcp/catalog"
+      "url": "https://todo.com/mcp/catalog"
     }
   ],
   "capabilities": {
@@ -22,7 +22,7 @@
       "name": "query",
       "description": "Query any entity in CatalogService service. Use describe to discover available entities and their fields.",
       "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
           "entity": {
@@ -37,7 +37,7 @@
             "description": "CQN where clause as array of tokens. Format: [expr, operator, expr, keyword?, expr, operator, expr, ...]\n\nExpressions:\n- Field reference: { \"ref\": [\"fieldName\"] }\n- Literal value: { \"val\": value }\n- List of values: { \"list\": [{ \"val\": v1 }, { \"val\": v2 }] }\n- Nested expression: { \"xpr\": [...tokens...] }",
             "type": "array",
             "items": {
-              "$ref": "#/$defs/__schema0"
+              "$ref": "#/tools/0/inputSchema/definitions/__schema0"
             }
           },
           "select": {
@@ -152,7 +152,7 @@
           "entity"
         ],
         "additionalProperties": false,
-        "$defs": {
+        "definitions": {
           "__schema0": {
             "anyOf": [
               {
@@ -197,7 +197,7 @@
                 "additionalProperties": false
               },
               {
-                "$ref": "#/$defs/__schema1"
+                "$ref": "#/tools/0/inputSchema/definitions/__schema1"
               },
               {
                 "type": "object",
@@ -205,7 +205,7 @@
                   "xpr": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/$defs/__schema0"
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema0"
                     }
                   }
                 },
@@ -288,7 +288,7 @@
                       "additionalProperties": false
                     },
                     {
-                      "$ref": "#/$defs/__schema1"
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema1"
                     }
                   ]
                 }
@@ -311,7 +311,7 @@
       "name": "describe",
       "description": "Describe the data model of CatalogService service. Returns an overview of all entities and actions with descriptions. Specify 'entity' to get element details, or 'action' to get parameter details.",
       "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
           "entity": {
@@ -344,7 +344,7 @@
       "name": "call_action",
       "description": "Call an unbound action or function in CatalogService service. Use describe to discover available actions and their parameters.",
       "inputSchema": {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
           "action": {

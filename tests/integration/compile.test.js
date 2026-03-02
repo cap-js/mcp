@@ -39,7 +39,7 @@ describe('cds compile -2 mcp', () => {
   it('compiles specific service with -s flag', async () => {
     const { stdout } = await execAsync('cds compile srv -2 mcp -s CatalogService', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.name).toBe('<namespace>/catalog')
+    expect(result.name).toBe('sap.cds.services/catalog')
   })
 
   it('throws for non-existent service', async () => {
@@ -51,19 +51,19 @@ describe('cds compile -2 mcp', () => {
   it('generates correct path for CatalogService', async () => {
     const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('<baseUrl>/mcp/catalog')
+    expect(result.remotes[0].url).toBe('https://todo.com/mcp/catalog')
   })
 
   it('generates correct path for AdminService', async () => {
     const { stdout } = await execAsync('cds compile srv -2 mcp -s AdminService', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('<baseUrl>/mcp/admin')
+    expect(result.remotes[0].url).toBe('https://todo.com/mcp/admin')
   })
 
   it('generates correct path for RestrictedService', async () => {
     const { stdout } = await execAsync('cds compile srv -2 mcp -s RestrictedService', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('<baseUrl>/mcp/restricted')
+    expect(result.remotes[0].url).toBe('https://todo.com/mcp/restricted')
   })
 
   it('generates query and describe tools in default mode', async () => {
