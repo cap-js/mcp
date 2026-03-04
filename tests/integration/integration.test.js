@@ -564,7 +564,7 @@ describe('query', () => {
   describe('orderBy', () => {
     it('orders by single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: 'title', select: ['title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['title'] }], select: ['title'] })
       expect(error).to.be.null
       const titles = content.data.map(b => b.title)
       expect(titles).to.eql([...titles].sort())
@@ -572,7 +572,7 @@ describe('query', () => {
 
     it('orders by array of fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: ['stock', 'title'], select: ['stock', 'title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['stock'] }, { ref: ['title'] }], select: ['stock', 'title'] })
       expect(error).to.be.null
       for (let i = 1; i < content.data.length; i++) {
         const prev = content.data[i - 1]
@@ -585,7 +585,7 @@ describe('query', () => {
 
     it('orders by ID', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: 'ID', select: ['ID'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['ID'] }], select: ['ID'] })
       expect(error).to.be.null
       const ids = content.data.map(b => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => a - b))
@@ -595,8 +595,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        orderBy: 'title', 
-        sort: 'desc',
+        orderBy: [{ ref: ['title'], sort: 'desc' }],
         select: ['title'] 
       })
       expect(error).to.be.null
@@ -608,8 +607,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        orderBy: 'title', 
-        sort: 'asc',
+        orderBy: [{ ref: ['title'], sort: 'asc' }],
         select: ['title'] 
       })
       expect(error).to.be.null
@@ -621,8 +619,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', { 
         entity: 'Books', 
-        orderBy: 'ID', 
-        sort: 'desc',
+        orderBy: [{ ref: ['ID'], sort: 'desc' }],
         select: ['ID'] 
       })
       expect(error).to.be.null
@@ -791,8 +788,7 @@ describe('query', () => {
           { func: 'count', args: ['*'], as: 'bookCount' }
         ],
         groupBy: ['genre_ID'],
-        orderBy: 'bookCount',
-        sort: 'desc'
+        orderBy: [{ ref: ['bookCount'], sort: 'desc' }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
@@ -838,8 +834,7 @@ describe('query', () => {
         entity: 'Books',
         select: ['genre_ID'],
         distinct: true,
-        orderBy: 'genre_ID',
-        sort: 'asc'
+        orderBy: [{ ref: ['genre_ID'], sort: 'asc' }]
       })
       expect(error).to.be.null
       const genreIds = content.data.map(b => b.genre_ID)
@@ -907,8 +902,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        orderBy: 'title',
-        sort: 'asc',
+        orderBy: [{ ref: ['title'], sort: 'asc' }],
         one: true
       })
       expect(error).to.be.null
@@ -921,8 +915,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        orderBy: 'title',
-        sort: 'desc',
+        orderBy: [{ ref: ['title'], sort: 'desc' }],
         one: true
       })
       expect(error).to.be.null
@@ -952,8 +945,7 @@ describe('query', () => {
         entity: 'Books',
         select: ['genre_ID'],
         distinct: true,
-        orderBy: 'genre_ID',
-        sort: 'asc',
+        orderBy: [{ ref: ['genre_ID'], sort: 'asc' }],
         one: true
       })
       expect(error).to.be.null
