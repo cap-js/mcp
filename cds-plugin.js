@@ -18,6 +18,10 @@ if (!protocols.mcp) {
 }
 
 cds.once('listening', ({ url }) => {
+  const profiles = cds.env.profiles || []
+  const isDev = profiles.includes('development')
+  if (!isDev) return
+
   const mcpServices = cds.service.providers.filter(srv =>
     srv.endpoints.some(ep => ep.kind === 'mcp')
   )
