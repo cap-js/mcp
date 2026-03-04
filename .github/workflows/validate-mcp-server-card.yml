@@ -1,0 +1,26 @@
+name: Metadata Validatior
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validation:
+    name: MCP Server Card
+    runs-on: [self-hosted, solinas]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm i -g @sap/cds-dk
+      - run: npm i
+      - run: cd tests/bookshop && cds compile ./srv -s CatalogService -2 mcp > server-card.json
+      - name: Run API Metadata Validator
+        uses: CPA/api-metadata-validator@main
+        with:
+          files: ./tests/bookshop/*-card.json
+          verbose: true
+          only-changed-files: false
