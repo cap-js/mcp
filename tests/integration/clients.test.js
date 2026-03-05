@@ -14,6 +14,11 @@ const testClient = {
 
 // fires after plugins are loaded but before server starts
 cds.on("bootstrap", () => {
+  // Remove 'test' profile so client config export runs for this test
+  const profiles = cds.env.profiles;
+  const idx = profiles.indexOf("test");
+  if (idx !== -1) profiles.splice(idx, 1);
+
   cds.env.protocols.mcp.clients.testClient = testClient;
 });
 
