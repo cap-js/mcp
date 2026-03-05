@@ -30,6 +30,7 @@ describe('call_action tool', () => {
       expect(actionEnum).to.include('sum')
       expect(actionEnum).to.include('stock')
       expect(actionEnum).to.include('add')
+      expect(actionEnum).to.include('submitOrder')
     })
   })
 

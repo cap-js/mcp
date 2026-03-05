@@ -198,6 +198,7 @@ describe('describe', () => {
     expect(actionEnum).to.include('sum')
     expect(actionEnum).to.include('stock')
     expect(actionEnum).to.include('add')
+    expect(actionEnum).to.include('submitOrder')
   })
 
   it('filters by specific action', async () => {

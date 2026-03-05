@@ -34,6 +34,14 @@ service CatalogService {
 
   @description: 'Add a value to an accumulator'
   action add(x: Integer, to: Integer) returns Integer;
+
+  @description: 'Order a book by its ID and desired quantity. Reduces stock accordingly.'
+  action submitOrder(
+    @description: 'The ID of the book to order'
+    book: Books:ID @mandatory,
+    @description: 'Number of copies to order'
+    quantity: Integer
+  );
 }
 
 // Element annotations

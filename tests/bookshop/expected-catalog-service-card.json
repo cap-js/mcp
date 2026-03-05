@@ -340,7 +340,8 @@
             "enum": [
               "sum",
               "stock",
-              "add"
+              "add",
+              "submitOrder"
             ]
           }
         },
@@ -364,7 +365,8 @@
             "enum": [
               "sum",
               "stock",
-              "add"
+              "add",
+              "submitOrder"
             ],
             "description": "The action or function to call"
           },
