@@ -9,7 +9,7 @@ concurrency:
 
 env:
   XMAKE_PROJECT_ID: ght-cap-mcp-adapter
-  XMAKE_RELEASE_MODE: stage  # or 'promote' or 'stage_and_promote'
+  XMAKE_RELEASE_MODE: stage # or 'promote' or 'stage_and_promote'
 
 jobs:
 
@@ -39,7 +39,6 @@ jobs:
     secrets: inherit
 
   artifactory:
-    needs: [upload-test-results, blackduck-scans]
     runs-on: [self-hosted, solinas-medium]
     steps:
       - uses: cap/.github/.github/actions/release@main
