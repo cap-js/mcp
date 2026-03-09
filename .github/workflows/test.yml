@@ -25,4 +25,5 @@ jobs:
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && npm i
+      - run: npm run generate-sample-card
       - run: npm run test
