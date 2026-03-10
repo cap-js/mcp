@@ -1,0 +1,11 @@
+name: Create Github Release
+
+on:
+  push:
+    tags:
+      - 'rel/*'
+
+jobs:
+  create-github-release:
+    uses: cap/.github/.github/workflows/create-gh-release.yml@main
+    secrets: inherit

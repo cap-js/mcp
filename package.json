@@ -35,7 +35,7 @@
     "pretest": "(command -v cds >/dev/null || npm i -g @sap/cds-dk) && npm run generate-sample-card",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "test:reporting": "npm run generate-sample-card && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
+    "test:reporting": "npm run pretest && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"
   },
   "keywords": [

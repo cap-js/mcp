@@ -63,8 +63,3 @@ jobs:
           mode: stage_and_promote
           # treeish: release # default
 
-  # Post-release: create GitHub release
-  create-github-release:
-    needs: [artifactory]
-    uses: cap/.github/.github/workflows/create-gh-release.yml@main
-    secrets: inherit
