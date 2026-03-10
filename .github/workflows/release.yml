@@ -9,12 +9,11 @@ concurrency:
 
 env:
   XMAKE_PROJECT_ID: ght-cap-mcp-adapter
-  XMAKE_RELEASE_MODE: stage # or 'promote' or 'stage_and_promote'
+  XMAKE_RELEASE_MODE: stage_and_promote # or 'stage' or 'stage_and_promote'
 
 jobs:
 
   test:
-    test:
     runs-on: [self-hosted, solinas]
     timeout-minutes: 3
     strategy:
@@ -53,12 +52,6 @@ jobs:
     with:
       project: CDSUMBRELLA
 
-  # Release: run matrix and publish to artifactory
-  matrix:
-    needs: [upload-test-results, blackduck-scans, test]
-    uses: cap/.github/.github/workflows/matrix.yml@main
-    secrets: inherit
-
   artifactory:
     needs: [upload-test-results, blackduck-scans, test]
     runs-on: [self-hosted, solinas-medium]
@@ -67,11 +60,11 @@ jobs:
         with:
           xmake-token: ${{ secrets.XMAKE_TOKEN }}
           xmake-user: ${{ secrets.XMAKE_USER }}
-          # mode: stage # default
+          mode: stage_and_promote
           # treeish: release # default
 
   # Post-release: create GitHub release
   create-github-release:
-    needs: [matrix, artifactory]
+    needs: [artifactory]
     uses: cap/.github/.github/workflows/create-gh-release.yml@main
     secrets: inherit

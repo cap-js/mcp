@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
     "lib",
@@ -32,9 +32,10 @@
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
     "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
     "generate-sample-card": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > expected-catalog-service-card.json",
-    "test": "npm run generate-sample-card && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "pretest": "(command -v cds >/dev/null || npm i -g @sap/cds-dk) && npm run generate-sample-card",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "test:reporting": "node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
+    "test:reporting": "npm run generate-sample-card && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"
   },
   "keywords": [
