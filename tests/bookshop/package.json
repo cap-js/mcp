@@ -20,7 +20,8 @@
     "features": {
       "mcp_per_action_tool": false,
       "mcp_format_json": false,
-      "mcp_client_config": true
+      "mcp_client_config": true,
+      "mcp_json_response": false
     },
     "requires": {
       "db-ext": {
