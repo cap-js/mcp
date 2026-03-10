@@ -13,6 +13,27 @@ env:
 
 jobs:
 
+  test:
+    test:
+    runs-on: [self-hosted, solinas]
+    timeout-minutes: 3
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20.x, 22.x]
+        cds-version: [latest]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
+      - run: npm i
+      - run: cd tests/bookshop && npm i
+      - run: npm run generate-sample-card
+      - run: node --experimental-vm-modules node_modules/jest/bin/jest.js
+
   # Pre-release: upload test results and run BlackDuck scans
   upload-test-results:
     uses: cap/.github/.github/workflows/pre-release.yml@main
@@ -34,11 +55,12 @@ jobs:
 
   # Release: run matrix and publish to artifactory
   matrix:
-    needs: [upload-test-results, blackduck-scans]
+    needs: [upload-test-results, blackduck-scans, test]
     uses: cap/.github/.github/workflows/matrix.yml@main
     secrets: inherit
 
   artifactory:
+    needs: [upload-test-results, blackduck-scans, test]
     runs-on: [self-hosted, solinas-medium]
     steps:
       - uses: cap/.github/.github/actions/release@main
