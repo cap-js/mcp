@@ -29,7 +29,8 @@
             "type": "string",
             "enum": [
               "Books",
-              "Genres"
+              "Genres",
+              "Currencies"
             ],
             "description": "The entity to query"
           },
@@ -327,22 +328,29 @@
         "type": "object",
         "properties": {
           "entity": {
-            "description": "Specific entity to get element details for.",
-            "type": "string",
-            "enum": [
-              "Books",
-              "Genres"
-            ]
+            "description": "Specific entities to get element details for.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Books",
+                "Genres",
+                "Currencies"
+              ]
+            }
           },
           "action": {
-            "description": "Specific action or function to get parameter details for.",
-            "type": "string",
-            "enum": [
-              "sum",
-              "stock",
-              "add",
-              "submitOrder"
-            ]
+            "description": "Specific actions or functions to get parameter details for.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "sum",
+                "stock",
+                "add",
+                "submitOrder"
+              ]
+            }
           }
         },
         "additionalProperties": false

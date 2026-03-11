@@ -27,7 +27,7 @@ describe('Context Resolution', () => {
 
   it('returns element details when entity param is specified', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     // Should have elements with types
     expect(content.entities.Books.elements).to.exist
@@ -46,7 +46,7 @@ describe('Context Resolution', () => {
 
   it('returns parameter details when action param is specified', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: 'sum' })
+    const { content, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     // Should have parameters with types (without cds. prefix)
     expect(content.actions.sum.parameters).to.exist
@@ -59,7 +59,7 @@ describe('Context Resolution', () => {
   it('combines @Common.Label + @Core.Description + @Core.LongDescription for entities and elements', async () => {
     const { callTool } = mcpClient()
     // Entity description (detail mode to also check elements)
-    const { content, error } = await callTool('describe', { entity: 'Genres' })
+    const { content, error } = await callTool('describe', { entity: ['Genres'] })
     expect(error).to.be.null
     const entityDesc = content.entities.Genres.description
     expect(entityDesc).to.include('Genre Categories')
@@ -68,7 +68,7 @@ describe('Context Resolution', () => {
     expect(entityDesc).to.include('Hierarchical classification system')
 
     // Element descriptions
-    const { content: booksContent } = await callTool('describe', { entity: 'Books' })
+    const { content: booksContent } = await callTool('describe', { entity: ['Books'] })
     expect(booksContent.entities.Books.elements.title.description).to.include('Book Title')
     const stockDesc = booksContent.entities.Books.elements.stock.description
     expect(stockDesc).to.include('Current inventory count')
@@ -78,7 +78,7 @@ describe('Context Resolution', () => {
 
   it('resolves @Core.Description > @description for actions and parameters', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: 'sum' })
+    const { content, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     expect(content.actions.sum.description).to.equal('Add two integers')
     // Param x has @description, param y has @Core.Description
@@ -86,19 +86,19 @@ describe('Context Resolution', () => {
     expect(content.actions.sum.parameters.y.description).to.equal('Second operand')
 
     // Parameter without annotation returns null
-    const { content: stockContent } = await callTool('describe', { action: 'stock' })
+    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
     expect(stockContent.actions.stock.parameters.id.description).to.be.null
   })
 
   it('resolves {i18n>key} references and respects Accept-Language header', async () => {
     // English locale - Books entity has @title: '{i18n>Books}'
     const { callTool: callToolEn } = mcpClient('/mcp/catalog', null, 'en')
-    const { content: contentEn } = await callToolEn('describe', { entity: 'Books' })
+    const { content: contentEn } = await callToolEn('describe', { entity: ['Books'] })
     expect(contentEn.entities.Books.description).to.include('Books')
 
     // German locale - should resolve to 'Bücher'
     const { callTool: callToolDe } = mcpClient('/mcp/catalog', null, 'de')
-    const { content: contentDe } = await callToolDe('describe', { entity: 'Books' })
+    const { content: contentDe } = await callToolDe('describe', { entity: ['Books'] })
     expect(contentDe.entities.Books.description).to.include('Bücher')
   })
 

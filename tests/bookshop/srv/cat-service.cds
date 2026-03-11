@@ -16,11 +16,6 @@ service CatalogService {
       modifiedBy
     };
 
-  @Common.Label: 'Genre Categories'
-  @Core.Description: 'List of book genres'
-  @Core.LongDescription: 'Hierarchical classification system for organizing books into categories and subcategories.'
-  entity Genres as projection on my.Genres;
-
   @description: 'Add two integers'
   function sum(
     @description: 'First operand'

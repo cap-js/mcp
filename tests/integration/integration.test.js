@@ -42,8 +42,8 @@ describe('MCP Protocol', () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
     const toolNames = response.result.tools.map(t => t.name)
-    expect(toolNames).to.not.include('read_Books')
-    expect(toolNames).to.not.include('read_Genres')
+    expect(toolNames).to.not.include('query_Books')
+    expect(toolNames).to.not.include('query_Genres')
   })
 
   it('includes tool descriptions and input schemas', async () => {
@@ -68,7 +68,7 @@ describe('describe', () => {
 
   it('describes specific entity when param given (no actions)', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     expect(content.entities).to.have.property('Books')
     expect(content.entities).to.not.have.property('Genres')
@@ -77,7 +77,7 @@ describe('describe', () => {
 
   it('includes element metadata', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const idElement = content.entities.Books.elements.ID
     expect(idElement.type).to.equal('Integer')
@@ -85,7 +85,7 @@ describe('describe', () => {
 
   it('identifies associations', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const genreElement = content.entities.Books.elements.genre
     expect(genreElement.type).to.equal('Association (1-1)')
@@ -95,17 +95,17 @@ describe('describe', () => {
 
   it('identifies composoitions', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const chapterElement = content.entities.Books.elements.chapters
-    expect(chapterElement.type).to.equal('Composition (1-1)')
+    expect(chapterElement.type).to.equal('Composition (1-*)')
     
     expect(chapterElement).to.have.property('target')
   })
 
   it('excludes draft elements from draft-enabled entities', async () => {
     const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Books.elements)
     expect(elementNames).to.include('ID')
@@ -120,7 +120,7 @@ describe('describe', () => {
 
   it('excludes localized elements from draft-enabled entities', async () => {
     const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe', { entity: 'Books' })
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Books.elements)
     expect(elementNames).to.include('ID')
@@ -150,18 +150,18 @@ describe('describe', () => {
   it('includes action parameters', async () => {
     const { callTool } = mcpClient()
     // Need to specify action to get parameter details
-    const { content: sumContent, error: sumError } = await callTool('describe', { action: 'sum' })
+    const { content: sumContent, error: sumError } = await callTool('describe', { action: ['sum'] })
     expect(sumError).to.be.null
     expect(sumContent.actions.sum.parameters).to.have.property('x')
     expect(sumContent.actions.sum.parameters).to.have.property('y')
     expect(sumContent.actions.sum.parameters.x.type).to.equal('Integer')
     expect(sumContent.actions.sum.parameters.y.type).to.equal('Integer')
 
-    const { content: stockContent } = await callTool('describe', { action: 'stock' })
+    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
     expect(stockContent.actions.stock.parameters).to.have.property('id')
     expect(stockContent.actions.stock.parameters.id.type).to.equal('Integer')
 
-    const { content: addContent } = await callTool('describe', { action: 'add' })
+    const { content: addContent } = await callTool('describe', { action: ['add'] })
     expect(addContent.actions.add.parameters).to.have.property('x')
     expect(addContent.actions.add.parameters).to.have.property('to')
   })
@@ -169,14 +169,14 @@ describe('describe', () => {
   it('includes action return type', async () => {
     const { callTool } = mcpClient()
     // Need to specify action to get return type details
-    const { content: sumContent, error } = await callTool('describe', { action: 'sum' })
+    const { content: sumContent, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     expect(sumContent.actions.sum.returns).to.equal('Integer')
 
-    const { content: stockContent } = await callTool('describe', { action: 'stock' })
+    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
     expect(stockContent.actions.stock.returns).to.equal('Integer')
 
-    const { content: addContent } = await callTool('describe', { action: 'add' })
+    const { content: addContent } = await callTool('describe', { action: ['add'] })
     expect(addContent.actions.add.returns).to.equal('Integer')
   })
 
@@ -189,12 +189,12 @@ describe('describe', () => {
     expect(content.actions.add.description).to.include('accumulator')
   })
 
-  it('schema includes action dropdown', async () => {
+  it('schema includes action enum in array items', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
     const describeTool = response.result.tools.find(t => t.name === 'describe')
     expect(describeTool.inputSchema.properties).to.have.property('action')
-    const actionEnum = describeTool.inputSchema.properties.action.enum
+    const actionEnum = describeTool.inputSchema.properties.action.items.enum
     expect(actionEnum).to.include('sum')
     expect(actionEnum).to.include('stock')
     expect(actionEnum).to.include('add')
@@ -203,7 +203,7 @@ describe('describe', () => {
 
   it('filters by specific action', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: 'sum' })
+    const { content, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     expect(content.actions).to.have.property('sum')
     expect(content.actions).to.not.have.property('add')
@@ -211,7 +211,7 @@ describe('describe', () => {
 
   it('returns only action when filtering by action only (no entities)', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: 'sum' })
+    const { content, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     // Should NOT have entities when only action is specified
     expect(content).to.not.have.property('entities')
@@ -223,8 +223,8 @@ describe('describe', () => {
   it('filters by both entity and action independently', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { 
-      entity: 'Books', 
-      action: 'add' 
+      entity: ['Books'], 
+      action: ['add'] 
     })
     expect(error).to.be.null
     // Only Books entity
@@ -233,6 +233,32 @@ describe('describe', () => {
     // Only add action
     expect(content.actions).to.have.property('add')
     expect(content.actions).to.not.have.property('sum')
+  })
+
+  it('describes multiple entities at once', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entity: ['Books', 'Genres'] })
+    expect(error).to.be.null
+    // Both entities should have detail (elements)
+    expect(content.entities).to.have.property('Books')
+    expect(content.entities).to.have.property('Genres')
+    expect(content.entities.Books.elements).to.exist
+    expect(content.entities.Genres.elements).to.exist
+    // No actions when only entities specified
+    expect(content).to.not.have.property('actions')
+  })
+
+  it('describes multiple actions at once', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: ['sum', 'add'] })
+    expect(error).to.be.null
+    // Both actions should have detail (parameters)
+    expect(content.actions).to.have.property('sum')
+    expect(content.actions).to.have.property('add')
+    expect(content.actions.sum.parameters).to.exist
+    expect(content.actions.add.parameters).to.exist
+    // No entities when only actions specified
+    expect(content).to.not.have.property('entities')
   })
 
   it('schema omits action field when no actions exist', async () => {
@@ -1064,8 +1090,10 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const response = await mcp('tools/list')
       const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      // Genres, Currencies, Books.chapters are auto-exposed with no restrictions
-      expect(entityEnum).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      // Genres and Currencies have @cds.autoexpose - READ is allowed
+      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      // Composition-only autoexposed entities should be filtered out
+      expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
       expect(entityEnum).to.not.include('Books')
       expect(entityEnum).to.not.include('Authors')
@@ -1076,7 +1104,8 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const { content, error } = await callTool('describe')
       expect(error).to.be.null
       const entityNames = Object.keys(content.entities)
-      expect(entityNames).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      expect(entityNames).to.include.members(['Genres', 'Currencies'])
+      expect(entityNames).to.not.include('Books.chapters')
       expect(entityNames).to.not.include('Books')
       expect(entityNames).to.not.include('Authors')
     })
@@ -1090,8 +1119,10 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const response = await mcp('tools/list')
       const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      // Genres, Currencies, Books.chapters are auto-exposed with no restrictions
-      expect(entityEnum).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      // Genres and Currencies have @cds.autoexpose - READ is allowed
+      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      // Composition-only autoexposed entities should be filtered out
+      expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
       expect(entityEnum).to.not.include('Books')
       expect(entityEnum).to.not.include('Authors')
@@ -1101,44 +1132,48 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
 
 describe('No Accessible Entities (FullyRestrictedService)', () => {
   describe('alice (admin role)', () => {
-    it('can access Books entity plus unrestricted auto-exposed entities', async () => {
+    it('can access Books entity plus autoexpose entities', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
       const response = await mcp('tools/list')
       const readQueryTool = response.result.tools.find(t => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      // alice (admin) can access Books (restricted to admin) + unrestricted auto-exposed entities
+      // alice (admin) can access Books (restricted to admin) + entities with @cds.autoexpose
       expect(entityEnum).to.include('Books')
-      expect(entityEnum).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      // Composition-only autoexposed entities should be filtered out
+      expect(entityEnum).to.not.include('Books.chapters')
       // Authors is restricted to editor, so alice cannot access it
       expect(entityEnum).to.not.include('Authors')
     })
   })
 
-  describe('bob (no roles) - only unrestricted entities accessible', () => {
-    it('returns tools with only unrestricted auto-exposed entities', async () => {
+  describe('bob (no roles) - only autoexpose entities accessible', () => {
+    it('returns tools with only autoexpose entities', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted', 'bob:')
       const response = await mcp('tools/list')
       expect(response.error).to.not.exist
-      // bob has no roles but can still access unrestricted auto-exposed entities
+      // bob has no roles but can still access entities with @cds.autoexpose
       const readQueryTool = response.result.tools.find(t => t.name === 'query')
       expect(readQueryTool).to.exist
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      expect(entityEnum).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      expect(entityEnum).to.not.include('Books.chapters')
       expect(entityEnum).to.not.include('Books')
       expect(entityEnum).to.not.include('Authors')
     })
   })
 
-  describe('unauthenticated - only unrestricted entities accessible', () => {
-    it('returns tools with only unrestricted auto-exposed entities', async () => {
+  describe('unauthenticated - only autoexpose entities accessible', () => {
+    it('returns tools with only autoexpose entities', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted')
       const response = await mcp('tools/list')
       expect(response.error).to.not.exist
-      // unauthenticated users can still access unrestricted auto-exposed entities
+      // unauthenticated users can still access entities with @cds.autoexpose
       const readQueryTool = response.result.tools.find(t => t.name === 'query')
       expect(readQueryTool).to.exist
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      expect(entityEnum).to.include.members(['Genres', 'Currencies', 'Books.chapters'])
+      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      expect(entityEnum).to.not.include('Books.chapters')
       expect(entityEnum).to.not.include('Books')
       expect(entityEnum).to.not.include('Authors')
     })

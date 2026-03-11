@@ -18,7 +18,7 @@ entity Books : managed {
       stock    : Integer;
       price    : Price;
       currency : Currency;
-      chapters : Composition of one {
+      chapters : Composition of many {
           key ID : Integer;
           title  : String;
       }
@@ -35,7 +35,9 @@ entity Authors : managed {
                        on books.author = $self;
 }
 
-/** Hierarchically organized Code List for Genres */
+@Common.Label: 'Genre Categories'
+@Core.Description: 'List of book genres'
+@Core.LongDescription: 'Hierarchical classification system for organizing books into categories and subcategories.'
 entity Genres : cuid, sap.common.CodeList {
   parent   : Association to Genres;
   children : Composition of many Genres

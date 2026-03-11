@@ -29,7 +29,7 @@ describe('Per-Action Tools', () => {
       const response = await mcp('tools/list')
       const sumTool = response.result.tools.find(t => t.name === 'sum')
       expect(sumTool).to.exist
-      expect(sumTool.description).to.equal('Add two integers')
+      expect(sumTool.description).to.equal('Add two integers. Returns: Integer')
       expect(sumTool.inputSchema.properties).to.have.property('x')
       expect(sumTool.inputSchema.properties).to.have.property('y')
       expect(sumTool.inputSchema.properties.x.type).to.equal('integer')
@@ -41,7 +41,7 @@ describe('Per-Action Tools', () => {
       const response = await mcp('tools/list')
       const stockTool = response.result.tools.find(t => t.name === 'stock')
       expect(stockTool).to.exist
-      expect(stockTool.description).to.equal('Get current stock for a book')
+      expect(stockTool.description).to.equal('Get current stock for a book. Returns: Integer')
       expect(stockTool.inputSchema.properties).to.have.property('id')
       expect(stockTool.inputSchema.properties.id.type).to.equal('integer')
     })
@@ -51,7 +51,7 @@ describe('Per-Action Tools', () => {
       const response = await mcp('tools/list')
       const addTool = response.result.tools.find(t => t.name === 'add')
       expect(addTool).to.exist
-      expect(addTool.description).to.equal('Add a value to an accumulator')
+      expect(addTool.description).to.equal('Add a value to an accumulator. Returns: Integer')
       expect(addTool.inputSchema.properties).to.have.property('x')
       expect(addTool.inputSchema.properties).to.have.property('to')
     })

@@ -72,10 +72,10 @@ describe('cds compile -2 mcp', () => {
     const toolNames = result.tools.map(t => t.name)
     expect(toolNames).toContain('query')
     expect(toolNames).toContain('describe')
-    expect(toolNames).not.toContain('read_Books')
+    expect(toolNames).not.toContain('query_Books')
   })
 
-  it('generates read_<Entity> tools in per-entity mode', async () => {
+  it('generates query_<Entity> tools in per-entity mode', async () => {
     const perEntityEnv = { 
       ...process.env, 
       CDS_CONFIG: JSON.stringify({ features: { mcp_per_entity_tool: true } })
@@ -86,8 +86,8 @@ describe('cds compile -2 mcp', () => {
     })
     const result = JSON.parse(stdout)
     const toolNames = result.tools.map(t => t.name)
-    expect(toolNames).toContain('read_Books')
-    expect(toolNames).toContain('read_Genres')
+    expect(toolNames).toContain('query_Books')
+    expect(toolNames).toContain('query_Genres')
     expect(toolNames).toContain('describe')
     expect(toolNames).not.toContain('query')
   })
