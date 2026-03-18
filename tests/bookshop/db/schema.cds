@@ -7,6 +7,9 @@ using {
 
 namespace sap.capire.bookshop;
 
+/**
+ * Books doc comment 
+ */
 entity Books : managed {
   key ID       : Integer;
       author   : Association to Authors @mandatory;
@@ -35,9 +38,7 @@ entity Authors : managed {
                        on books.author = $self;
 }
 
-@Common.Label: 'Genre Categories'
-@Core.Description: 'List of book genres'
-@Core.LongDescription: 'Hierarchical classification system for organizing books into categories and subcategories.'
+/** Hierarchical classification system for organizing books into categories and subcategories */
 entity Genres : cuid, sap.common.CodeList {
   parent   : Association to Genres;
   children : Composition of many Genres

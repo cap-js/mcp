@@ -6,7 +6,7 @@
   "supportedProtocolVersions": [
     "2025-11-25"
   ],
-  "description": "Catalog service for browsing books\n\nProvides read access to the book catalog including genres and au",
+  "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
   "instructions": "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions.",
   "remotes": [
     {

@@ -10,7 +10,7 @@ describe('MCP Protocol', () => {
     expect(response.result).to.exist
     expect(response.result.protocolVersion).to.be.a('string')
     expect(response.result.serverInfo).to.have.property('name')
-    expect(response.result.serverInfo).to.have.property('description', 'Catalog service for browsing books\n\nProvides read access to the book catalog including genres and author information.')
+    expect(response.result.serverInfo).to.have.property('description', 'Catalog service for browsing books.\nProvides read access to the book catalog including genres and author information.')
   })
 
   it('handles invalid JSON body gracefully', async () => {

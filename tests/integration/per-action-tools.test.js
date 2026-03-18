@@ -74,6 +74,17 @@ describe('Per-Action Tools', () => {
       expect(addTool.annotations.destructiveHint).to.be.true
       expect(addTool.annotations.readOnlyHint).to.be.false
     })
+
+    it('marks @mandatory params as required in input schema', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      expect(submitOrderTool).to.exist
+      // book param has @mandatory — should be required
+      expect(submitOrderTool.inputSchema.required).to.include('book')
+      // quantity param has no @mandatory — should not be required
+      expect(submitOrderTool.inputSchema.required || []).to.not.include('quantity')
+    })
   })
 
 })

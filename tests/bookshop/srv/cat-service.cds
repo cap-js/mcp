@@ -1,10 +1,10 @@
 using {sap.capire.bookshop as my} from '../db/schema';
 
-// Service with description annotations
-@description: 'Catalog service for browsing books'
-@Core.LongDescription: 'Provides read access to the book catalog including genres and author information.'
+/**
+ * Catalog service for browsing books.
+ * Provides read access to the book catalog including genres and author information.
+ */
 service CatalogService {
-  // Entity with i18n reference for title (tests locale resolution)
   @title: '{i18n>Books}'
   entity Books as
     projection on my.Books {
@@ -20,7 +20,7 @@ service CatalogService {
   function sum(
     @description: 'First operand'
     x: Integer,
-    @Core.Description: 'Second operand'
+    @description: 'Second operand'
     y: Integer
   ) returns Integer;
 
@@ -39,16 +39,14 @@ service CatalogService {
   );
 }
 
-// Element annotations
 annotate CatalogService.Books with {
-  @Core.Description: 'Unique book identifier'
+  @description: 'Unique book identifier'
   ID;
 
-  @Common.Label: 'Book Title'
+  @description: 'The display title of the book'
   title;
 
-  @Core.Description: 'Current inventory count'
-  @Core.LongDescription: 'Number of copies available in the warehouse.'
+  @description: 'Current inventory count'
   stock;
 };
 

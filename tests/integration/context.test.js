@@ -56,38 +56,60 @@ describe('Context Resolution', () => {
     expect(content.actions.sum.returns).to.equal('Integer')
   })
 
-  it('combines @Common.Label + @Core.Description + @Core.LongDescription for entities and elements', async () => {
+  it('resolves doc comment on services', async () => {
     const { callTool } = mcpClient()
-    // Entity description (detail mode to also check elements)
-    const { content, error } = await callTool('describe', { entity: ['Genres'] })
+    const { content, error } = await callTool('describe')
     expect(error).to.be.null
-    const entityDesc = content.entities.Genres.description
-    expect(entityDesc).to.include('Genre Categories')
-    expect(entityDesc).to.include('List of book genres')
-    expect(entityDesc).to.include('\n\n')
-    expect(entityDesc).to.include('Hierarchical classification system')
-
-    // Element descriptions
-    const { content: booksContent } = await callTool('describe', { entity: ['Books'] })
-    expect(booksContent.entities.Books.elements.title.description).to.include('Book Title')
-    const stockDesc = booksContent.entities.Books.elements.stock.description
-    expect(stockDesc).to.include('Current inventory count')
-    expect(stockDesc).to.include('\n\n')
-    expect(stockDesc).to.include('Number of copies available')
+    expect(content.description).to.include('Catalog service for browsing books')
   })
 
-  it('resolves @Core.Description > @description for actions and parameters', async () => {
+  it('resolves doc comment on entities', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entity: ['Genres'] })
+    expect(error).to.be.null
+    expect(content.entities.Genres.description).to.include('Hierarchical classification system')
+  })
+
+  it('resolves @description on elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entity: ['Books'] })
+    expect(error).to.be.null
+    expect(content.entities.Books.elements.ID.description).to.include('Unique book identifier')
+  })
+
+  it('resolves @description on functions', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { action: ['sum'] })
     expect(error).to.be.null
     expect(content.actions.sum.description).to.equal('Add two integers')
-    // Param x has @description, param y has @Core.Description
+  })
+
+  it('resolves @description on actions', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: ['add'] })
+    expect(error).to.be.null
+    expect(content.actions.add.description).to.equal('Add a value to an accumulator')
+  })
+
+  it('resolves @description on parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: ['sum'] })
+    expect(error).to.be.null
     expect(content.actions.sum.parameters.x.description).to.equal('First operand')
     expect(content.actions.sum.parameters.y.description).to.equal('Second operand')
-
-    // Parameter without annotation returns null
+    // stock.id has no annotation or doc — should return null
     const { content: stockContent } = await callTool('describe', { action: ['stock'] })
     expect(stockContent.actions.stock.parameters.id.description).to.be.null
+  })
+
+  it('resolves @mandatory as notNull for action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { action: ['submitOrder'] })
+    expect(error).to.be.null
+    // book param has @mandatory in CDS model
+    expect(content.actions.submitOrder.parameters.book.notNull).to.be.true
+    // quantity param has no @mandatory
+    expect(content.actions.submitOrder.parameters.quantity.notNull).to.be.false
   })
 
   it('resolves {i18n>key} references and respects Accept-Language header', async () => {
@@ -107,7 +129,6 @@ describe('Context Resolution', () => {
     const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
     const serverCard = JSON.parse(stdout)
     expect(serverCard.description).to.include('Catalog service for browsing books')
-    expect(serverCard.description).to.include('\n\n')
     expect(serverCard.description).to.include('Provides read access to the book catalog')
 
     // Runtime: describe tool
@@ -115,7 +136,6 @@ describe('Context Resolution', () => {
     const { content, error } = await callTool('describe')
     expect(error).to.be.null
     expect(content.description).to.include('Catalog service for browsing books')
-    expect(content.description).to.include('\n\n')
     expect(content.description).to.include('Provides read access to the book catalog')
   })
 })
