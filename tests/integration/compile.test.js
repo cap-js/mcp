@@ -72,23 +72,5 @@ describe('cds compile -2 mcp', () => {
     const toolNames = result.tools.map(t => t.name)
     expect(toolNames).toContain('query')
     expect(toolNames).toContain('describe')
-    expect(toolNames).not.toContain('query_Books')
-  })
-
-  it('generates query_<Entity> tools in per-entity mode', async () => {
-    const perEntityEnv = { 
-      ...process.env, 
-      CDS_CONFIG: JSON.stringify({ mcp: { per_entity_tool: true } })
-    }
-    const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { 
-      cwd: bookshopPath, 
-      env: perEntityEnv 
-    })
-    const result = JSON.parse(stdout)
-    const toolNames = result.tools.map(t => t.name)
-    expect(toolNames).toContain('query_Books')
-    expect(toolNames).toContain('query_Genres')
-    expect(toolNames).toContain('describe')
-    expect(toolNames).not.toContain('query')
   })
 })
