@@ -78,7 +78,7 @@ describe('cds compile -2 mcp', () => {
   it('generates query_<Entity> tools in per-entity mode', async () => {
     const perEntityEnv = { 
       ...process.env, 
-      CDS_CONFIG: JSON.stringify({ features: { mcp_per_entity_tool: true } })
+      CDS_CONFIG: JSON.stringify({ mcp: { per_entity_tool: true } })
     }
     const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { 
       cwd: bookshopPath, 

@@ -48,6 +48,9 @@
   "author": "SAP SE (https://www.sap.com)",
   "license": "SEE LICENSE IN LICENSE",
   "cds": {
+    "mcp": {
+      "autowire": true
+    },
     "log": {
       "levels": {
         "sql": "info",

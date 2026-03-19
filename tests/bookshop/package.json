@@ -17,12 +17,11 @@
   },
   "private": true,
   "cds": {
-    "features": {
-      "mcp_per_action_tool": false,
-      "mcp_per_entity_tool": false,
-      "mcp_format_json": false,
-      "mcp_client_config": true,
-      "mcp_json_response": false
+    "mcp": {
+      "per_entity_tool": false,
+      "per_action_tool": false,
+      "format_json": false,
+      "json_response": false
     },
     "requires": {
       "db-ext": {

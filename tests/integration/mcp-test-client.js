@@ -7,7 +7,7 @@ async function parseResponseStream(data) {
 
 function parseContent(text) {
   // Check if JSON format is enabled
-  if (cds.env.features?.mcp_format_json) {
+  if (cds.env.mcp?.format_json) {
     return JSON.parse(text)
   }
   // Use toon format (default) - require works via Jest mock in tests/setup.js

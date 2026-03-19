@@ -1,49 +1,29 @@
-> [!CAUTION]  
->
-> This is in alpha phase. Do not use it productively. If you want to try it out, we are happy to receive feedback for further improvements.
-
 # Protocol Adapter for MCP
-This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the offical [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
+This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the official [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
 
-## Trying out the sample
-You find a sample in this repository in `tests/bookshop`. You can start it via:
+## Feature Flags
 
-```bash
-npm run watch:sample
-```
+All configuration lives under `cds.mcp` in your `package.json`:
 
-In a new terminal, you can then start the MCP inspector to explore the provided MCP servers:
-```bash
-npm run inspect
-```
-
-## Generated Tools
-See the [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp) for more tools. Here are only the ones listed not yet put to CAPire.
-
-### `call_action`
-This tool is used to invoke unbound actions and functions defined in the service. It is only generated if the service exposes at least one unbound action or function.
-
-- `action`: The name of the action or function to call. An enum is provided listing all available actions/functions.
-- `parameters`: An object containing the parameters for the action/function. Use `describe` to discover available parameters.
-
-#### Per-Action Tools
-Instead of a generic `call_action` tool, you can expose each action/function as its own dedicated tool. This gives AI agents better discoverability and typed parameter schemas.
-
-Enable via configuration:
 ```json
 {
   "cds": {
-    "features": {
-      "mcp_per_action_tool": true
+    "mcp": {
+      "per_action_tool": false,
+      "format_json": false,
+      "json_response": false
     }
   }
 }
 ```
 
-When enabled:
-- Each action becomes a tool named after the action (e.g., `sum`, `stock`, `add`)
-- Parameters are exposed directly on the tool with proper types
-- The generic `call_action` tool is no longer registered
+| Flag | Default | Description |
+|---|---|---|
+| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool. |
+| `format_json` | `false` | Return query results as JSON instead of the default [TOON](https://www.npmjs.com/package/@toon-format/toon) format. |
+| `json_response` | `false` | Use plain JSON responses instead of SSE streaming for the MCP transport. |
+
+For all other configuration options, refer to the official [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
 
 ## Demo
 The demo video starts with local usage with Opencode, then proceeds to do the same with Joule.
