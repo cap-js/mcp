@@ -10,8 +10,7 @@ All configuration lives under `cds.mcp` in your `package.json`:
   "cds": {
     "mcp": {
       "per_action_tool": false,
-      "format_json": false,
-      "json_response": false
+      "format_json": false
     }
   }
 }
@@ -21,7 +20,6 @@ All configuration lives under `cds.mcp` in your `package.json`:
 |---|---|---|
 | `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool. |
 | `format_json` | `false` | Return query results as JSON instead of the default [TOON](https://www.npmjs.com/package/@toon-format/toon) format. |
-| `json_response` | `false` | Use plain JSON responses instead of SSE streaming for the MCP transport. |
 
 For all other configuration options, refer to the official [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
 

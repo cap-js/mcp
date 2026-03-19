@@ -20,8 +20,7 @@
     "mcp": {
       "per_entity_tool": false,
       "per_action_tool": false,
-      "format_json": false,
-      "json_response": false
+      "format_json": false
     },
     "requires": {
       "db-ext": {

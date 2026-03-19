@@ -21,8 +21,7 @@ describe('MCP Protocol', () => {
     })
 
     // Server should not crash - should return an error response
-    // MCP SDK returns 406 for invalid JSON with a JSON-RPC error
-    expect(response.status).to.equal(406)
+    expect(response.status).to.equal(400)
 
     const result = await response.json()
     expect(result.jsonrpc).to.equal('2.0')
