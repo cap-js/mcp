@@ -14,9 +14,9 @@ entity Books : managed {
   key ID       : Integer;
       author   : Association to Authors @mandatory;
       /** The book's title, used for display and search */
-      title    : localized String       @mandatory;
+      title    : String                  @mandatory;
       /** A brief synopsis of the book's content */
-      descr    : localized String;
+      descr    : String;
       genre    : Association to Genres;
       stock    : Integer;
       price    : Price;
@@ -46,10 +46,3 @@ entity Genres : cuid, sap.common.CodeList {
 }
 
 type Price : Decimal(9, 2);
-
-
-// --------------------------------------------------------------------------------
-// Temporary workaround for this situation:
-// - Fiori apps in bookstore annotate Books with @fiori.draft.enabled.
-// - Because of that .csv data has to eagerly fill in ID_texts column.
-annotate Books with @fiori.draft.enabled;

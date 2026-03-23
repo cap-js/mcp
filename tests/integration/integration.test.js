@@ -117,13 +117,13 @@ describe('describe', () => {
     expect(elementNames).to.not.include('SiblingEntity')
   })
 
-  it('excludes localized elements from draft-enabled entities', async () => {
-    const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
+  it('excludes localized elements from entities', async () => {
+    const { callTool } = mcpClient()
+    // Genres inherits from sap.common.CodeList which has localized name/descr
+    const { content, error } = await callTool('describe', { entity: ['Genres'] })
     expect(error).to.be.null
-    const elementNames = Object.keys(content.entities.Books.elements)
-    expect(elementNames).to.include('ID')
-    expect(elementNames).to.include('title')
+    const elementNames = Object.keys(content.entities.Genres.elements)
+    expect(elementNames).to.include('name')
     expect(elementNames).to.not.include('localized')
     expect(elementNames).to.not.include('texts')
   })
@@ -500,6 +500,35 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.data[0]).to.have.property('title')
       expect(content.data[0]).to.have.property('genre_name')
+    })
+
+    it('supports ref objects in select with optional alias', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: ['title', { ref: ['genre', 'name'], as: 'genreName' }],
+        limit: 3
+      })
+      expect(error).to.be.null
+      expect(content.data[0]).to.have.property('title')
+      expect(content.data[0]).to.have.property('genreName')
+    })
+
+    it('supports expand for to-many associations as nested arrays', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        select: ['ID', 'name', { ref: ['books'], expand: [{ ref: ['title'] }, { ref: ['stock'] }] }],
+        limit: 5
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      // Edgar Allen Poe (ID 150) has 2 books
+      const poe = content.data.find(a => a.name === 'Edgar Allen Poe')
+      expect(poe.books).to.be.an('array')
+      expect(poe.books).to.have.length(2)
+      expect(poe.books[0]).to.have.property('title')
+      expect(poe.books[0]).to.have.property('stock')
     })
 
     it('supports deep path expressions (multiple levels)', async () => {

@@ -42,12 +42,37 @@
             }
           },
           "select": {
-            "description": "List of fields or aggregate expressions to return.\nDefaults to all fields if not specified.\n- Field name: \"fieldName\" or \"association.field\" for path expressions\n- Aggregate: { \"func\": \"count|sum|avg|min|max\", \"args\": [\"*\"] or [{ \"ref\": [\"field\"] }], \"as\": \"alias\" }\n\nExamples:\n- [\"title\", \"price\"] - select fields\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [\"author_ID\", { \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }], \"as\": \"totalStock\" }] - group field + aggregate",
+            "description": "List of fields or aggregate expressions to return.\nDefaults to all fields if not specified.\n- Field name: \"fieldName\" or \"association.field\" for path expressions\n- Ref path: { \"ref\": [\"assoc\", \"field\"], \"as\": \"alias\" } for explicit path with optional alias\n- Expand: { \"ref\": [\"assoc\"], \"expand\": [{ \"ref\": [\"field1\"] }, { \"ref\": [\"field2\"] }] } for to-many associations as nested arrays. Use [\"*\"] to expand all fields.\n- Aggregate: { \"func\": \"count|sum|avg|min|max\", \"args\": [\"*\"] or [{ \"ref\": [\"field\"] }], \"as\": \"alias\" }\n\nExamples:\n- [\"title\", \"price\"] - select fields\n- [{ \"ref\": [\"author\", \"name\"], \"as\": \"authorName\" }] - select association field with alias\n- [{ \"ref\": [\"books\"], \"expand\": [{ \"ref\": [\"title\"] }, { \"ref\": [\"price\"] }] }] - expand to-many as nested array\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [\"author_ID\", { \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }], \"as\": \"totalStock\" }] - group field + aggregate",
             "type": "array",
             "items": {
               "anyOf": [
                 {
                   "type": "string"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "ref": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "as": {
+                      "type": "string"
+                    },
+                    "expand": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/tools/0/inputSchema/definitions/__schema2"
+                      }
+                    }
+                  },
+                  "required": [
+                    "ref"
+                  ],
+                  "additionalProperties": false
                 },
                 {
                   "type": "object",
@@ -311,6 +336,39 @@
               "list"
             ],
             "additionalProperties": false
+          },
+          "__schema2": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "*"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "as": {
+                    "type": "string"
+                  },
+                  "expand": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema2"
+                    }
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ]
           }
         }
       },
