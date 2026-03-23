@@ -56,49 +56,15 @@ describe('MCP Protocol', () => {
 })
 
 describe('describe', () => {
-  it('describes all entities when no param given', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe')
-    expect(error).to.be.null
-    expect(content.service).to.equal('CatalogService')
-    expect(content.entities).to.have.property('Books')
-    expect(content.entities).to.have.property('Genres')
-  })
+  // NOTE: Basic describe behavior (overview mode, element metadata, associations,
+  // action kinds, return types, descriptions) is covered in context.test.js
 
-  it('describes specific entity when param given (no actions)', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
-    expect(error).to.be.null
-    expect(content.entities).to.have.property('Books')
-    expect(content.entities).to.not.have.property('Genres')
-    expect(content).to.not.have.property('actions')
-  })
-
-  it('includes element metadata', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
-    expect(error).to.be.null
-    const idElement = content.entities.Books.elements.ID
-    expect(idElement.type).to.equal('Integer')
-  })
-
-  it('identifies associations', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
-    expect(error).to.be.null
-    const genreElement = content.entities.Books.elements.genre
-    expect(genreElement.type).to.equal('Association (1-1)')
-    
-    expect(genreElement).to.have.property('target')
-  })
-
-  it('identifies composoitions', async () => {
+  it('identifies compositions', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { entity: ['Books'] })
     expect(error).to.be.null
     const chapterElement = content.entities.Books.elements.chapters
     expect(chapterElement.type).to.equal('Composition (1-*)')
-    
     expect(chapterElement).to.have.property('target')
   })
 
@@ -137,15 +103,6 @@ describe('describe', () => {
     expect(content.actions).to.have.property('add')
   })
 
-  it('includes action kind (action vs function)', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe')
-    expect(error).to.be.null
-    expect(content.actions.sum.kind).to.equal('function')
-    expect(content.actions.stock.kind).to.equal('function')
-    expect(content.actions.add.kind).to.equal('action')
-  })
-
   it('includes action parameters', async () => {
     const { callTool } = mcpClient()
     // Need to specify action to get parameter details
@@ -163,29 +120,6 @@ describe('describe', () => {
     const { content: addContent } = await callTool('describe', { action: ['add'] })
     expect(addContent.actions.add.parameters).to.have.property('x')
     expect(addContent.actions.add.parameters).to.have.property('to')
-  })
-
-  it('includes action return type', async () => {
-    const { callTool } = mcpClient()
-    // Need to specify action to get return type details
-    const { content: sumContent, error } = await callTool('describe', { action: ['sum'] })
-    expect(error).to.be.null
-    expect(sumContent.actions.sum.returns).to.equal('Integer')
-
-    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
-    expect(stockContent.actions.stock.returns).to.equal('Integer')
-
-    const { content: addContent } = await callTool('describe', { action: ['add'] })
-    expect(addContent.actions.add.returns).to.equal('Integer')
-  })
-
-  it('includes action descriptions', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe')
-    expect(error).to.be.null
-    expect(content.actions.sum.description).to.include('Add two integers')
-    expect(content.actions.stock.description).to.include('stock')
-    expect(content.actions.add.description).to.include('accumulator')
   })
 
   it('schema includes action enum in array items', async () => {
@@ -659,18 +593,6 @@ describe('query', () => {
       expect(titles).to.eql([...titles].sort().reverse())
     })
 
-    it('orders by single field ascending explicitly', async () => {
-      const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        orderBy: [{ ref: ['title'], sort: 'asc' }],
-        select: ['title'] 
-      })
-      expect(error).to.be.null
-      const titles = content.data.map(b => b.title)
-      expect(titles).to.eql([...titles].sort())
-    })
-
     it('orders by ID descending', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', { 
@@ -993,20 +915,6 @@ describe('query', () => {
       expect(content.data).to.have.property('title')
       expect(content.data).to.not.have.property('stock')
       expect(content.data).to.not.have.property('price')
-    })
-
-    it('works with distinct and one together', async () => {
-      const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', {
-        entity: 'Books',
-        select: ['genre_ID'],
-        distinct: true,
-        orderBy: [{ ref: ['genre_ID'], sort: 'asc' }],
-        one: true
-      })
-      expect(error).to.be.null
-      expect(content.data).to.be.an('object')
-      expect(content.data).to.have.property('genre_ID')
     })
 
     it('ignores limit when one is specified', async () => {

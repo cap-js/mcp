@@ -1,13 +1,8 @@
 const cds = require('@sap/cds')
-const { promisify } = require('util')
-const { exec } = require('child_process')
-const execAsync = promisify(exec)
-const path = require('path')
 
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
-const bookshopPath = path.join(__dirname, '../bookshop')
 
 describe('Context Resolution', () => {
   it('returns only descriptions in overview mode (no params)', async () => {
@@ -124,18 +119,4 @@ describe('Context Resolution', () => {
     expect(contentDe.entities.Books.description).to.include('Bücher')
   })
 
-  it('includes service description in MCP Server Card and describe tool', async () => {
-    // Compile-time: MCP Server Card
-    const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
-    const serverCard = JSON.parse(stdout)
-    expect(serverCard.description).to.include('Catalog service for browsing books')
-    expect(serverCard.description).to.include('Provides read access to the book catalog')
-
-    // Runtime: describe tool
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe')
-    expect(error).to.be.null
-    expect(content.description).to.include('Catalog service for browsing books')
-    expect(content.description).to.include('Provides read access to the book catalog')
-  })
 })

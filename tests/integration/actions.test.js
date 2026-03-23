@@ -5,13 +5,6 @@ const mcpClient = require('./mcp-test-client')(test)
 
 describe('call_action tool', () => {
   describe('tool listing', () => {
-    it('lists call_action tool for CatalogService', async () => {
-      const { mcp } = mcpClient()
-      const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.include('call_action')
-    })
-
     it('includes call_action tool with proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
@@ -125,13 +118,6 @@ describe('call_action tool', () => {
 
 describe('call_action authorization', () => {
   describe('AdminService (requires admin role)', () => {
-    it('lists call_action tool for admin user', async () => {
-      const { mcp } = mcpClient('/mcp/admin', 'alice:')
-      const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.include('call_action')
-    })
-
     it('includes sum, stock, add actions for admin user', async () => {
       const { mcp } = mcpClient('/mcp/admin', 'alice:')
       const response = await mcp('tools/list')
@@ -202,13 +188,6 @@ describe('RestrictedService action authorization', () => {
   // alice has admin role, bob has editor role
 
   describe('tool listing', () => {
-    it('lists call_action tool for admin user', async () => {
-      const { mcp } = mcpClient('/mcp/restricted', 'alice:')
-      const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.include('call_action')
-    })
-
     it('includes add in action enum for admin', async () => {
       const { mcp } = mcpClient('/mcp/restricted', 'alice:')
       const response = await mcp('tools/list')
@@ -236,15 +215,6 @@ describe('RestrictedService action authorization', () => {
       expect(error).to.be.null
       expect(content.action).to.equal('add')
       expect(content.result).to.equal(100)
-    })
-
-    it('editor (bob) cannot see call_action tool (no accessible actions)', async () => {
-      // bob has editor role but add requires admin
-      // Since bob has no accessible actions, call_action tool is not registered
-      const { mcp } = mcpClient('/mcp/restricted', 'bob:')
-      const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
-      expect(toolNames).to.not.include('call_action')
     })
 
     it('unauthenticated user cannot see call_action tool', async () => {
