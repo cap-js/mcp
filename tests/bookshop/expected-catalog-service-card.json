@@ -47,9 +47,6 @@
             "items": {
               "anyOf": [
                 {
-                  "type": "string"
-                },
-                {
                   "type": "object",
                   "properties": {
                     "ref": {

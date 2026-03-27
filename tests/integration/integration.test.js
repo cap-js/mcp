@@ -405,7 +405,7 @@ describe('query', () => {
   describe('select', () => {
     it('selects specific fields only', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', select: ['ID', 'title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', select: [{ ref: ['ID'] }, { ref: ['title'] }] })
       expect(error).to.be.null
       const book = content.data[0]
       expect(book).to.have.property('ID')
@@ -416,7 +416,7 @@ describe('query', () => {
 
     it('selects single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', select: ['title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', select: [{ ref: ['title'] }] })
       expect(error).to.be.null
       expect(content.data[0]).to.have.property('title')
       expect(Object.keys(content.data[0])).to.have.lengthOf(1)
@@ -428,7 +428,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['title', 'genre.name'],
+        select: [{ ref: ['title'] }, { ref: ['genre', 'name'] }],
         limit: 3
       })
       expect(error).to.be.null
@@ -440,7 +440,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['title', { ref: ['genre', 'name'], as: 'genreName' }],
+        select: [{ ref: ['title'] }, { ref: ['genre', 'name'], as: 'genreName' }],
         limit: 3
       })
       expect(error).to.be.null
@@ -452,7 +452,7 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        select: ['ID', 'name', { ref: ['books'], expand: [{ ref: ['title'] }, { ref: ['stock'] }] }],
+        select: [{ ref: ['ID'] }, { ref: ['name'] }, { ref: ['books'], expand: [{ ref: ['title'] }, { ref: ['stock'] }] }],
         limit: 5
       })
       expect(error).to.be.null
@@ -469,7 +469,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['title', 'genre.parent.name'],
+        select: [{ ref: ['title'] }, { ref: ['genre', 'parent', 'name'] }],
         limit: 3
       })
       expect(error).to.be.null
@@ -481,7 +481,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['ID', 'title', 'genre.name'],
+        select: [{ ref: ['ID'] }, { ref: ['title'] }, { ref: ['genre', 'name'] }],
         where: [{ ref: ['ID'] }, '=', { val: 201 }]
       })
       expect(error).to.be.null
@@ -495,17 +495,17 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre.invalid_field']
+        select: [{ ref: ['genre', 'invalid_field'] }]
       })
       expect(error).to.match(/Invalid select/)
-      expect(error).to.match(/genre.invalid_field/)
+      expect(error).to.match(/invalid_field/)
     })
 
     it('rejects path starting with non-existent element', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['nonexistent.name']
+        select: [{ ref: ['nonexistent', 'name'] }]
       })
       expect(error).to.match(/Invalid select/)
       expect(error).to.match(/nonexistent/)
@@ -514,8 +514,8 @@ describe('query', () => {
     it('rejects select clause exceeding 1000 characters', async () => {
       const { callTool } = mcpClient()
       // Create a select clause that exceeds 1000 chars when serialized
-      // Each field name adds ~14 chars, so 100 fields should exceed 1000
-      const manyFields = Array.from({ length: 100 }, (_, i) => `field_${i.toString().padStart(3, '0')}`)
+      // Each ref object adds ~30 chars, so 50 fields should exceed 1000
+      const manyFields = Array.from({ length: 50 }, (_, i) => ({ ref: [`field_${i.toString().padStart(3, '0')}`] }))
       const { error } = await callTool('query', {
         entity: 'Books',
         select: manyFields
@@ -528,7 +528,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { error } = await callTool('query', {
         entity: 'Books',
-        select: ['ID', 'title', 'stock', 'price']
+        select: [{ ref: ['ID'] }, { ref: ['title'] }, { ref: ['stock'] }, { ref: ['price'] }]
       })
       expect(error).to.be.null
     })
@@ -554,7 +554,7 @@ describe('query', () => {
   describe('orderBy', () => {
     it('orders by single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['title'] }], select: ['title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['title'] }], select: [{ ref: ['title'] }] })
       expect(error).to.be.null
       const titles = content.data.map(b => b.title)
       expect(titles).to.eql([...titles].sort())
@@ -562,7 +562,7 @@ describe('query', () => {
 
     it('orders by array of fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['stock'] }, { ref: ['title'] }], select: ['stock', 'title'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['stock'] }, { ref: ['title'] }], select: [{ ref: ['stock'] }, { ref: ['title'] }] })
       expect(error).to.be.null
       for (let i = 1; i < content.data.length; i++) {
         const prev = content.data[i - 1]
@@ -575,7 +575,7 @@ describe('query', () => {
 
     it('orders by ID', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['ID'] }], select: ['ID'] })
+      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['ID'] }], select: [{ ref: ['ID'] }] })
       expect(error).to.be.null
       const ids = content.data.map(b => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => a - b))
@@ -586,7 +586,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', { 
         entity: 'Books', 
         orderBy: [{ ref: ['title'], sort: 'desc' }],
-        select: ['title'] 
+        select: [{ ref: ['title'] }] 
       })
       expect(error).to.be.null
       const titles = content.data.map(b => b.title)
@@ -598,7 +598,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', { 
         entity: 'Books', 
         orderBy: [{ ref: ['ID'], sort: 'desc' }],
-        select: ['ID'] 
+        select: [{ ref: ['ID'] }] 
       })
       expect(error).to.be.null
       const ids = content.data.map(b => b.ID)
@@ -611,7 +611,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre_ID'],
+        select: [{ ref: ['genre_ID'] }],
         groupBy: ['genre_ID']
       })
       expect(error).to.be.null
@@ -626,7 +626,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre_ID', 'stock'],
+        select: [{ ref: ['genre_ID'] }, { ref: ['stock'] }],
         groupBy: ['genre_ID', 'stock']
       })
       expect(error).to.be.null
@@ -642,7 +642,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'count', args: ['*'], as: 'bookCount' }
         ],
         groupBy: ['genre_ID']
@@ -662,7 +662,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'sum', args: [{ ref: ['stock'] }], as: 'totalStock' }
         ],
         groupBy: ['genre_ID']
@@ -681,7 +681,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'avg', args: [{ ref: ['price'] }], as: 'avgPrice' }
         ],
         groupBy: ['genre_ID']
@@ -700,7 +700,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'min', args: [{ ref: ['price'] }], as: 'minPrice' },
           { func: 'max', args: [{ ref: ['price'] }], as: 'maxPrice' }
         ],
@@ -721,7 +721,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'count', args: ['*'], as: 'bookCount' }
         ],
         where: [{ ref: ['stock'] }, '>', { val: 5 }],
@@ -740,7 +740,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'count', args: ['*'], as: 'bookCount' },
           { func: 'sum', args: [{ ref: ['stock'] }], as: 'totalStock' },
           { func: 'avg', args: [{ ref: ['price'] }], as: 'avgPrice' }
@@ -762,7 +762,7 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          'genre_ID',
+          { ref: ['genre_ID'] },
           { func: 'count', args: ['*'], as: 'bookCount' }
         ],
         groupBy: ['genre_ID'],
@@ -782,7 +782,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre_ID'],
+        select: [{ ref: ['genre_ID'] }],
         distinct: true
       })
       expect(error).to.be.null
@@ -796,7 +796,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre_ID', 'currency_code'],
+        select: [{ ref: ['genre_ID'] }, { ref: ['currency_code'] }],
         distinct: true
       })
       expect(error).to.be.null
@@ -810,7 +810,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['genre_ID'],
+        select: [{ ref: ['genre_ID'] }],
         distinct: true,
         orderBy: [{ ref: ['genre_ID'], sort: 'asc' }]
       })
@@ -827,7 +827,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['currency_code'],
+        select: [{ ref: ['currency_code'] }],
         distinct: true,
         where: [{ ref: ['stock'] }, '>', { val: 0 }]
       })
@@ -906,7 +906,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: ['ID', 'title'],
+        select: [{ ref: ['ID'] }, { ref: ['title'] }],
         where: [{ ref: ['ID'] }, '=', { val: 201 }],
         one: true
       })

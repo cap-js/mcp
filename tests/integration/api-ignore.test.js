@@ -68,9 +68,9 @@ describe('@cds.api.ignore annotation', () => {
 
     it('returns error when selecting ignored element', async () => {
       const { callTool } = mcpClient('/mcp/api-ignore-test')
-      const { content, error } = await callTool('query', { 
+      const { error } = await callTool('query', {
         entity: 'BooksWithIgnored',
-        select: ['title', 'price']  // price is @cds.api.ignore
+        select: [{ ref: ['title'] }, { ref: ['price'] }]  // price is @cds.api.ignore
       })
 
       expect(error).to.exist
@@ -80,9 +80,9 @@ describe('@cds.api.ignore annotation', () => {
 
     it('allows selecting visible elements', async () => {
       const { callTool } = mcpClient('/mcp/api-ignore-test')
-      const { content, error } = await callTool('query', { 
+      const { content, error } = await callTool('query', {
         entity: 'BooksWithIgnored',
-        select: ['ID', 'title', 'stock']
+        select: [{ ref: ['ID'] }, { ref: ['title'] }, { ref: ['stock'] }]
       })
 
       expect(error).to.be.null
@@ -119,9 +119,9 @@ describe('@cds.api.ignore annotation', () => {
 
       // Try to call the hidden action
       // MCP SDK validates enum and returns an error
-      const { error } = await callTool('call_action', { 
-        action: 'hiddenAction', 
-        parameters: {} 
+      const { error } = await callTool('call_action', {
+        action: 'hiddenAction',
+        parameters: {}
       })
 
       // Should get a validation error
