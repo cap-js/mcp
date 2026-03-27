@@ -19,7 +19,7 @@
   "cds": {
     "mcp": {
       "per_action_tool": false,
-      "format_json": false
+      "toon_format": true
     },
     "requires": {
       "db-ext": {

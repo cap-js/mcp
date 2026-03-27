@@ -61,7 +61,7 @@ describe('describe', () => {
 
   it('identifies compositions', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     const chapterElement = content.entities.Books.elements.chapters
     expect(chapterElement.type).to.equal('Composition (1-*)')
@@ -70,7 +70,7 @@ describe('describe', () => {
 
   it('excludes draft elements from draft-enabled entities', async () => {
     const { callTool } = mcpClient('/mcp/admin', 'alice:')
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Books.elements)
     expect(elementNames).to.include('ID')
@@ -86,7 +86,7 @@ describe('describe', () => {
   it('excludes localized elements from entities', async () => {
     const { callTool } = mcpClient()
     // Genres inherits from sap.common.CodeList which has localized name/descr
-    const { content, error } = await callTool('describe', { entity: ['Genres'] })
+    const { content, error } = await callTool('describe', { entities: ['Genres'] })
     expect(error).to.be.null
     const elementNames = Object.keys(content.entities.Genres.elements)
     expect(elementNames).to.include('name')
@@ -106,18 +106,18 @@ describe('describe', () => {
   it('includes action parameters', async () => {
     const { callTool } = mcpClient()
     // Need to specify action to get parameter details
-    const { content: sumContent, error: sumError } = await callTool('describe', { action: ['sum'] })
+    const { content: sumContent, error: sumError } = await callTool('describe', { actions: ['sum'] })
     expect(sumError).to.be.null
     expect(sumContent.actions.sum.parameters).to.have.property('x')
     expect(sumContent.actions.sum.parameters).to.have.property('y')
     expect(sumContent.actions.sum.parameters.x.type).to.equal('Integer')
     expect(sumContent.actions.sum.parameters.y.type).to.equal('Integer')
 
-    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
+    const { content: stockContent } = await callTool('describe', { actions: ['stock'] })
     expect(stockContent.actions.stock.parameters).to.have.property('id')
     expect(stockContent.actions.stock.parameters.id.type).to.equal('Integer')
 
-    const { content: addContent } = await callTool('describe', { action: ['add'] })
+    const { content: addContent } = await callTool('describe', { actions: ['add'] })
     expect(addContent.actions.add.parameters).to.have.property('x')
     expect(addContent.actions.add.parameters).to.have.property('to')
   })
@@ -126,8 +126,8 @@ describe('describe', () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
     const describeTool = response.result.tools.find(t => t.name === 'describe')
-    expect(describeTool.inputSchema.properties).to.have.property('action')
-    const actionEnum = describeTool.inputSchema.properties.action.items.enum
+    expect(describeTool.inputSchema.properties).to.have.property('actions')
+    const actionEnum = describeTool.inputSchema.properties.actions.items.enum
     expect(actionEnum).to.include('sum')
     expect(actionEnum).to.include('stock')
     expect(actionEnum).to.include('add')
@@ -136,7 +136,7 @@ describe('describe', () => {
 
   it('filters by specific action', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum'] })
+    const { content, error } = await callTool('describe', { actions: ['sum'] })
     expect(error).to.be.null
     expect(content.actions).to.have.property('sum')
     expect(content.actions).to.not.have.property('add')
@@ -144,7 +144,7 @@ describe('describe', () => {
 
   it('returns only action when filtering by action only (no entities)', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum'] })
+    const { content, error } = await callTool('describe', { actions: ['sum'] })
     expect(error).to.be.null
     // Should NOT have entities when only action is specified
     expect(content).to.not.have.property('entities')
@@ -156,8 +156,8 @@ describe('describe', () => {
   it('filters by both entity and action independently', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { 
-      entity: ['Books'], 
-      action: ['add'] 
+      entities: ['Books'], 
+      actions: ['add'] 
     })
     expect(error).to.be.null
     // Only Books entity
@@ -170,7 +170,7 @@ describe('describe', () => {
 
   it('describes multiple entities at once', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books', 'Genres'] })
+    const { content, error } = await callTool('describe', { entities: ['Books', 'Genres'] })
     expect(error).to.be.null
     // Both entities should have detail (elements)
     expect(content.entities).to.have.property('Books')
@@ -183,7 +183,7 @@ describe('describe', () => {
 
   it('describes multiple actions at once', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum', 'add'] })
+    const { content, error } = await callTool('describe', { actions: ['sum', 'add'] })
     expect(error).to.be.null
     // Both actions should have detail (parameters)
     expect(content.actions).to.have.property('sum')

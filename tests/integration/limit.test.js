@@ -109,7 +109,7 @@ describe('@cds.query.limit', () => {
 
     it('includes queryLimits in entity description', async () => {
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['FullLimitBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['FullLimitBooks'] })
       expect(error).to.be.null
       expect(content.entities.FullLimitBooks.queryLimits).to.deep.equal({
         default: 5,
@@ -119,7 +119,7 @@ describe('@cds.query.limit', () => {
 
     it('shows inherited service limits in queryLimits', async () => {
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['ServiceDefaultBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['ServiceDefaultBooks'] })
       expect(error).to.be.null
       expect(content.entities.ServiceDefaultBooks.queryLimits).to.deep.equal({
         default: 10,
@@ -129,7 +129,7 @@ describe('@cds.query.limit', () => {
 
     it('shows service default in queryLimits for disabled entity', async () => {
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['DisabledLimitBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['DisabledLimitBooks'] })
       expect(error).to.be.null
       expect(content.entities.DisabledLimitBooks.queryLimits).to.deep.equal({
         default: 10,  // from service (entity disabled with 0)
@@ -139,7 +139,7 @@ describe('@cds.query.limit', () => {
 
     it('shows shorthand max with inherited default', async () => {
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['MaxOnlyBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['MaxOnlyBooks'] })
       expect(error).to.be.null
       expect(content.entities.MaxOnlyBooks.queryLimits).to.deep.equal({
         default: 10,  // from service
@@ -165,7 +165,7 @@ describe('@cds.query.limit', () => {
       // CatalogService has no @cds.query.limit annotations
       // MCP fallback default of 20 should be in the describe output
       const { callTool } = mcpClient('/mcp/catalog')
-      const { content, error } = await callTool('describe', { entity: ['Books'] })
+      const { content, error } = await callTool('describe', { entities: ['Books'] })
       expect(error).to.be.null
       expect(content.entities.Books.queryLimits).to.deep.equal({
         default: 20,   // MCP fallback (no annotations exist)
@@ -201,14 +201,14 @@ describe('@cds.query.limit', () => {
       // CatalogService has no @cds.query.limit annotations
       // Should use global config default: 15
       const { callTool } = mcpClient('/mcp/catalog')
-      const { content, error } = await callTool('describe', { entity: ['Books'] })
+      const { content, error } = await callTool('describe', { entities: ['Books'] })
       expect(error).to.be.null
       expect(content.entities.Books.queryLimits.default).to.equal(15)
     })
 
     it('uses global max when no annotations exist', async () => {
       const { callTool } = mcpClient('/mcp/catalog')
-      const { content, error } = await callTool('describe', { entity: ['Books'] })
+      const { content, error } = await callTool('describe', { entities: ['Books'] })
       expect(error).to.be.null
       expect(content.entities.Books.queryLimits.max).to.equal(200)
     })
@@ -233,7 +233,7 @@ describe('@cds.query.limit', () => {
       // LimitService has @cds.query.limit.default: 10, @cds.query.limit.max: 50
       // Should override global config (default: 15, max: 200)
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['ServiceDefaultBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['ServiceDefaultBooks'] })
       expect(error).to.be.null
       expect(content.entities.ServiceDefaultBooks.queryLimits).to.deep.equal({
         default: 10,  // from service (overrides global 15)
@@ -245,7 +245,7 @@ describe('@cds.query.limit', () => {
       // FullLimitBooks has @cds.query.limit: { default: 5, max: 25 }
       // Should override service (default: 10, max: 50) and global (default: 15, max: 200)
       const { callTool } = mcpClient('/mcp/limit')
-      const { content, error } = await callTool('describe', { entity: ['FullLimitBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['FullLimitBooks'] })
       expect(error).to.be.null
       expect(content.entities.FullLimitBooks.queryLimits).to.deep.equal({
         default: 5,   // from entity
@@ -262,7 +262,7 @@ describe('@cds.query.limit', () => {
       // DisabledBooks has @cds.query.limit: 0 which disables at entity level
       // Falls through to service (none) -> global (none) -> MCP fallback (20)
       const { callTool } = mcpClient('/mcp/no-service-limit')
-      const { content, error } = await callTool('describe', { entity: ['DisabledBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['DisabledBooks'] })
       expect(error).to.be.null
       // MCP fallback should still apply for safety
       expect(content.entities.DisabledBooks.queryLimits.default).to.equal(20)
@@ -273,7 +273,7 @@ describe('@cds.query.limit', () => {
       // NormalBooks has no annotation
       // Expected: MCP fallback default = 20, max = 1000
       const { callTool } = mcpClient('/mcp/no-service-limit')
-      const { content, error } = await callTool('describe', { entity: ['NormalBooks'] })
+      const { content, error } = await callTool('describe', { entities: ['NormalBooks'] })
       expect(error).to.be.null
       expect(content.entities.NormalBooks.queryLimits.default).to.equal(20)
       expect(content.entities.NormalBooks.queryLimits.max).to.equal(1000)

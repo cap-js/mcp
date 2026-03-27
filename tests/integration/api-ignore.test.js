@@ -51,7 +51,7 @@ describe('@cds.api.ignore annotation', () => {
   describe('elements', () => {
     it('hides ignored elements from describe output', async () => {
       const { callTool } = mcpClient('/mcp/api-ignore-test')
-      const { content, error } = await callTool('describe', { entity: ['BooksWithIgnored'] })
+      const { content, error } = await callTool('describe', { entities: ['BooksWithIgnored'] })
 
       expect(error).to.be.null
       const elements = content.entities.BooksWithIgnored.elements

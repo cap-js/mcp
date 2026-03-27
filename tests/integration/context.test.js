@@ -22,7 +22,7 @@ describe('Context Resolution', () => {
 
   it('returns element details when entity param is specified', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     // Should have elements with types
     expect(content.entities.Books.elements).to.exist
@@ -34,14 +34,17 @@ describe('Context Resolution', () => {
     expect(content.entities.Books.elements.genre.type).to.equal('Association (1-1)')
     expect(content.entities.Books.elements.genre.target).to.equal('CatalogService.Genres')
     
-    // Should not have isAssociation or key fields
+    // Should not have isAssociation or key fields on elements
     expect(content.entities.Books.elements.ID.isAssociation).to.be.undefined
     expect(content.entities.Books.elements.ID.key).to.be.undefined
+    // Key fields should be in a dedicated keys array on the entity
+    expect(content.entities.Books.keys).to.be.an('array')
+    expect(content.entities.Books.keys).to.include('ID')
   })
 
   it('returns parameter details when action param is specified', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum'] })
+    const { content, error } = await callTool('describe', { actions: ['sum'] })
     expect(error).to.be.null
     // Should have parameters with types (without cds. prefix)
     expect(content.actions.sum.parameters).to.exist
@@ -60,46 +63,46 @@ describe('Context Resolution', () => {
 
   it('resolves doc comment on entities', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Genres'] })
+    const { content, error } = await callTool('describe', { entities: ['Genres'] })
     expect(error).to.be.null
     expect(content.entities.Genres.description).to.include('Hierarchical classification system')
   })
 
   it('resolves @description on elements', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entity: ['Books'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     expect(content.entities.Books.elements.ID.description).to.include('Unique book identifier')
   })
 
   it('resolves @description on functions', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum'] })
+    const { content, error } = await callTool('describe', { actions: ['sum'] })
     expect(error).to.be.null
     expect(content.actions.sum.description).to.equal('Add two integers')
   })
 
   it('resolves @description on actions', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['add'] })
+    const { content, error } = await callTool('describe', { actions: ['add'] })
     expect(error).to.be.null
     expect(content.actions.add.description).to.equal('Add a value to an accumulator')
   })
 
   it('resolves @description on parameters', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['sum'] })
+    const { content, error } = await callTool('describe', { actions: ['sum'] })
     expect(error).to.be.null
     expect(content.actions.sum.parameters.x.description).to.equal('First operand')
     expect(content.actions.sum.parameters.y.description).to.equal('Second operand')
     // stock.id has no annotation or doc — should return null
-    const { content: stockContent } = await callTool('describe', { action: ['stock'] })
+    const { content: stockContent } = await callTool('describe', { actions: ['stock'] })
     expect(stockContent.actions.stock.parameters.id.description).to.be.null
   })
 
   it('resolves @mandatory as notNull for action parameters', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { action: ['submitOrder'] })
+    const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
     expect(error).to.be.null
     // book param has @mandatory in CDS model
     expect(content.actions.submitOrder.parameters.book.notNull).to.be.true

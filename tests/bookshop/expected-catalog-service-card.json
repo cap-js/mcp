@@ -382,7 +382,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
-          "entity": {
+          "entities": {
             "description": "Specific entities to get element details for.",
             "type": "array",
             "items": {
@@ -394,7 +394,7 @@
               ]
             }
           },
-          "action": {
+          "actions": {
             "description": "Specific actions or functions to get parameter details for.",
             "type": "array",
             "items": {
