@@ -604,6 +604,18 @@ describe('query', () => {
       const ids = content.data.map(b => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => b - a))
     })
+
+    it('rejects orderBy clause exceeding 1000 character limit', async () => {
+      const { callTool } = mcpClient()
+      const manyOrders = Array.from({ length: 100 }, (_, i) => ({ ref: [`field_${i.toString().padStart(3, '0')}`] }))
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        orderBy: manyOrders,
+        select: ['ID']
+      })
+      expect(error).to.exist
+      expect(error).to.match(/order by clause exceeds maximum length/i)
+    })
   })
 
   describe('groupBy', () => {
@@ -774,6 +786,18 @@ describe('query', () => {
       for (let i = 1; i < content.data.length; i++) {
         expect(content.data[i - 1].bookCount).to.be.at.least(content.data[i].bookCount)
       }
+    })
+
+    it('rejects groupBy clause exceeding 1000 character limit', async () => {
+      const { callTool } = mcpClient()
+      const manyFields = Array.from({ length: 100 }, (_, i) => `field_${i.toString().padStart(3, '0')}`)
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        select: ['ID'],
+        groupBy: manyFields
+      })
+      expect(error).to.exist
+      expect(error).to.match(/group by clause exceeds maximum length/i)
     })
   })
 
