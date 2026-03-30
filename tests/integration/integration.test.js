@@ -988,6 +988,438 @@ describe('query', () => {
       expect(content.data).to.not.be.an('array')
     })
   })
+
+  describe('portable string functions', () => {
+    it('uses tolower in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'tolower', args: [{ ref: ['title'] }] }, '=', { val: 'jane eyre' }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0].title).to.equal('Jane Eyre')
+    })
+
+    it('uses toupper in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ func: 'toupper', args: [{ ref: ['title'] }], as: 'upperTitle' }],
+        where: [{ ref: ['ID'] }, '=', { val: 201 }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0].upperTitle).to.equal('WUTHERING HEIGHTS')
+    })
+
+    it('uses length in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['title'] }, { func: 'length', args: [{ ref: ['title'] }], as: 'titleLen' }],
+        where: [{ ref: ['ID'] }, '=', { val: 251 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].title).to.equal('The Raven')
+      expect(content.data[0].titleLen).to.equal(9)
+    })
+
+    it('uses length in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'length', args: [{ ref: ['title'] }] }, '<', { val: 10 }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => expect(row.title.length).to.be.lessThan(10))
+    })
+
+    it('uses substring in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 4 }], as: 'prefix' }],
+        where: [{ ref: ['ID'] }, '=', { val: 251 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].prefix).to.equal('The ')
+    })
+
+    it('uses contains in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'contains', args: [{ ref: ['title'] }, { val: 'Raven' }] }, '=', { val: true }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0].title).to.equal('The Raven')
+    })
+
+    it('uses startswith in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'startswith', args: [{ ref: ['title'] }, { val: 'The' }] }, '=', { val: true }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => expect(row.title.startsWith('The')).to.be.true)
+    })
+
+    it('uses endswith in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'endswith', args: [{ ref: ['title'] }, { val: 'Eyre' }] }, '=', { val: true }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0].title).to.equal('Jane Eyre')
+    })
+
+    it('uses concat in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ func: 'concat', args: [{ ref: ['title'] }, { val: ' - Book' }], as: 'label' }],
+        where: [{ ref: ['ID'] }, '=', { val: 271 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].label).to.equal('Catweazle - Book')
+    })
+
+    it('uses trim in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ func: 'trim', args: [{ ref: ['title'] }], as: 'trimmed' }],
+        where: [{ ref: ['ID'] }, '=', { val: 207 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].trimmed).to.equal('Jane Eyre')
+    })
+  })
+
+  describe('portable numeric functions', () => {
+    it('uses round in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['price'] }, { func: 'round', args: [{ ref: ['price'] }], as: 'roundedPrice' }],
+        where: [{ ref: ['ID'] }, '=', { val: 201 }]
+      })
+      expect(error).to.be.null
+      // price is 11.11 so round should be 11
+      expect(content.data[0].roundedPrice).to.equal(11)
+    })
+
+    it('uses floor in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['price'] }, { func: 'floor', args: [{ ref: ['price'] }], as: 'floorPrice' }],
+        where: [{ ref: ['ID'] }, '=', { val: 207 }]
+      })
+      expect(error).to.be.null
+      // price is 12.34 so floor should be 12
+      expect(content.data[0].floorPrice).to.equal(12)
+    })
+
+    it('uses ceiling in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['price'] }, { func: 'ceiling', args: [{ ref: ['price'] }], as: 'ceilPrice' }],
+        where: [{ ref: ['ID'] }, '=', { val: 207 }]
+      })
+      expect(error).to.be.null
+      // price is 12.34 so ceiling should be 13
+      expect(content.data[0].ceilPrice).to.equal(13)
+    })
+
+    it('uses round in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ func: 'round', args: [{ ref: ['price'] }] }, '=', { val: 13 }],
+        select: [{ ref: ['title'] }, { ref: ['price'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // price 13.13 rounds to 13
+      content.data.forEach(row => expect(Math.round(row.price)).to.equal(13))
+    })
+  })
+
+  describe('portable date/time functions', () => {
+    it('uses year in select', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        select: [{ ref: ['name'] }, { func: 'year', args: [{ ref: ['dateOfBirth'] }], as: 'birthYear' }],
+        where: [{ ref: ['ID'] }, '=', { val: 150 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].name).to.equal('Edgar Allen Poe')
+      expect(content.data[0].birthYear).to.equal(1809)
+    })
+
+    it('uses year in where clause', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        where: [{ func: 'year', args: [{ ref: ['dateOfBirth'] }] }, '<', { val: 1815 }],
+        select: [{ ref: ['name'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+      expect(content.data[0].name).to.equal('Edgar Allen Poe')
+    })
+
+    it('uses month in select', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        select: [{ ref: ['name'] }, { func: 'month', args: [{ ref: ['dateOfBirth'] }], as: 'birthMonth' }],
+        where: [{ ref: ['ID'] }, '=', { val: 101 }]
+      })
+      expect(error).to.be.null
+      // Emily Brontë born 1818-07-30
+      expect(content.data[0].birthMonth).to.equal(7)
+    })
+
+    it('uses day in select', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        select: [{ ref: ['name'] }, { func: 'day', args: [{ ref: ['dateOfBirth'] }], as: 'birthDay' }],
+        where: [{ ref: ['ID'] }, '=', { val: 107 }]
+      })
+      expect(error).to.be.null
+      // Charlotte Brontë born 1818-04-21
+      expect(content.data[0].birthDay).to.equal(21)
+    })
+  })
+
+  describe('expression columns (xpr in select)', () => {
+    it('uses arithmetic expression in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { ref: ['title'] },
+          { xpr: [{ ref: ['price'] }, '*', { ref: ['stock'] }], as: 'inventoryValue' }
+        ],
+        where: [{ ref: ['ID'] }, '=', { val: 201 }]
+      })
+      expect(error).to.be.null
+      // price=11.11, stock=12 => 11.11*12 = 133.32
+      expect(content.data[0].inventoryValue).to.be.closeTo(133.32, 0.01)
+    })
+
+    it('uses addition expression in select', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { ref: ['title'] },
+          { xpr: [{ ref: ['price'] }, '+', { val: 5 }], as: 'adjustedPrice' }
+        ],
+        where: [{ ref: ['ID'] }, '=', { val: 251 }]
+      })
+      expect(error).to.be.null
+      // price=13.13 + 5 = 18.13
+      expect(content.data[0].adjustedPrice).to.be.closeTo(18.13, 0.01)
+    })
+  })
+
+  describe('expanded operators', () => {
+    it('uses arithmetic operators in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ xpr: [{ ref: ['price'] }, '*', { ref: ['stock'] }] }, '>', { val: 1000 }],
+        select: [{ ref: ['title'] }, { ref: ['price'] }, { ref: ['stock'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => expect(row.price * row.stock).to.be.greaterThan(1000))
+    })
+  })
+
+  describe('expanded keywords', () => {
+    it('uses is null in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['descr'] }, 'is', 'null'],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      content.data.forEach(row => expect(row.descr).to.not.exist)
+    })
+
+    it('uses is not null in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['descr'] }, 'is', 'not null'],
+        select: [{ ref: ['title'] }, { ref: ['descr'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => expect(row.descr).to.exist)
+    })
+
+    it('uses not in in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['ID'] }, 'not in', { list: [{ val: 201 }, { val: 207 }] }],
+        select: [{ ref: ['ID'] }, { ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      content.data.forEach(row => {
+        expect(row.ID).to.not.equal(201)
+        expect(row.ID).to.not.equal(207)
+      })
+    })
+
+    it('uses not like in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, 'not like', { val: 'The%' }],
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      content.data.forEach(row => expect(row.title.startsWith('The')).to.be.false)
+    })
+
+    it('uses exists with infix filter in where', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        where: ['exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }],
+        select: [{ ref: ['ID'] }, { ref: ['name'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // Edgar Allen Poe has books with stock 333 and 555
+      const names = content.data.map(a => a.name)
+      expect(names).to.include('Edgar Allen Poe')
+    })
+
+    it('uses not exists with infix filter in where', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        where: ['not', 'exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }],
+        select: [{ ref: ['name'] }]
+      })
+      expect(error).to.be.null
+      const names = content.data.map(a => a.name)
+      expect(names).to.not.include('Edgar Allen Poe')
+    })
+
+    it('uses exists with compound infix filter condition', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        where: ['exists', { ref: [{ id: 'books', where: [
+          { ref: ['stock'] }, '>', { val: 100 },
+          'and',
+          { ref: ['price'] }, '<', { val: 15 }
+        ] }] }],
+        select: [{ ref: ['name'] }]
+      })
+      expect(error).to.be.null
+      // Edgar Allen Poe: The Raven (stock=333, price=13.13) and Eleonora (stock=555, price=14) match
+      const names = content.data.map(a => a.name)
+      expect(names).to.include('Edgar Allen Poe')
+      // Brontës have stock 12 and 11, so they shouldn't match
+      expect(names).to.not.include('Emily Brontë')
+      expect(names).to.not.include('Charlotte Brontë')
+    })
+
+    it('combines exists infix filter with additional where conditions', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        entity: 'Authors',
+        where: [
+          'exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 0 }] }] },
+          'and',
+          { func: 'year', args: [{ ref: ['dateOfBirth'] }] }, '<', { val: 1820 }
+        ],
+        select: [{ ref: ['name'] }, { ref: ['dateOfBirth'] }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      // All authors have books with stock > 0, but only Poe (1809) and the Brontës (1818) were born before 1820
+      content.data.forEach(row => {
+        const year = new Date(row.dateOfBirth).getFullYear()
+        expect(year).to.be.lessThan(1820)
+      })
+    })
+  })
+
+  describe('combined portable function scenarios', () => {
+    it('nests functions: toupper of substring', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { func: 'toupper', args: [{ func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 3 }] }], as: 'code' }
+        ],
+        where: [{ ref: ['ID'] }, '=', { val: 251 }]
+      })
+      expect(error).to.be.null
+      expect(content.data[0].code).to.equal('THE')
+    })
+
+    it('uses function in select with function in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { ref: ['title'] },
+          { func: 'length', args: [{ ref: ['title'] }], as: 'titleLen' },
+          { func: 'round', args: [{ ref: ['price'] }], as: 'roundedPrice' }
+        ],
+        where: [{ func: 'length', args: [{ ref: ['title'] }] }, '<=', { val: 10 }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row.titleLen).to.be.at.most(10)
+        expect(Number.isInteger(row.roundedPrice)).to.be.true
+      })
+    })
+
+    it('combines xpr column with function in where', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { ref: ['title'] },
+          { xpr: [{ ref: ['price'] }, '*', { ref: ['stock'] }], as: 'value' }
+        ],
+        where: [{ func: 'floor', args: [{ ref: ['price'] }] }, '>=', { val: 13 }],
+        orderBy: [{ ref: ['price'], sort: 'desc' }]
+      })
+      expect(error).to.be.null
+      expect(content.count).to.be.greaterThan(0)
+      content.data.forEach(row => expect(Math.floor(row.value / row.stock || row.value)).to.be.at.least(0))
+    })
+  })
 })
 
 describe('Auth', () => {
