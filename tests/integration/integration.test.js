@@ -801,7 +801,7 @@ describe('query', () => {
     })
   })
 
-  describe.skip('distinct', () => {
+  describe('distinct', () => {
     it('returns distinct values for selected field', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
