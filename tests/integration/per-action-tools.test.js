@@ -85,6 +85,33 @@ describe('Per-Action Tools', () => {
       // quantity param has no @mandatory — should not be required
       expect(submitOrderTool.inputSchema.required || []).to.not.include('quantity')
     })
+
+    it('uses enum constraint for string enum params in input schema', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      expect(submitOrderTool).to.exist
+      expect(submitOrderTool.inputSchema.properties.priority.enum).to.deep.equal(['S', 'E'])
+      expect(submitOrderTool.inputSchema.properties.priority.description).to.include('standard=S')
+      expect(submitOrderTool.inputSchema.properties.priority.description).to.include('express=E')
+    })
+
+    it('applies @assert.range as min/max in input schema', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      expect(submitOrderTool).to.exist
+      expect(submitOrderTool.inputSchema.properties.quantity.minimum).to.equal(1)
+      expect(submitOrderTool.inputSchema.properties.quantity.maximum).to.equal(100)
+    })
+
+    it('applies @assert.format as pattern in input schema', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'validateEmail')
+      expect(tool).to.exist
+      expect(tool.inputSchema.properties.email.pattern).to.equal('^\\S+@\\S+\\.\\S+$')
+    })
   })
 
 })

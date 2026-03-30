@@ -403,6 +403,7 @@
                 "sum",
                 "stock",
                 "add",
+                "validateEmail",
                 "submitOrder"
               ]
             }
@@ -429,6 +430,7 @@
               "sum",
               "stock",
               "add",
+              "validateEmail",
               "submitOrder"
             ],
             "description": "The action or function to call"

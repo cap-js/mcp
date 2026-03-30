@@ -30,12 +30,20 @@ service CatalogService {
   @description: 'Add a value to an accumulator'
   action add(x: Integer, to: Integer) returns Integer;
 
+  @description: 'Validate an email address'
+  function validateEmail(
+    @description: 'Email to validate'
+    email: String @assert.format: '/^\S+@\S+\.\S+$/'
+  ) returns Boolean;
+
   @description: 'Order a book by its ID and desired quantity. Reduces stock accordingly.'
   action submitOrder(
     @description: 'The ID of the book to order'
     book: Books:ID @mandatory,
     @description: 'Number of copies to order'
-    quantity: Integer
+    quantity: Integer @assert.range: [1, 100],
+    @description: 'Shipping priority'
+    priority: String enum { standard = 'S'; express = 'E' }
   );
 }
 

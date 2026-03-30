@@ -18,9 +18,11 @@ entity Books : managed {
       /** A brief synopsis of the book's content */
       descr    : String;
       genre    : Association to Genres;
-      stock    : Integer;
+      stock    : Integer @assert.range: [0, 999];
       price    : Price;
       currency : Currency;
+      status   : String enum { available = 'A'; out_of_stock = 'O'; discontinued = 'D' };
+      isbn     : String @assert.format: '/^[0-9]{13}$/';
       chapters : Composition of many {
           key ID : Integer;
           title  : String;

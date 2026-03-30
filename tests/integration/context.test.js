@@ -104,21 +104,72 @@ describe('Context Resolution', () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
     expect(error).to.be.null
-    // book param has @mandatory in CDS model
     expect(content.actions.submitOrder.parameters.book.notNull).to.be.true
-    // quantity param has no @mandatory
     expect(content.actions.submitOrder.parameters.quantity.notNull).to.be.false
+  })
+
+  it('resolves @mandatory as notNull for entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    // title has @mandatory in schema.cds
+    expect(content.entities.Books.elements.title.notNull).to.be.true
+    // stock has no @mandatory
+    expect(content.entities.Books.elements.stock).to.not.have.property('notNull')
+  })
+
+  it('resolves enum values on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    const status = content.entities.Books.elements.status
+    expect(status.enum).to.deep.equal({ available: 'A', out_of_stock: 'O', discontinued: 'D' })
+  })
+
+  it('resolves enum values on action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
+    expect(error).to.be.null
+    expect(content.actions.submitOrder.parameters.priority.enum).to.deep.equal({ standard: 'S', express: 'E' })
+  })
+
+  it('resolves @assert.range on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    expect(content.entities.Books.elements.stock.range).to.deep.equal([0, 999])
+  })
+
+  it('resolves @assert.range on action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
+    expect(error).to.be.null
+    expect(content.actions.submitOrder.parameters.quantity.range).to.deep.equal([1, 100])
+  })
+
+  it('resolves @assert.format on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    expect(content.entities.Books.elements.isbn.format).to.equal('/^[0-9]{13}$/')
+  })
+
+  it('resolves @assert.format on action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['validateEmail'] })
+    expect(error).to.be.null
+    expect(content.actions.validateEmail.parameters.email.format).to.equal('/^\\S+@\\S+\\.\\S+$/')
   })
 
   it('resolves {i18n>key} references and respects Accept-Language header', async () => {
     // English locale - Books entity has @title: '{i18n>Books}'
     const { callTool: callToolEn } = mcpClient('/mcp/catalog', null, 'en')
-    const { content: contentEn } = await callToolEn('describe', { entity: ['Books'] })
+    const { content: contentEn } = await callToolEn('describe', { entities: ['Books'] })
     expect(contentEn.entities.Books.description).to.include('Books')
 
     // German locale - should resolve to 'Bücher'
     const { callTool: callToolDe } = mcpClient('/mcp/catalog', null, 'de')
-    const { content: contentDe } = await callToolDe('describe', { entity: ['Books'] })
+    const { content: contentDe } = await callToolDe('describe', { entities: ['Books'] })
     expect(contentDe.entities.Books.description).to.include('Bücher')
   })
 
