@@ -801,6 +801,41 @@ describe('query', () => {
     })
   })
 
+  describe('having', () => {
+    it('filters grouped results with having clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [
+          { ref: ['genre_ID'] },
+          { func: 'count', args: ['*'], as: 'bookCount' }
+        ],
+        groupBy: ['genre_ID'],
+        having: [{ func: 'count', args: ['*'] }, '>', { val: 1 }]
+      })
+      expect(error).to.be.null
+      // Only genres with more than 1 book should be returned
+      content.data.forEach(row => {
+        expect(row.bookCount).to.be.greaterThan(1)
+      })
+    })
+
+    it('rejects having clause exceeding 1000 character limit', async () => {
+      const { callTool } = mcpClient()
+      const longConditions = Array.from({ length: 50 }, (_, i) =>
+        [{ func: 'count', args: ['*'] }, '>', { val: i }]
+      ).flat()
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['genre_ID'] }],
+        groupBy: ['genre_ID'],
+        having: longConditions
+      })
+      expect(error).to.exist
+      expect(error).to.match(/having clause exceeds maximum length/i)
+    })
+  })
+
   describe('distinct', () => {
     it('returns distinct values for selected field', async () => {
       const { callTool } = mcpClient()

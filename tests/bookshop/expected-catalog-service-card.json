@@ -134,6 +134,13 @@
               "type": "string"
             }
           },
+          "having": {
+            "description": "CQN having clause for filtering grouped results. Same format as where but applied after GROUP BY.\nCommonly used with aggregate functions to filter groups.\n\nExamples:\n- [{ \"func\": \"count\", \"args\": [\"*\"] }, \">\", { \"val\": 5 }] - groups with more than 5 items\n- [{ \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }] }, \">=\", { \"val\": 100 }] - groups with total stock >= 100",
+            "type": "array",
+            "items": {
+              "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+            }
+          },
           "limit": {
             "description": "Maximum number of results to return (default: 20)",
             "type": "integer",
@@ -246,6 +253,59 @@
                 },
                 "required": [
                   "xpr"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "func": {
+                    "type": "string",
+                    "enum": [
+                      "count",
+                      "sum",
+                      "avg",
+                      "min",
+                      "max"
+                    ],
+                    "description": "Aggregate function name"
+                  },
+                  "args": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "*"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "ref": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "ref"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "description": "Function arguments: [\"*\"] for count(*), or [{ ref: [\"field\"] }] for field aggregates"
+                  },
+                  "as": {
+                    "description": "Result column alias",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "func",
+                  "args"
                 ],
                 "additionalProperties": false
               },
