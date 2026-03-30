@@ -400,6 +400,30 @@ describe('query', () => {
       expect(error).to.match(/where clause exceeds maximum length/i)
     })
 
+    it('supports is null and is not null checks', async () => {
+      const { callTool } = mcpClient()
+      // isbn is null for all test books (no CSV data for it)
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['title'] }, { ref: ['isbn'] }],
+        where: [{ ref: ['isbn'] }, 'is', 'null']
+      })
+      expect(error).to.be.null
+      expect(content.data.length).to.be.greaterThan(0)
+      content.data.forEach(row => {
+        expect(row.isbn).to.be.null
+      })
+
+      // IS NOT NULL — title is never null
+      const { content: content2, error: error2 } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['title'] }],
+        where: [{ ref: ['title'] }, 'is', 'not', 'null']
+      })
+      expect(error2).to.be.null
+      expect(content2.data.length).to.equal(5)
+    })
+
   })
 
   describe('select', () => {
@@ -833,6 +857,35 @@ describe('query', () => {
       })
       expect(error).to.exist
       expect(error).to.match(/having clause exceeds maximum length/i)
+    })
+  })
+
+  describe('search', () => {
+    it('searches across all string fields of an entity', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        search: 'Heights',
+        select: [{ ref: ['title'] }]
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.length(1)
+      expect(content.data[0].title).to.equal('Wuthering Heights')
+    })
+
+    it('can combine search with where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        search: 'Raven',
+        where: [{ ref: ['stock'] }, '>', { val: 100 }],
+        select: [{ ref: ['title'] }, { ref: ['stock'] }]
+      })
+      expect(error).to.be.null
+      // "Raven" matches only "The Raven" (stock 333), combined with stock > 100
+      expect(content.data).to.have.length(1)
+      expect(content.data[0].title).to.include('The Raven')
+      expect(content.data[0].stock).to.be.greaterThan(100)
     })
   })
 

@@ -118,7 +118,7 @@
             }
           },
           "groupBy": {
-            "description": "Field(s) to group results by for aggregation queries. Use with aggregate functions in select.",
+            "description": "Field(s) to group results by for aggregation queries. Use \"field\" for simple fields or \"assoc.field\" for association paths. Use with aggregate functions in select.",
             "type": "array",
             "items": {
               "type": "string"
@@ -170,6 +170,10 @@
               ],
               "additionalProperties": false
             }
+          },
+          "search": {
+            "description": "Full-text search term. Searches across all string elements of the entity. Use this for fuzzy or keyword-based lookups instead of constructing complex where clauses.",
+            "type": "string"
           },
           "distinct": {
             "description": "Return only unique/distinct rows",

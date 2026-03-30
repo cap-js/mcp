@@ -21,6 +21,9 @@
       "per_action_tool": false,
       "toon_format": true
     },
+    "hana": {
+      "fuzzy": false
+    },
     "requires": {
       "db-ext": {
         "[development]": {
