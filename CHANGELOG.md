@@ -4,6 +4,30 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.11 - TBD
+
+### Added
+
+### Changed
+
+### Removed
+
+### Fixed
+
+## Version 0.0.10 - 2026-03-30
+
+### Added
+- Portable standard functions in expressions for strings, numbers, date/time
+- Arithmetic operators (`+`, `-`, `*`, `/`) and computed columns via `{ xpr: [...], as: "alias" }`
+- `is null` / `is not null`, `not in`, `not like`, `exists` / `not exists` keywords in where clauses
+- Infix filters on ref segments for filtered association navigation (e.g., `books[stock > 100]`)
+- `having` clause for filtering grouped results
+- `search` clause for full-text search across multiple fields
+- Support in per-action tool schemas and describe output: `enum`, `@assert.range`, `@assert.format`, `@mandatory`
+
+### Fixed
+- Resolve description for tool schemas and describe output consistently
+
 ## Version 0.0.9 - 2026-03-23
 
 ### Added

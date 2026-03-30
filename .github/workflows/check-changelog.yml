@@ -1,0 +1,13 @@
+name: Check Changelog
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+    branches:
+      - main
+jobs:
+  Check-Changelog:
+    name: Check Changelog Action
+    runs-on: [self-hosted, solinas]
+    steps:
+      - name: Check changelog
+        uses: cap/.github/.github/actions/check-changelog@main
