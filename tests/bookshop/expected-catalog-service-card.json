@@ -11,7 +11,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://todo.com/mcp/catalog"
+      "url": "/mcp/catalog"
     }
   ],
   "capabilities": {

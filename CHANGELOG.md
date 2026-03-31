@@ -9,6 +9,7 @@
 ### Added
 
 ### Changed
+- Adjust MCP server card generation to allow URI reference
 
 ### Removed
 

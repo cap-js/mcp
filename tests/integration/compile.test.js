@@ -51,19 +51,19 @@ describe('cds compile -2 mcp', () => {
   it('generates correct path for CatalogService', async () => {
     const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('https://todo.com/mcp/catalog')
+    expect(result.remotes[0].url).toBe('/mcp/catalog')
   })
 
   it('generates correct path for AdminService', async () => {
     const { stdout } = await execAsync('cds compile srv -2 mcp -s AdminService', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('https://todo.com/mcp/admin')
+    expect(result.remotes[0].url).toBe('/mcp/admin')
   })
 
   it('generates correct path for RestrictedService', async () => {
     const { stdout } = await execAsync('cds compile srv -2 mcp -s RestrictedService', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    expect(result.remotes[0].url).toBe('https://todo.com/mcp/restricted')
+    expect(result.remotes[0].url).toBe('/mcp/restricted')
   })
 
   it('generates query and describe tools in default mode', async () => {
