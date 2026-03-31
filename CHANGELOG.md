@@ -10,10 +10,13 @@
 
 ### Changed
 - Adjust MCP server card generation to allow URI reference
+- Rely on runtime behaviour for `@cds.query.limit`
 
 ### Removed
+- Custom MCP default limit of 20
 
 ### Fixed
+- Query limits output in `describe` tool
 
 ## Version 0.0.10 - 2026-03-30
 

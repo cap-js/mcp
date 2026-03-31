@@ -7,7 +7,7 @@ service LimitService {
   @cds.query.limit: { default: 5, max: 25 }
   entity FullLimitBooks as projection on my.Books;
 
-  // Expected: default=10 (from service), max=15
+  // Expected: default=15, max=50 (from service)
   @cds.query.limit: 15
   entity MaxOnlyBooks as projection on my.Books;
 
@@ -16,11 +16,11 @@ service LimitService {
   @cds.query.limit.max: 30
   entity SeparateAnnotationBooks as projection on my.Books;
 
-  // Expected: default=10 (from service), max=50 (from service)
+  // Expected: no default, max=50 (from service)
   @cds.query.limit: 0
   entity DisabledLimitBooks as projection on my.Books;
 
-  // Expected: default=10, max=50
+  // Expected: default=10, max=50 (from service)
   entity ServiceDefaultBooks as projection on my.Books;
 
   // Expected: default=10 (from service), max=100

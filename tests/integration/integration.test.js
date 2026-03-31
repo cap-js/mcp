@@ -556,22 +556,12 @@ describe('query', () => {
       })
       expect(error).to.be.null
     })
-  })
-
-  describe('pagination', () => {
     it('limits results with limit parameter', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', { entity: 'Books', limit: 2 })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
       expect(content.data).to.have.lengthOf(2)
-    })
-
-    it('uses default limit of 20', async () => {
-      const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Genres' })
-      expect(error).to.be.null
-      expect(content.count).to.equal(20)
     })
   })
 
