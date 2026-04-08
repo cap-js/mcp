@@ -137,14 +137,51 @@ describe('Context Resolution', () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
-    expect(content.entities.Books.elements.stock.range).to.deep.equal([0, 999])
+    // Closed range: stock @assert.range: [0, 999] → human-readable format
+    expect(content.entities.Books.elements.stock.range).to.equal('[0, 999]')
+  })
+
+  it('resolves @assert.range with open intervals on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    // Open interval: discount @assert.range: [(0), (100)] → exclusive on both
+    expect(content.entities.Books.elements.discount.range).to.equal('(0, 100)')
+  })
+
+  it('resolves @assert.range with infinity on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    // Infinity: markup @assert.range: [(0), _] → positive numbers only
+    expect(content.entities.Books.elements.markup.range).to.equal('(0, +∞)')
+  })
+
+  it('resolves @assert.range for date/time on entity elements', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
+    expect(error).to.be.null
+    // Date range: publishedAt @assert.range: ['2000-01-01T00:00:00Z', '2099-12-31T23:59:59Z']
+    expect(content.entities.Books.elements.publishedAt.range).to.equal('[2000-01-01T00:00:00Z, 2099-12-31T23:59:59Z]')
   })
 
   it('resolves @assert.range on action parameters', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
     expect(error).to.be.null
-    expect(content.actions.submitOrder.parameters.quantity.range).to.deep.equal([1, 100])
+    expect(content.actions.submitOrder.parameters.quantity.range).to.equal('[1, 100]')
+  })
+
+  it('resolves @assert.range with open intervals on action parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['applyDiscount'] })
+    expect(error).to.be.null
+    // percentage: @assert.range: [(0), (100)]
+    expect(content.actions.applyDiscount.parameters.percentage.range).to.equal('(0, 100)')
+    // markup: @assert.range: [(0), _]
+    expect(content.actions.applyDiscount.parameters.markup.range).to.equal('(0, +∞)')
+    // effectiveDate: @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
+    expect(content.actions.applyDiscount.parameters.effectiveDate.range).to.equal('[2020-01-01T00:00:00Z, 2030-12-31T23:59:59Z]')
   })
 
   it('resolves @assert.format on entity elements', async () => {

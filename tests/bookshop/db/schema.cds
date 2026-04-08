@@ -23,6 +23,10 @@ entity Books : managed {
       currency : Currency;
       status   : String enum { available = 'A'; out_of_stock = 'O'; discontinued = 'D' };
       isbn     : String @assert.format: '/^[0-9]{13}$/';
+      rating   : Decimal @assert.range: [ 0.0, 5.0 ];
+      discount : Integer @assert.range: [(0), (100)];
+      markup   : Decimal @assert.range: [(0), _];
+      publishedAt : DateTime @assert.range: ['2000-01-01T00:00:00Z', '2099-12-31T23:59:59Z'];
       chapters : Composition of many {
           key ID : Integer;
           title  : String;

@@ -105,6 +105,40 @@ describe('Per-Action Tools', () => {
       expect(submitOrderTool.inputSchema.properties.quantity.maximum).to.equal(100)
     })
 
+    it('applies @assert.range with open intervals as exclusiveMinimum/exclusiveMaximum', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      expect(tool).to.exist
+      // percentage: @assert.range: [(0), (100)] → exclusive on both bounds
+      expect(tool.inputSchema.properties.percentage.exclusiveMinimum).to.equal(0)
+      expect(tool.inputSchema.properties.percentage.exclusiveMaximum).to.equal(100)
+      expect(tool.inputSchema.properties.percentage).to.not.have.property('minimum')
+      expect(tool.inputSchema.properties.percentage).to.not.have.property('maximum')
+    })
+
+    it('applies @assert.range with infinity as single-sided bound', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      expect(tool).to.exist
+      // markup: @assert.range: [(0), _] → exclusive min only, no max
+      expect(tool.inputSchema.properties.markup.exclusiveMinimum).to.equal(0)
+      expect(tool.inputSchema.properties.markup).to.not.have.property('maximum')
+      expect(tool.inputSchema.properties.markup).to.not.have.property('exclusiveMaximum')
+    })
+
+    it('applies @assert.range for date/time as description suffix', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      expect(tool).to.exist
+      // effectiveDate: @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
+      expect(tool.inputSchema.properties.effectiveDate.description).to.include('Range:')
+      expect(tool.inputSchema.properties.effectiveDate.description).to.include('2020-01-01T00:00:00Z')
+      expect(tool.inputSchema.properties.effectiveDate.description).to.include('2030-12-31T23:59:59Z')
+    })
+
     it('applies @assert.format as pattern in input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')

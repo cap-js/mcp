@@ -617,7 +617,8 @@
                 "stock",
                 "add",
                 "validateEmail",
-                "submitOrder"
+                "submitOrder",
+                "applyDiscount"
               ]
             }
           }
@@ -644,7 +645,8 @@
               "stock",
               "add",
               "validateEmail",
-              "submitOrder"
+              "submitOrder",
+              "applyDiscount"
             ],
             "description": "The action or function to call"
           },

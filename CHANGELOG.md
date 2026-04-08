@@ -17,6 +17,7 @@
 
 ### Fixed
 - Query limits output in `describe` tool
+- `@assert.range` in `describe` output for tool schemas correctly supports all cases now
 
 ## Version 0.0.10 - 2026-03-30
 

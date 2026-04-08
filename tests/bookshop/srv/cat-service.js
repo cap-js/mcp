@@ -40,6 +40,12 @@ module.exports = class CatalogService extends cds.ApplicationService {
       else req.error(409, `${quantity} exceeds stock for book #${id}`)
     })
 
+    // Action: apply a discount to a book
+    this.on('applyDiscount', async req => {
+      const { book: id, percentage } = req.data
+      return { book: id, discount: percentage }
+    })
+
     // Delegate requests to the underlying generic service
     return super.init();
   }

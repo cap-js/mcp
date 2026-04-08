@@ -45,6 +45,18 @@ service CatalogService {
     @description: 'Shipping priority'
     priority: String enum { standard = 'S'; express = 'E' }
   );
+
+  @description: 'Apply a discount to a book'
+  action applyDiscount(
+    @description: 'The ID of the book'
+    book: Books:ID @mandatory,
+    @description: 'Discount percentage (exclusive of 0 and 100)'
+    percentage: Integer @assert.range: [(0), (100)],
+    @description: 'Price markup multiplier (must be positive)'
+    markup: Decimal @assert.range: [(0), _],
+    @description: 'Effective date for the discount'
+    effectiveDate: DateTime @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
+  );
 }
 
 annotate CatalogService.Books with {
