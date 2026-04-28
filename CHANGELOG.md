@@ -4,6 +4,11 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.12 - TODO
+
+### Fixed
+- Doc comments available in production builds
+
 ## Version 0.0.11 - 2026-04-22
 
 ### Added

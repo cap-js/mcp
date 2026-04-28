@@ -1,9 +1,6 @@
 const cds = require('@sap/cds')
 const DEBUG = cds.debug('mcp')
 
-// Enable doc comments in CSN for better AI context
-cds.env.cdsc = { ...cds.env.cdsc, docComment: true }
-
 // Register compile targets (cds compile -2 mcp)
 require('./lib/api').registerCompileTargets()
 

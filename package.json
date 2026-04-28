@@ -48,6 +48,9 @@
   "author": "SAP SE (https://www.sap.com)",
   "license": "SEE LICENSE IN LICENSE",
   "cds": {
+    "cdsc": {
+      "docs": true
+    },
     "mcp": {
       "autowire": true
     },
