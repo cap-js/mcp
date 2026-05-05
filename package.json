@@ -24,7 +24,7 @@
     "jest-junit": "^16.0.0"
   },
   "peerDependencies": {
-    "@sap/cds": "^9",
+    "@sap/cds": "^8 || ^9",
     "express": "^4 || ^5.0.0"
   },
   "scripts": {
