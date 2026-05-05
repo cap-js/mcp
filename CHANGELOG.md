@@ -4,7 +4,10 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 0.0.12 - TODO
+## Version 0.0.12 - 2026-05-05
+
+### Added
+- Support for CDS 8
 
 ### Fixed
 - Doc comments available in production builds
