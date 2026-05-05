@@ -21,7 +21,7 @@
   "devDependencies": {
     "@cap-js/cds-test": "*",
     "jest": "^30.2.0",
-    "jest-junit": "^16.0.0"
+    "jest-junit": "^17.0.0"
   },
   "peerDependencies": {
     "@sap/cds": "^8 || ^9",
