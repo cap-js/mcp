@@ -14,4 +14,4 @@ jobs:
     runs-on: [self-hosted, solinas]
     steps:
       - name: Check PR title
-        uses: cap/.github/.github/actions/check-pr-title@main
+        uses: cap/.github/.github/actions/check-pr-title@9614bc0531fcd635c7ff0935393428a6ae17422f # main

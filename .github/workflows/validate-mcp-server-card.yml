@@ -11,15 +11,15 @@ jobs:
     name: MCP Server Card
     runs-on: [self-hosted, solinas]
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 24
       - run: npm i -g @sap/cds-dk
       - run: npm i
       - run: cd tests/bookshop && cds compile ./srv -s CatalogService -2 mcp > server-card.json
       - name: Run API Metadata Validator
-        uses: CPA/api-metadata-validator@main
+        uses: CPA/api-metadata-validator@557fb7147f775d8cb6dff2e729857d005a5790b2 # main
         with:
           files: ./tests/bookshop/*-card.json
           verbose: true

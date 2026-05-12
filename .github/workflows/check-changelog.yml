@@ -10,4 +10,4 @@ jobs:
     runs-on: [self-hosted, solinas]
     steps:
       - name: Check changelog
-        uses: cap/.github/.github/actions/check-changelog@main
+        uses: cap/.github/.github/actions/check-changelog@9614bc0531fcd635c7ff0935393428a6ae17422f # main

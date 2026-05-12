@@ -22,9 +22,9 @@ jobs:
         node-version: [20.x, 22.x]
         cds-version: [latest]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
@@ -35,7 +35,7 @@ jobs:
 
   # Pre-release: upload test results and run BlackDuck scans
   upload-test-results:
-    uses: cap/.github/.github/workflows/pre-release.yml@main
+    uses: cap/.github/.github/workflows/pre-release.yml@9614bc0531fcd635c7ff0935393428a6ae17422f # main
     secrets:
       cumulus-token: ${{ secrets.CUMULUS_TOKEN_CDS_UMBRELLA }}
     with:
@@ -47,7 +47,7 @@ jobs:
       npm-script: 'test:reporting'
 
   blackduck-scans:
-    uses: cap/.github/.github/workflows/scans.yml@main
+    uses: cap/.github/.github/workflows/scans.yml@9614bc0531fcd635c7ff0935393428a6ae17422f # main
     secrets: inherit
     with:
       project: CDSUMBRELLA
@@ -56,7 +56,7 @@ jobs:
     needs: [upload-test-results, blackduck-scans, test]
     runs-on: [self-hosted, solinas-medium]
     steps:
-      - uses: cap/.github/.github/actions/release@main
+      - uses: cap/.github/.github/actions/release@9614bc0531fcd635c7ff0935393428a6ae17422f # main
         with:
           xmake-token: ${{ secrets.XMAKE_TOKEN }}
           xmake-user: ${{ secrets.XMAKE_USER }}
