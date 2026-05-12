@@ -613,6 +613,9 @@
             "items": {
               "type": "string",
               "enum": [
+                "withMany",
+                "withManyCustomTypes",
+                "withCustomTypes",
                 "sum",
                 "stock",
                 "add",
@@ -641,6 +644,9 @@
           "action": {
             "type": "string",
             "enum": [
+              "withMany",
+              "withManyCustomTypes",
+              "withCustomTypes",
               "sum",
               "stock",
               "add",

@@ -114,6 +114,55 @@ describe('call_action tool', () => {
       expect(error).to.match(/not found|invalid/i)
     })
   })
+
+  describe('actions with complex types (many, custom types)', () => {
+    it('lists withMany, withManyCustomTypes, withCustomTypes in action enum', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const actionEnum = callActionTool.inputSchema.properties.action.enum
+      expect(actionEnum).to.include('withMany')
+      expect(actionEnum).to.include('withManyCustomTypes')
+      expect(actionEnum).to.include('withCustomTypes')
+    })
+
+    it('calls withMany action with array param', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('call_action', {
+        action: 'withMany',
+        parameters: { updates: [{ ID: 'foo' }, { ID: 'bar' }] }
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withMany')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.deep.equal([{ ID: 'foo' }, { ID: 'bar' }])
+    })
+
+    it('calls withManyCustomTypes action with array of typed objects', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('call_action', {
+        action: 'withManyCustomTypes',
+        parameters: { updates: [{ ID: '1', abc: 'val', def: '2024-06-01T12:00:00Z', prop1: 'p' }] }
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withManyCustomTypes')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.deep.equal([{ ID: '1', abc: 'val', def: '2024-06-01T12:00:00Z', prop1: 'p' }])
+    })
+
+    it('calls withCustomTypes action with scalar custom type param', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('call_action', {
+        action: 'withCustomTypes',
+        parameters: { prop1: 'myval' }
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withCustomTypes')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.have.property('prop1', 'myval')
+      expect(content.result).to.have.property('ID', 'result')
+    })
+  })
 })
 
 describe('call_action authorization', () => {

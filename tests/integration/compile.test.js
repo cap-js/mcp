@@ -7,7 +7,7 @@ const bookshopPath = path.join(__dirname, '../bookshop')
 
 describe('cds compile -2 mcp', () => {
   it('matches expected server card structure', async () => {
-    const { stdout } = await execAsync('cds compile srv/cat-service.cds -2 mcp', { cwd: bookshopPath })
+    const { stdout } = await execAsync('cds c srv -s CatalogService -2 mcp', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
     const expected = require('../bookshop/expected-catalog-service-card.json')
 

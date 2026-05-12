@@ -146,6 +146,86 @@ describe('Per-Action Tools', () => {
       expect(tool).to.exist
       expect(tool.inputSchema.properties.email.pattern).to.equal('^\\S+@\\S+\\.\\S+$')
     })
+
+    it('withMany tool has updates param typed as array of objects', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'withMany')
+      expect(tool).to.exist
+      expect(tool.description).to.include('Testing many in actions for ZOD schema')
+      expect(tool.inputSchema.properties).to.have.property('updates')
+      expect(tool.inputSchema.properties.updates.type).to.equal('array')
+      expect(tool.inputSchema.properties.updates.items).to.exist
+      expect(tool.inputSchema.properties.updates.items.type).to.equal('object')
+      expect(tool.inputSchema.properties.updates.items.properties).to.have.property('ID')
+      expect(tool.inputSchema.properties.updates.items.properties.ID.type).to.equal('string')
+    })
+
+    it('withManyCustomTypes tool has updates param typed as array of structured objects', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'withManyCustomTypes')
+      expect(tool).to.exist
+      expect(tool.description).to.include('Testing many in combination with custom types')
+      expect(tool.inputSchema.properties).to.have.property('updates')
+      expect(tool.inputSchema.properties.updates.type).to.equal('array')
+      const itemProps = tool.inputSchema.properties.updates.items.properties
+      expect(itemProps).to.have.property('ID')
+      expect(itemProps).to.have.property('abc')
+      expect(itemProps).to.have.property('def')
+      expect(itemProps).to.have.property('prop1')
+      expect(itemProps.ID.type).to.equal('string')
+      expect(itemProps.abc.type).to.equal('string')
+      expect(itemProps.def.type).to.equal('string')
+      expect(itemProps.prop1.type).to.equal('string')
+    })
+
+    it('withCustomTypes tool has prop1 param typed as string (resolved custom type)', async () => {
+      const { mcp } = mcpClient()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find(t => t.name === 'withCustomTypes')
+      expect(tool).to.exist
+      expect(tool.description).to.include('Testing custom types in actions for ZOD schema')
+      expect(tool.inputSchema.properties).to.have.property('prop1')
+      expect(tool.inputSchema.properties.prop1.type).to.equal('string')
+    })
+  })
+
+  describe('calling per-action tools with complex types', () => {
+    it('calls withMany action with array of {ID} objects', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('withMany', {
+        updates: [{ ID: 'abc' }, { ID: 'def' }]
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withMany')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.deep.equal([{ ID: 'abc' }, { ID: 'def' }])
+    })
+
+    it('calls withManyCustomTypes action with array of props objects', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('withManyCustomTypes', {
+        updates: [{ ID: '1', abc: 'hello', def: '2024-01-01T00:00:00Z', prop1: 'x' }]
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withManyCustomTypes')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.deep.equal([{ ID: '1', abc: 'hello', def: '2024-01-01T00:00:00Z', prop1: 'x' }])
+    })
+
+    it('calls withCustomTypes action with scalar custom type param', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('withCustomTypes', {
+        prop1: 'test-value'
+      })
+      expect(error).to.be.null
+      expect(content.action).to.equal('withCustomTypes')
+      expect(content.kind).to.equal('action')
+      expect(content.result).to.have.property('prop1', 'test-value')
+      expect(content.result).to.have.property('ID', 'result')
+      expect(content.result).to.have.property('abc', 'hello')
+    })
   })
 
 })

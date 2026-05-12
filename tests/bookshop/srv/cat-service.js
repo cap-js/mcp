@@ -46,6 +46,20 @@ module.exports = class CatalogService extends cds.ApplicationService {
       return { book: id, discount: percentage }
     })
 
+    // Action: echo back array of {ID} objects (tests many inline struct)
+    this.on('withMany', req => req.data.updates)
+
+    // Action: echo back array of props objects (tests many custom type)
+    this.on('withManyCustomTypes', req => req.data.updates)
+
+    // Action: echo back a props object (tests custom type params)
+    this.on('withCustomTypes', req => ({
+      ID: 'result',
+      abc: 'hello',
+      def: '2024-01-01T00:00:00Z',
+      prop1: req.data.prop1
+    }))
+
     // Delegate requests to the underlying generic service
     return super.init();
   }

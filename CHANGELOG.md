@@ -4,6 +4,12 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.13 - 2026-05-12
+
+### Fixed
+- Actions with `many` parameters now properly work
+- Custom types in actions work properly
+
 ## Version 0.0.12 - 2026-05-05
 
 ### Added
