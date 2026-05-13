@@ -4,12 +4,27 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
+  pull_request_target:
     branches: [main]
+    types: [reopened, synchronize, opened]
+
+permissions:
+  contents: read
 
 jobs:
+  requires-approval:
+    runs-on: ubuntu-latest
+    name: Waiting for PR approval as this workflow runs on pull_request_target
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.owner.login != 'cap'
+    environment: pr-approval
+    steps:
+      - name: Approval Step
+        run: echo "This job has been approved!"
+
   test:
     runs-on: [self-hosted, solinas]
+    needs: requires-approval
+    if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     timeout-minutes: 3
     name: SQLite Tests with Node.js ${{ matrix.node-version }} and CAP ${{ matrix.cds-version }}
     strategy:
@@ -19,6 +34,8 @@ jobs:
         cds-version: [latest, 8]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -48,6 +65,8 @@ jobs:
     runs-on: [self-hosted, solinas-medium]
     container:
       image: public.int.repositories.cloud.sap/ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+    needs: requires-approval
+    if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     timeout-minutes: 15
     name: HANA Tests with Node.js ${{ matrix.node-version }} and CAP ${{ matrix.cds-version }}
     strategy:
@@ -58,6 +77,8 @@ jobs:
     steps:
       - run: apt-get update -y && apt-get install make wget -y
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: cap/.github/.github/actions/git-setup@9614bc0531fcd635c7ff0935393428a6ae17422f # main
         with:
           com-github-token: ${{ secrets.COM_GITHUB_TOKEN }}
