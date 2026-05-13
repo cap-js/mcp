@@ -55,6 +55,10 @@ jobs:
           cd tests/bookshop
           npm pkg set "dependencies.@cap-js/hana=^1.0.0"
           npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
+          cd ../../tests/bookshop-mtx
+          npm pkg set "dependencies.@cap-js/hana=^1.0.0"
+          npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
+          npm pkg set "dependencies.@sap/cds-mtxs=^2"
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && npm i
