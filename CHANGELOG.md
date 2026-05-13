@@ -4,6 +4,11 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.14 - 2026-05-13
+
+### Fixed
+- MCP endpoints take extended cds model into consideration not only base model
+
 ## Version 0.0.13 - 2026-05-12
 
 ### Fixed
