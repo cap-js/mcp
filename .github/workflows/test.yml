@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   requires-approval:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, solinas]
     name: Waiting for PR approval as this workflow runs on pull_request_target
     if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.owner.login != 'cap'
     environment: pr-approval
