@@ -4,6 +4,11 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.15 - 2026-05-18
+
+### Fixed
+- Remove strict UUID input validation to allow HANA UUIDs 
+
 ## Version 0.0.14 - 2026-05-13
 
 ### Fixed
