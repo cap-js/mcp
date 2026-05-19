@@ -7,7 +7,7 @@ describe('@cds.query.limit', () => {
 
   beforeAll(async () => {
     const db = await cds.connect.to('db')
-    const { Books } = db.entities('sap.capire.bookshop')
+    const { Books } = cds.entities('sap.capire.bookshop')
     const books = Array.from({ length: 200 }, (_, i) => ({
       ID: 1000 + i,
       title: `Generated Book ${i}`,
