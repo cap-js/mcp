@@ -4,6 +4,11 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 0.0.16 - 2026-06-03
+
+### Added
+- Add `offset` parameter to the `query` tool for stable pagination (CQN `limit.offset`)
+
 ## Version 0.0.15 - 2026-05-18
 
 ### Fixed

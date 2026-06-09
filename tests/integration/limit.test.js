@@ -219,4 +219,118 @@ describe('@cds.query.limit', () => {
 
   })
 
+  describe('offset', () => {
+
+    // Stable order helper — sort by ID to make page contents predictable
+    const orderById = [{ ref: ['ID'], sort: 'asc' }]
+
+    it('offset + limit returns the requested slice', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const { content, error } = await callTool('query', {
+        entity: 'MaxOverrideBooks',
+        orderBy: orderById,
+        limit: 5,
+        offset: 5
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(5)
+      const ids = content.data.map(b => b.ID)
+      // IDs should be in ascending order
+      expect(ids).to.deep.equal([...ids].sort((a, b) => a - b))
+      expect(ids).to.have.lengthOf(5)
+    })
+
+    it('offset: 0 behaves identically to omitting offset', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const baseline = await callTool('query', {
+        entity: 'MaxOverrideBooks', orderBy: orderById, limit: 10
+      })
+      const withOffset0 = await callTool('query', {
+        entity: 'MaxOverrideBooks', orderBy: orderById, limit: 10, offset: 0
+      })
+      expect(baseline.error).to.be.null
+      expect(withOffset0.error).to.be.null
+      expect(withOffset0.content.data.map(b => b.ID))
+        .to.deep.equal(baseline.content.data.map(b => b.ID))
+    })
+
+    it('two consecutive pages are disjoint and contiguous', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const page1 = await callTool('query', {
+        entity: 'MaxOverrideBooks', orderBy: orderById, limit: 5, offset: 0
+      })
+      const page2 = await callTool('query', {
+        entity: 'MaxOverrideBooks', orderBy: orderById, limit: 5, offset: 5
+      })
+      expect(page1.error).to.be.null
+      expect(page2.error).to.be.null
+      const ids1 = page1.content.data.map(b => b.ID)
+      const ids2 = page2.content.data.map(b => b.ID)
+      expect(ids1).to.have.lengthOf(5)
+      expect(ids2).to.have.lengthOf(5)
+      // No overlap
+      expect(ids1.filter(id => ids2.includes(id))).to.deep.equal([])
+      // Contiguous when sorted
+      expect([...ids1, ...ids2]).to.deep.equal(
+        [...ids1, ...ids2].sort((a, b) => a - b)
+      )
+    })
+
+    it('offset alone applies CAP default page size as rows', async () => {
+      // FullLimitBooks has default=5 — offset without limit should still cap at 5
+      const { callTool } = mcpClient('/mcp/limit')
+      const { content, error } = await callTool('query', {
+        entity: 'FullLimitBooks', orderBy: orderById, offset: 3
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(5)
+    })
+
+    it('respects entity max when (offset + limit) crosses it', async () => {
+      // FullLimitBooks max=25 — request 100 starting at offset 10 → still capped at 25
+      const { callTool } = mcpClient('/mcp/limit')
+      const { content, error } = await callTool('query', {
+        entity: 'FullLimitBooks', orderBy: orderById, limit: 100, offset: 10
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(25)
+    })
+
+    it('offset is ignored when one: true (single record returned)', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const { content, error } = await callTool('query', {
+        entity: 'MaxOverrideBooks', orderBy: orderById, offset: 5, one: true
+      })
+      expect(error).to.be.null
+      expect(content.count).to.equal(1)
+    })
+
+    it('offset is ignored when distinct: true', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const { content: withOffset, error: e1 } = await callTool('query', {
+        entity: 'MaxOverrideBooks',
+        select: [{ ref: ['currency_code'] }],
+        distinct: true,
+        offset: 100
+      })
+      const { content: noOffset, error: e2 } = await callTool('query', {
+        entity: 'MaxOverrideBooks',
+        select: [{ ref: ['currency_code'] }],
+        distinct: true
+      })
+      expect(e1).to.be.null
+      expect(e2).to.be.null
+      expect(withOffset.count).to.equal(noOffset.count)
+    })
+
+    it('rejects negative offset via Zod validation', async () => {
+      const { callTool } = mcpClient('/mcp/limit')
+      const { error } = await callTool('query', {
+        entity: 'MaxOverrideBooks', offset: -1
+      })
+      expect(error).to.be.ok
+    })
+
+  })
+
 })
