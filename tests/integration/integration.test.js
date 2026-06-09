@@ -13,6 +13,22 @@ describe('MCP Protocol', () => {
     expect(response.result.serverInfo).to.have.property('description', 'Catalog service for browsing books.\nProvides read access to the book catalog including genres and author information.')
   })
 
+  it('returns custom @mcp.instructions in initialize response', async () => {
+    const { initialize } = mcpClient()
+    const response = await initialize()
+    expect(response.result.instructions).to.equal(
+      'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.'
+    )
+  })
+
+  it('returns default instructions when @mcp.instructions is not set', async () => {
+    const { initialize } = mcpClient('/mcp/admin', 'alice:')
+    const response = await initialize()
+    expect(response.result.instructions).to.equal(
+      "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions."
+    )
+  })
+
   it('handles invalid JSON body gracefully', async () => {
     const response = await fetch(`${test.url}/mcp/catalog`, {
       method: 'POST',

@@ -23,6 +23,16 @@ All configuration lives under `cds.mcp` in your `package.json`:
 
 For all other configuration options, refer to the official [documentation](https://pages.github.tools.sap/cap/docs/guides/protocols/mcp).
 
+## Custom Server Instructions
+
+You can customize the MCP server instructions sent to agents during initialization using the `@mcp.instructions` annotation:
+
+```cds
+annotate MyService with @mcp.instructions: 'Use describe to explore the product catalog. Use query to search products by name or category.';
+```
+
+If not set, a default instruction is used. The annotation also supports i18n references (`{i18n>key}`).
+
 ## Demo
 The demo video starts with local usage with Opencode, then proceeds to do the same with Joule.
 It is to large for GH, so:

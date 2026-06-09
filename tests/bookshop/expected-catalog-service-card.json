@@ -7,7 +7,7 @@
     "2025-11-25"
   ],
   "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
-  "instructions": "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions.",
+  "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.",
   "remotes": [
     {
       "type": "streamable-http",

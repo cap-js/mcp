@@ -7,6 +7,7 @@
 ## Version 0.0.16 - 2026-06-03
 
 ### Added
+- Support `@mcp.instructions` annotation to customize MCP server instructions per service
 - Add `offset` parameter to the `query` tool for stable pagination (CQN `limit.offset`)
 
 ## Version 0.0.15 - 2026-05-18
