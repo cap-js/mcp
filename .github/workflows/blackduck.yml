@@ -9,7 +9,7 @@ on:
 
 jobs:
   scans:
-    uses: cap/.github/.github/workflows/scans.yml@9614bc0531fcd635c7ff0935393428a6ae17422f # main
+    uses: cap/.github/.github/workflows/scans.yml@87c2db57786c5525a56271a7370075ff0cf20a3d # main
     secrets: inherit
     with:
       project: CDSUMBRELLA
