@@ -19,9 +19,9 @@
     "test-exclude": "^8.0.0"
   },
   "devDependencies": {
-    "@cap-js/cds-test": "^1",
-    "jest": "^30",
-    "jest-junit": "^17"
+    "@cap-js/cds-test": "1.0.1",
+    "jest": "30.4.2",
+    "jest-junit": "17.0.0"
   },
   "peerDependencies": {
     "@sap/cds": "^8 || ^9",
