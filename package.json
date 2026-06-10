@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
     "lib",
