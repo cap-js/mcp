@@ -18,6 +18,12 @@
   },
   "private": true,
   "cds": {
+    "log": {
+      "levels": {
+        "sql": "info",
+        "cds": "info"
+      }
+    },
     "mcp": {
       "per_action_tool": false,
       "toon_format": true
