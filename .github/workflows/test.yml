@@ -84,8 +84,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: cap/.github/.github/actions/git-setup@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
-        with:
-          com-github-token: ${{ secrets.COM_GITHUB_TOKEN }}
 
       - name: Run HANA integration tests
         uses: ./.github/actions/integration-tests
