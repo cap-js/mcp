@@ -4,10 +4,14 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.0.4 - 2026-06-12
+## Version 1.0.4 - 2026-06-15
 
 ### Added
 - Allow CDS session variables `$now`, `$user`, `$user.id`, `$user.locale`, `$user.tenant` in where clauses
+
+### Fixed
+- Resolving of many action parameters in `describe` output
+- Resolving of complex type action parameters in `describe` output
 
 ## Version 1.0.3 - 2026-06-11
 
