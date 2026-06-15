@@ -52,7 +52,8 @@
       "docs": true
     },
     "mcp": {
-      "autowire": true
+      "autowire": true,
+      "format": "cqn"
     }
   },
   "workspaces": [
