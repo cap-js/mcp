@@ -178,6 +178,21 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       expect(res.result.isError).to.not.be.true
       expect(text).to.include('sum')
     })
+
+    it('describes entity with aspects (includes) without referencing external types', async () => {
+      const { mcp } = mcpClient()
+      // Genres entity uses aspects: cuid, sap.common.CodeList
+      const res = await mcp('tools/call', { name: 'describe', arguments: { entities: ['Genres'] } })
+      const text = res.result.content[0].text
+      expect(res.result.isError).to.not.be.true
+      // Should contain entity definition with its elements
+      expect(text).to.include('Genres')
+      expect(text).to.include('ID')
+      expect(text).to.include('name')
+      // Should NOT reference aspect includes (confusing for LLM SQL generation)
+      expect(text).to.not.include(': cuid')
+      expect(text).to.not.include('sap.common.CodeList')
+    })
   })
 
   describe('Security — cross-service access prevention', () => {
