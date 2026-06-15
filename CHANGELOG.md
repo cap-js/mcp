@@ -4,6 +4,11 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 1.0.4 - 2026-06-12
+
+### Added
+- Allow CDS session variables `$now`, `$user`, `$user.id`, `$user.locale`, `$user.tenant` in where clauses
+
 ## Version 1.0.3 - 2026-06-11
 
 ### Removed
