@@ -440,6 +440,39 @@ describe('query', () => {
       expect(content2.data.length).to.equal(5)
     })
 
+    it('allows $now session variable in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['createdAt'] }, '<=', { ref: ['$now'] }]
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+    })
+
+    it('allows $user session variable in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, '=', { ref: ['$user'] }]
+      })
+      // $user is a structure in CDS runtime, so comparison may fail at runtime,
+      // but it must NOT fail with "Invalid where field(s)" validation error
+      if (error) {
+        expect(error).to.not.match(/Invalid where field/)
+      }
+    })
+
+    it('allows $user.id session variable in where clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, '=', { ref: ['$user', 'id'] }]
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+    })
+
   })
 
   describe('select', () => {

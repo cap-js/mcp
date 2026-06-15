@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
     "lib",
@@ -24,7 +24,7 @@
     "jest-junit": "17.0.0"
   },
   "peerDependencies": {
-    "@sap/cds": "^8 || ^9",
+    "@sap/cds": ">=8",
     "express": "^4 || ^5.0.0"
   },
   "scripts": {

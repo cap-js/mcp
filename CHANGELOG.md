@@ -9,6 +9,15 @@
 ### Added
 - Support query SQL format for easier LLM handling. The SQL is converted to CQN and send via the service to avoid SQL injections. The describe tool returns CQL in this format instead of CSN.
 
+## Version 1.0.4 - 2026-06-15
+
+### Added
+- Allow CDS session variables `$now`, `$user`, `$user.id`, `$user.locale`, `$user.tenant` in where clauses
+
+### Fixed
+- Resolving of many action parameters in `describe` output
+- Resolving of complex type action parameters in `describe` output
+
 ## Version 1.0.3 - 2026-06-11
 
 ### Removed

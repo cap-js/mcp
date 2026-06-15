@@ -198,6 +198,64 @@ describe('Context Resolution', () => {
     expect(content.actions.validateEmail.parameters.email.format).to.equal('/^\\S+@\\S+\\.\\S+$/')
   })
 
+  it('resolves array of scalar type on parameters (many String)', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
+    expect(error).to.be.null
+    expect(content.actions.withArrayParams.parameters.manyStringParam.type).to.equal('Array of String')
+    expect(content.actions.withArrayParams.parameters.arrayOfStringParam.type).to.equal('Array of String')
+  })
+
+  it('resolves array of inline struct type on parameters (many {...})', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
+    expect(error).to.be.null
+    expect(content.actions.withArrayParams.parameters.manyStructParam.type).to.equal('Array of {name: String, value: Integer}')
+  })
+
+  it('resolves array of custom type on parameters (many CustomType)', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
+    expect(error).to.be.null
+    expect(content.actions.withArrayParams.parameters.customTypeParam.type).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
+    expect(content.actions.withArrayParams.parameters.customTypeParam.description).to.equal('A many custom type parameter')
+  })
+
+  it('resolves array of custom type on dedicated action (many CustomType)', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withManyCustomTypes'] })
+    expect(error).to.be.null
+    expect(content.actions.withManyCustomTypes.parameters.updates.type).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
+  })
+
+  it('resolves scalar custom type alias on parameters', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withCustomTypes'] })
+    expect(error).to.be.null
+    expect(content.actions.withCustomTypes.parameters.prop1.type).to.equal('String')
+  })
+
+  it('resolves structured custom type on returns', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withCustomTypes'] })
+    expect(error).to.be.null
+    expect(content.actions.withCustomTypes.returns).to.equal('{ID: String, abc: String, def: DateTime, prop1: String}')
+  })
+
+  it('resolves array of structured custom type on returns', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withManyCustomTypes'] })
+    expect(error).to.be.null
+    expect(content.actions.withManyCustomTypes.returns).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
+  })
+
+  it('resolves array of inline struct on returns', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe', { actions: ['withMany'] })
+    expect(error).to.be.null
+    expect(content.actions.withMany.returns).to.equal('Array of {ID: String}')
+  })
+
   it('resolves {i18n>key} references and respects Accept-Language header', async () => {
     // English locale - Books entity has @title: '{i18n>Books}'
     const { callTool: callToolEn } = mcpClient('/mcp/catalog', null, 'en')
