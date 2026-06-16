@@ -110,6 +110,18 @@ describe('describe', () => {
     expect(elementNames).to.not.include('texts')
   })
 
+  it('does not include autoexposed composition targets in overview', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    const entityNames = Object.keys(content.entities)
+    // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
+    expect(entityNames).to.not.include('Books.chapters')
+    // Entities with @cds.autoexpose (CodeLists) should still be present
+    expect(entityNames).to.include('Genres')
+    expect(entityNames).to.include('Currencies')
+  })
+
   it('lists actions in describe output', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe')

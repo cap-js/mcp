@@ -172,6 +172,15 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       expect(text).to.include('Genres')
     })
 
+    it('does not include autoexposed composition targets', async () => {
+      const { mcp } = mcpClient()
+      const res = await mcp('tools/call', { name: 'describe', arguments: {} })
+      const text = res.result.content[0].text
+      expect(res.result.isError).to.not.be.true
+      // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
+      expect(text).to.not.include('chapters')
+    })
+
     it('returns action definitions', async () => {
       const { mcp } = mcpClient()
       const res = await mcp('tools/call', { name: 'describe', arguments: { actions: ['sum'] } })
