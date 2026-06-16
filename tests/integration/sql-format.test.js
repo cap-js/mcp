@@ -118,7 +118,8 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       })
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(1)
-      expect(content.count).to.equal(5)
+      const {amt} = await cds.run(SELECT.one.from("CatalogService.Books").columns('count(*) as amt'))
+      expect(content.count).to.equal(amt)
     })
 
     it('returns original sql in result', async () => {
