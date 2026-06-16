@@ -9,7 +9,7 @@ on:
 
 jobs:
   codeql:
-    uses: cap/.github/.github/workflows/codeql.yml@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
+    uses: cap/.github/.github/workflows/codeql.yml@9f7b60fd8374f26f57c64546ea8a82e7e11f6adc # main
     secrets: inherit
     with:
       use-sap: true

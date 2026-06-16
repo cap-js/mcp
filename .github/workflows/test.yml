@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: cap/.github/.github/actions/git-setup@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
+      - uses: cap/.github/.github/actions/git-setup@9f7b60fd8374f26f57c64546ea8a82e7e11f6adc # main
 
       - name: Run HANA integration tests
         uses: ./.github/actions/integration-tests
