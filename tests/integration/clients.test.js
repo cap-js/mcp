@@ -24,6 +24,7 @@ cds.on("bootstrap", () => {
 
 const test = cds.test(__dirname + "/../bookshop");
 const { expect } = test;
+const { executePerActionTool } = require("../../lib/tools");
 
 describe("Custom MCP Client Registration", () => {
   describe("export()", () => {
@@ -54,6 +55,38 @@ describe("Custom MCP Client Registration", () => {
 
       expect(purgeCalls[0].services).to.include("CatalogService");
       expect(purgeCalls[0].services).to.include("AdminService");
+    });
+  });
+
+  describe("custom log option (consumer reuse)", () => {
+    it("routes execute* logs through a caller-supplied logger", async () => {
+      // Mirrors how @cap-js/a2a reuses execute* with its own cds.log('a2a')
+      // instance so tool-call logs surface under [a2a] instead of [mcp].
+      await test;
+
+      const calls = [];
+      const log = (...args) => calls.push({ method: "info", args });
+      log.info  = (...args) => calls.push({ method: "info",  args });
+      log.debug = (...args) => calls.push({ method: "debug", args });
+      log.warn  = (...args) => calls.push({ method: "warn",  args });
+      log.error = (...args) => calls.push({ method: "error", args });
+
+      const srv = await cds.connect.to("CatalogService");
+      const action = srv.operations?.sum || srv.definition?.actions?.sum;
+
+      const result = await executePerActionTool(
+        srv,
+        "sum",
+        action,
+        { x: 2, y: 3 },
+        { log }
+      );
+
+      expect(result.isError).to.not.equal(true);
+      expect(result.structuredContent.result).to.equal(5);
+
+      const tags = calls.map((c) => c.args[0]);
+      expect(tags).to.include("sum");
     });
   });
 });

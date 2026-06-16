@@ -4,9 +4,10 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.1.0 - 2026.06.16
+## Version 1.1.0 - 2026-06-16
 
 ### Added
+- Optional `log` option `lib/tools.js` to route tool-execution and registration logs through a custom `cds.log` instance
 - Optional tool name prefix (via `cds.mcp.prefix: true`) to avoid possible collisions when clients connect to multiple CAP MCP servers
 
 ## Version 1.0.4 - 2026-06-15
