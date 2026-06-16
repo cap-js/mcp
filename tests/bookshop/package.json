@@ -26,7 +26,8 @@
     },
     "mcp": {
       "per_action_tool": false,
-      "toon_format": true
+      "toon_format": true,
+      "prefix": false
     },
     "hana": {
       "fuzzy": false
