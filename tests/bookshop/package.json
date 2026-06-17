@@ -1,0 +1,12 @@
+{
+  "name": "bookshop",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "dependencies": {
+    "@cap-js/REPO-NAME": "file:../../."
+  },
+  "sapux": [
+    "app/admin-books",
+    "app/browse"
+  ]
+}
