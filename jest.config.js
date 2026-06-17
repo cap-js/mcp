@@ -1,8 +1,12 @@
 const config = {
-  testTimeout: 60000,
-  testMatch: ["**/*.test.js"],
-  forceExit: true,
+  testTimeout: 120000,
+  testMatch: ['**/tests/**/*.test.js'],
+  moduleFileExtensions: ['js'],
+  collectCoverageFrom: ['lib/**', 'cds-plugin.js'],
+  coverageReporters: ['json'],
+  silent: true,
   detectOpenHandles: true,
-}
-
-module.exports = config
+  // Pre-load ESM modules for require() compatibility
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+};
+module.exports = config;

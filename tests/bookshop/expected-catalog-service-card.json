@@ -1,0 +1,687 @@
+{
+  "$schema": "https://pages.github.tools.sap/CPA/mcp-protocol/spec-v1/mcp-server-card-spec.schema.json",
+  "name": "sap.cds.services/catalog",
+  "title": "CatalogService",
+  "version": "1.0.0",
+  "supportedProtocolVersions": [
+    "2025-11-25"
+  ],
+  "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
+  "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "/mcp/catalog"
+    }
+  ],
+  "capabilities": {
+    "tools": {}
+  },
+  "tools": [
+    {
+      "name": "query",
+      "description": "Query any entity in CatalogService service. Use describe to discover available entities and their fields.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "entity": {
+            "type": "string",
+            "enum": [
+              "Books",
+              "Genres",
+              "Currencies"
+            ],
+            "description": "The entity to query"
+          },
+          "where": {
+            "description": "CQN where clause as array of expression tokens. Format: [expr, operator, expr, keyword?, expr, operator, expr, ...]\n\nExpressions:\n- Field reference: { \"ref\": [\"fieldName\"] } or { \"ref\": [\"assoc\", \"field\"] }\n- Infix filter: { \"ref\": [{ \"id\": \"books\", \"where\": [{ \"ref\": [\"stock\"] }, \">\", { \"val\": 100 }] }] }\n- Literal value: { \"val\": value }\n- List of values: { \"list\": [{ \"val\": v1 }, { \"val\": v2 }] }\n- Nested expression: { \"xpr\": [...tokens...] }\n- Function call: { \"func\": \"funcName\", \"args\": [expr, ...] }\n\nExamples:\n- [{ \"ref\": [\"title\"] }, \"=\", { \"val\": \"Jane Eyre\" }]\n- [{ \"ref\": [\"price\"] }, \">\", { \"val\": 10 }, \"and\", { \"ref\": [\"stock\"] }, \">\", { \"val\": 0 }]\n- [{ \"ref\": [\"name\"] }, \"like\", { \"val\": \"A%\" }]\n- [{ \"ref\": [\"status\"] }, \"is\", \"null\"]\n- [{ \"ref\": [\"price\"] }, \"between\", { \"val\": 10 }, \"and\", { \"val\": 50 }]\n- [\"exists\", { \"ref\": [{ \"id\": \"books\", \"where\": [{ \"ref\": [\"stock\"] }, \">\", { \"val\": 100 }] }] }]\n- [{ \"func\": \"year\", \"args\": [{ \"ref\": [\"publishedAt\"] }] }, \"=\", { \"val\": 2024 }]\n- [{ \"ref\": [\"createdAt\"] }, \"<=\", { \"ref\": [\"$now\"] }] - compare with current timestamp\n- [{ \"ref\": [\"createdBy\"] }, \"=\", { \"ref\": [\"$user\"] }] - filter by current user",
+            "type": "array",
+            "items": {
+              "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+            }
+          },
+          "select": {
+            "description": "List of column expressions to return. Defaults to all fields if not specified.\n\nColumn types:\n- Ref path: { \"ref\": [\"field\"], \"as\": \"alias\" } for fields with optional alias\n- Path expression: { \"ref\": [\"assoc\", \"field\"], \"as\": \"alias\" } for association navigation\n- Expand: { \"ref\": [\"assoc\"], \"expand\": [{ \"ref\": [\"field1\"] }, { \"ref\": [\"field2\"] }] } for to-many as nested arrays. Use [\"*\"] to expand all.\n- Function call: { \"func\": \"funcName\", \"args\": [expr, ...], \"as\": \"alias\" }\n- Expression: { \"xpr\": [expr, operator, expr, ...], \"as\": \"alias\" } for calculated columns\n\nExamples:\n- [{ \"ref\": [\"title\"] }, { \"ref\": [\"price\"] }] - select fields\n- [{ \"ref\": [\"author\", \"name\"], \"as\": \"authorName\" }] - association path with alias\n- [{ \"ref\": [\"books\"], \"expand\": [{ \"ref\": [\"title\"] }, { \"ref\": [\"price\"] }] }] - expand to-many\n- [{ \"func\": \"count\", \"args\": [\"*\"], \"as\": \"total\" }] - count all rows\n- [{ \"func\": \"toupper\", \"args\": [{ \"ref\": [\"title\"] }], \"as\": \"upperTitle\" }] - string function\n- [{ \"xpr\": [{ \"ref\": [\"price\"] }, \"*\", { \"ref\": [\"stock\"] }], \"as\": \"totalValue\" }] - calculated column",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "ref": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "where": {
+                                "type": "array",
+                                "items": {
+                                  "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                                }
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "as": {
+                      "type": "string"
+                    },
+                    "expand": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/tools/0/inputSchema/definitions/__schema3"
+                      }
+                    }
+                  },
+                  "required": [
+                    "ref"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "$ref": "#/tools/0/inputSchema/definitions/__schema2"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "xpr": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                      }
+                    },
+                    "as": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "xpr"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "groupBy": {
+            "description": "Field(s) to group results by for aggregation queries. Use \"field\" for simple fields or \"assoc.field\" for association paths. Use with aggregate functions in select.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "having": {
+            "description": "CQN having clause for filtering grouped results. Same format as where clause but applied after GROUP BY.\n\nExamples:\n- [{ \"func\": \"count\", \"args\": [\"*\"] }, \">\", { \"val\": 5 }] - groups with more than 5 items\n- [{ \"func\": \"sum\", \"args\": [{ \"ref\": [\"stock\"] }] }, \">=\", { \"val\": 100 }] - groups with total stock >= 100",
+            "type": "array",
+            "items": {
+              "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+            }
+          },
+          "limit": {
+            "description": "Maximum number of results to return",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "offset": {
+            "description": "Number of results to skip before returning rows (OFFSET / $skip). Use together with limit and orderBy for stable pagination.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "orderBy": {
+            "description": "Array of order expressions to sort results.\n\nEach expression:\n- ref: Field reference as array, e.g. [\"fieldName\"] or [\"assoc\", \"field\"]\n- sort: \"asc\" or \"desc\" (optional)\n- nulls: \"first\" or \"last\" (optional)\n\nExamples:\n- [{ \"ref\": [\"price\"], \"sort\": \"desc\" }] - sort by price descending\n- [{ \"ref\": [\"name\"] }, { \"ref\": [\"date\"], \"sort\": \"desc\" }] - multi-field sort",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ref": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "asc",
+                    "desc"
+                  ]
+                },
+                "nulls": {
+                  "type": "string",
+                  "enum": [
+                    "first",
+                    "last"
+                  ]
+                }
+              },
+              "required": [
+                "ref"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "search": {
+            "description": "Full-text search term. Searches across all string elements of the entity. Use this for fuzzy or keyword-based lookups instead of constructing complex where clauses.",
+            "type": "string"
+          },
+          "distinct": {
+            "description": "Return only unique/distinct rows",
+            "type": "boolean"
+          },
+          "one": {
+            "description": "Return a single record object instead of an array. Implies limit of 1.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "additionalProperties": false,
+        "definitions": {
+          "__schema0": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "where": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                              }
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "val": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "val"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/tools/0/inputSchema/definitions/__schema1"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "xpr": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                    }
+                  }
+                },
+                "required": [
+                  "xpr"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/tools/0/inputSchema/definitions/__schema2"
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "=",
+                  "!=",
+                  "<",
+                  "<=",
+                  ">",
+                  ">=",
+                  "+",
+                  "-",
+                  "*",
+                  "/"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "and",
+                  "or",
+                  "not",
+                  "in",
+                  "not in",
+                  "like",
+                  "not like",
+                  "between",
+                  "is",
+                  "null",
+                  "not null",
+                  "exists",
+                  "not exists"
+                ]
+              }
+            ]
+          },
+          "__schema1": {
+            "type": "object",
+            "properties": {
+              "list": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ref": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "where": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "ref"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "val": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "val"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema1"
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "list"
+            ],
+            "additionalProperties": false
+          },
+          "__schema2": {
+            "type": "object",
+            "properties": {
+              "func": {
+                "type": "string",
+                "enum": [
+                  "concat",
+                  "length",
+                  "trim",
+                  "tolower",
+                  "toupper",
+                  "contains",
+                  "startswith",
+                  "endswith",
+                  "substring",
+                  "ceiling",
+                  "floor",
+                  "round",
+                  "year",
+                  "month",
+                  "day",
+                  "count",
+                  "sum",
+                  "avg",
+                  "min",
+                  "max"
+                ],
+                "description": "Portable function name (case-sensitive)"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "*"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "ref": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "where": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "ref"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "val": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "val"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema2"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "xpr": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                          }
+                        }
+                      },
+                      "required": [
+                        "xpr"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "description": "Function arguments: expressions, \"*\" for count(*), or field references"
+              },
+              "as": {
+                "description": "Result column alias",
+                "type": "string"
+              }
+            },
+            "required": [
+              "func",
+              "args"
+            ],
+            "additionalProperties": false
+          },
+          "__schema3": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "*"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "where": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/tools/0/inputSchema/definitions/__schema0"
+                              }
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "as": {
+                    "type": "string"
+                  },
+                  "expand": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/tools/0/inputSchema/definitions/__schema3"
+                    }
+                  }
+                },
+                "required": [
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "describe",
+      "description": "Describe the data model of CatalogService service. Returns an overview of all entities and actions with descriptions. Specify 'entity' to get element details, or 'action' to get parameter details.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "entities": {
+            "description": "Specific entities to get element details for.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Books",
+                "Genres",
+                "Currencies"
+              ]
+            }
+          },
+          "actions": {
+            "description": "Specific actions or functions to get parameter details for.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "withMany",
+                "withManyCustomTypes",
+                "withCustomTypes",
+                "withArrayParams",
+                "sum",
+                "stock",
+                "add",
+                "validateEmail",
+                "submitOrder",
+                "applyDiscount"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "call_action",
+      "description": "Call an unbound action or function in CatalogService service. Use describe to discover available actions and their parameters.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "withMany",
+              "withManyCustomTypes",
+              "withCustomTypes",
+              "withArrayParams",
+              "sum",
+              "stock",
+              "add",
+              "validateEmail",
+              "submitOrder",
+              "applyDiscount"
+            ],
+            "description": "The action or function to call"
+          },
+          "parameters": {
+            "description": "Parameters for the action. Use describe to see available parameters.",
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

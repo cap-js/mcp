@@ -1,25 +1,41 @@
 using {
   Currency,
+  cuid,
   managed,
   sap
 } from '@sap/cds/common';
 
 namespace sap.capire.bookshop;
 
+/**
+ * Books doc comment 
+ */
 entity Books : managed {
   key ID       : Integer;
-      title    : localized String(111)  @mandatory  @randomEmoji;
-      descr    : localized String(1111);
       author   : Association to Authors @mandatory;
+      /** The book's title, used for display and search */
+      title    : String                  @mandatory;
+      /** A brief synopsis of the book's content */
+      descr    : String;
       genre    : Association to Genres;
-      stock    : Integer;
-      price    : Decimal;
+      stock    : Integer @assert.range: [0, 999];
+      price    : Price;
       currency : Currency;
+      status   : String enum { available = 'A'; out_of_stock = 'O'; discontinued = 'D' };
+      isbn     : String @assert.format: '/^[0-9]{13}$/';
+      rating   : Decimal @assert.range: [ 0.0, 5.0 ];
+      discount : Integer @assert.range: [(0), (100)];
+      markup   : Decimal @assert.range: [(0), _];
+      publishedAt : DateTime @assert.range: ['2000-01-01T00:00:00Z', '2099-12-31T23:59:59Z'];
+      chapters : Composition of many {
+          key ID : Integer;
+          title  : String;
+      }
 }
 
 entity Authors : managed {
   key ID           : Integer;
-      name         : String(111) @mandatory;
+      name         : String @mandatory;
       dateOfBirth  : Date;
       dateOfDeath  : Date;
       placeOfBirth : String;
@@ -28,10 +44,11 @@ entity Authors : managed {
                        on books.author = $self;
 }
 
-/** Hierarchically organized Code List for Genres */
-entity Genres : sap.common.CodeList {
-  key ID       : Integer;
-      parent   : Association to Genres;
-      children : Composition of many Genres
-                   on children.parent = $self;
+/** Hierarchical classification system for organizing books into categories and subcategories */
+entity Genres : cuid, sap.common.CodeList {
+  parent   : Association to Genres;
+  children : Composition of many Genres
+               on children.parent = $self;
 }
+
+type Price : Decimal(9, 2);

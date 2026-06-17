@@ -1,38 +1,66 @@
-const cds = require("@sap/cds")
+const cds = require("@sap/cds");
 
 module.exports = class CatalogService extends cds.ApplicationService {
   init() {
-    const { Books } = cds.entities("sap.capire.bookshop")
-    const { ListOfBooks } = this.entities
+    const { Books } = this.entities;
 
     // Add some discount for overstocked books
-    this.after("each", ListOfBooks, (book) => {
-      if (book.stock > 111) book.title += ` -- 11% discount!`
-    })
+    this.after("each", Books, (book) => {
+      if (book.stock > 111) book.title += ` -- 11% discount!`;
+    });
 
-    // Reduce stock of ordered books if available stock suffices
-    this.on("submitOrder", async (req) => {
+    // Simple arithmetic - something OData can't do
+    this.on("sum", (req) => {
+      const { x, y } = req.data;
+      return (x || 0) + (y || 0);
+    });
+
+    // Lookup stock for a book by ID
+    this.on("stock", async (req) => {
+      const { id } = req.data;
+      const book = await SELECT.one.from(Books).where({ ID: id }).columns("stock");
+      return book?.stock ?? 0;
+    });
+
+    // Action: add x to accumulator 'to'
+    this.on("add", (req) => {
+      const { x, to } = req.data;
+      return (x || 0) + (to || 0);
+    });
+
+    // Action: order a book, reducing its stock
+    this.on('submitOrder', async req => {
       let { book: id, quantity } = req.data
-      let book = await SELECT.one.from(Books, id, (b) => b.stock)
-
-      // Validate input data
-      if (!book) return req.error(404, `Book #${id} doesn't exist`)
       if (quantity < 1) return req.error(400, `quantity has to be 1 or more`)
-      if (!book.stock || quantity > book.stock)
-        return req.error(409, `${quantity} exceeds stock for book #${id}`)
-
-      // Reduce stock in database and return updated stock value
-      await UPDATE(Books, id).with({ stock: (book.stock -= quantity) })
-      return book
+      let succeeded = await UPDATE(Books, id)
+        .with`stock = stock - ${quantity}`
+        .where`stock >= ${quantity}`
+      if (succeeded) return
+      else if (!this.exists(Books, id)) req.error(404, `Book #${id} doesn't exist`)
+      else req.error(409, `${quantity} exceeds stock for book #${id}`)
     })
 
-    // Emit event when an order has been submitted
-    this.after("submitOrder", async (_, req) => {
-      let { book, quantity } = req.data
-      await this.emit("OrderedBook", { book, quantity, buyer: req.user.id })
+    // Action: apply a discount to a book
+    this.on('applyDiscount', async req => {
+      const { book: id, percentage } = req.data
+      return { book: id, discount: percentage }
     })
+
+    // Action: echo back array of {ID} objects (tests many inline struct)
+    this.on('withMany', req => req.data.updates)
+
+    // Action: echo back array of props objects (tests many custom type)
+    this.on('withManyCustomTypes', req => req.data.updates)
+
+    // Action: echo back a props object (tests custom type params)
+    this.on('withCustomTypes', req => ({
+      ID: 'result',
+      abc: 'hello',
+      def: '2024-01-01T00:00:00Z',
+      prop1: req.data.prop1
+    }))
 
     // Delegate requests to the underlying generic service
-    return super.init()
+    return super.init();
   }
-}
+};

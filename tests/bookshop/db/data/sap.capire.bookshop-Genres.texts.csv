@@ -1,0 +1,43 @@
+ID,locale,name
+10aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Belletristik
+11aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Drama
+12aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Lyrik
+13aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Fantasy
+131aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Märchen
+132aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Epische Fantasy
+133aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,High Fantasy
+134aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Schauerroman
+14aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Science-Fiction
+141aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Utopien und Dystopien
+1411aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Utopie
+1412aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Dystopie
+14121aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Cyberpunk
+141211aa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Steampunk
+142aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Space Opera
+143aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Zeitreise
+144aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Tech-Noir
+15aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Liebesroman
+151aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Zeitgenössischer Liebesroman
+152aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Historischer Liebesroman
+153aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Romantischer Thriller
+16aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Krimi
+161aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Kriminalroman
+1611aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Thriller
+16111aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Polizeikrimi
+16112aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Justizthriller
+16113aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Medizinthriller
+16114aaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Spionagethriller
+1612aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Detektivroman
+1613aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Spannung
+162aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Noir
+1621aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Nordic Noir
+1622aaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Tart Noir
+163aaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Cosy Crime
+17aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Abenteuer
+18aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Kurzgeschichte
+19aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Graphic Novel
+20aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Sachbuch
+21aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Biografie
+22aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Autobiografie
+23aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Essay
+24aaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,de,Rede

@@ -20,43 +20,44 @@ jobs:
     steps:
       - name: Approval Step
         run: echo "This job has been approved!"
+
   test:
+    name: Tests
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x, 22.x]
-        cds-version: [latest, 8]
+        node-version: [22.x, 24.x]
+        cds-version: [latest]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && npm i
       - run: npm run test
+
   integration-tests:
+    name: Integration Tests
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x, 22.x]
-        cds-version: [latest, 8]
+        node-version: [22.x, 24.x]
+        cds-version: [latest]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Integration tests
-        uses: ./.github/actions/integration-tests
+        uses: cap-js/mcp-adapter/.github/actions/integration-tests@main
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}

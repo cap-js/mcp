@@ -1,0 +1,45 @@
+{
+  "name": "bookshop-mtx",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@cap-js/mcp": "file:../../",
+    "@sap/cds-mtxs": "^3.9.1",
+    "@sap/xssec": "^4",
+    "@toon-format/toon": "^2.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2",
+    "better-sqlite3": "12.9.0"
+  },
+  "scripts": {
+    "start": "cds-serve"
+  },
+  "private": true,
+  "cds": {
+    "mcp": {
+      "per_action_tool": true,
+      "toon_format": true
+    },
+    "hana": {
+      "fuzzy": false
+    },
+    "requires": {
+      "db-ext": {
+        "[development]": {
+          "model": "db/sqlite"
+        },
+        "[production]": {
+          "model": "db/hana"
+        }
+      },
+      "[production]": {
+        "auth": "xsuaa"
+      },
+      "application-logging": true,
+      "toggles": true
+    }
+  }
+}

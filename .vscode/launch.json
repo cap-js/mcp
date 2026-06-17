@@ -4,7 +4,27 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "test:hybrid",
+      "name": "watch sample",
+      "cwd": "${workspaceFolder}/tests/bookshop",
+      "runtimeExecutable": "cds",
+      "runtimeArgs": ["watch"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Execute tests",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["test"],
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Execute tests hybrid",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "test:hybrid"],
@@ -14,22 +34,14 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "test",
+      "name": "Compile sample 2 mcp",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "test"],
-      "skipFiles": ["<node_internals>/**"],
-      "console": "integratedTerminal"
-    },
-    {
-      "type": "pwa-node",
-      "request": "launch",
-      "name": "watch:sample",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "watch:sample"],
+      "runtimeArgs": ["run", "compile:sample"],
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal"
     }
+
+
   ]
 }

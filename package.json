@@ -1,59 +1,61 @@
 {
-  "name": "@cap-js/REPO-NAME",
-  "version": "1.0.0",
-  "description": "CAP cds-plugin REPO-DESCRIPTION",
-  "license": "Apache-2.0",
-  "author": "AUTHOR",
-  "homepage": "https://cap.cloud.sap/",
-  "main": "cds-plugin.js",
-  "scripts": {
-    "lint": "npx eslint .",
-    "test": "npx jest --silent",
-    "test:hybrid": "cds bind --exec -- npx jest",
-    "prettier": "npx -y prettier@3 --write .",
-    "prettier:check": "npx -y prettier@3 --check .",
-    "watch:sample": "cd tests/bookshop && cds watch"
-  },
+  "name": "@cap-js/mcp",
+  "version": "1.1.0",
+  "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "files": [
-    "index.cds",
     "lib",
-    "db",
-    "srv"
+    "cds-plugin.js",
+    "README.md",
+    "CHANGELOG.md"
   ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "zod": "^4.3.6",
+    "@toon-format/toon": "^2.1.0"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1",
+    "glob": "^13.0.0",
+    "test-exclude": "^8.0.0"
+  },
   "devDependencies": {
-    "@cap-js/cds-test": ">=0",
-    "@cap-js/sqlite": "^2"
+    "@cap-js/cds-test": "1.0.1",
+    "jest": "30.4.2",
+    "jest-junit": "17.0.0"
   },
   "peerDependencies": {
-    "@sap/cds": ">=8"
+    "@sap/cds": ">=8",
+    "express": "^4 || ^5.0.0"
   },
-  "engines": {
-    "node": ">=20.0.0"
+  "scripts": {
+    "watch:sample": "cds w tests/bookshop",
+    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
+    "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
+    "generate-sample-card": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > expected-catalog-service-card.json",
+    "pretest": "(command -v cds >/dev/null || npm i -g @sap/cds-dk) && npm run generate-sample-card",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:hybrid": "cds bind --exec -- npm run test",
+    "test:reporting": "npm run pretest && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
+    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"
+  },
+  "keywords": [
+    "cap",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agent"
+  ],
+  "author": "SAP SE (https://www.sap.com)",
+  "license": "SEE LICENSE IN LICENSE",
+  "cds": {
+    "cdsc": {
+      "docs": true
+    },
+    "mcp": {
+      "autowire": true
+    }
   },
   "workspaces": [
-    "tests/bookshop/"
-  ],
-  "cds": {
-    "requires": {
-      "emojis": {
-        "[development]": {
-          "kind": "emojis-local"
-        },
-        "[hybrid]": {
-          "kind": "emojis-prod"
-        },
-        "[production]": {
-          "kind": "emojis-prod"
-        }
-      },
-      "kinds": {
-        "emojis-local": {
-          "impl": "@cap-js/REPO-NAME/srv/basic"
-        },
-        "emojis-prod": {
-          "impl": "@cap-js/REPO-NAME/srv/prod"
-        }
-      }
-    }
-  }
+    "tests/*"
+  ]
 }
