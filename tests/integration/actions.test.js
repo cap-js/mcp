@@ -8,7 +8,7 @@ describe('call_action tool', () => {
     it('includes call_action tool with proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       expect(callActionTool).to.have.property('description')
       expect(callActionTool).to.have.property('inputSchema')
       expect(callActionTool.inputSchema.properties).to.have.property('action')
@@ -18,7 +18,7 @@ describe('call_action tool', () => {
     it('lists available actions in action enum', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('sum')
       expect(actionEnum).to.include('stock')
@@ -119,7 +119,7 @@ describe('call_action tool', () => {
     it('lists withMany, withManyCustomTypes, withCustomTypes in action enum', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('withMany')
       expect(actionEnum).to.include('withManyCustomTypes')
@@ -147,7 +147,9 @@ describe('call_action tool', () => {
       expect(error).to.be.null
       expect(content.action).to.equal('withManyCustomTypes')
       expect(content.kind).to.equal('action')
-      expect(content.result).to.deep.equal([{ ID: '1', abc: 'val', def: '2024-06-01T12:00:00Z', prop1: 'p' }])
+      expect(content.result).to.deep.equal([
+        { ID: '1', abc: 'val', def: '2024-06-01T12:00:00Z', prop1: 'p' }
+      ])
     })
 
     it('calls withCustomTypes action with scalar custom type param', async () => {
@@ -170,7 +172,7 @@ describe('call_action authorization', () => {
     it('includes sum, stock, add actions for admin user', async () => {
       const { mcp } = mcpClient('/mcp/admin', 'alice:')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('sum')
       expect(actionEnum).to.include('stock')
@@ -240,7 +242,7 @@ describe('RestrictedService action authorization', () => {
     it('includes add in action enum for admin', async () => {
       const { mcp } = mcpClient('/mcp/restricted', 'alice:')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('add')
     })
@@ -249,7 +251,7 @@ describe('RestrictedService action authorization', () => {
       // bob has editor role but add requires admin
       const { mcp } = mcpClient('/mcp/restricted', 'bob:')
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.not.include('call_action')
     })
   })
@@ -270,7 +272,7 @@ describe('RestrictedService action authorization', () => {
       // Unauthenticated users have no accessible actions
       const { mcp } = mcpClient('/mcp/restricted')
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.not.include('call_action')
     })
   })

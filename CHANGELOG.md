@@ -7,26 +7,31 @@
 ## Version 1.1.0 - 2026-06-16
 
 ### Added
+
 - Optional `log` option `lib/tools.js` to route tool-execution and registration logs through a custom `cds.log` instance
 - Optional tool name prefix (via `cds.mcp.prefix: true`) to avoid possible collisions when clients connect to multiple CAP MCP servers
 
 ## Version 1.0.4 - 2026-06-15
 
 ### Added
+
 - Allow CDS session variables `$now`, `$user`, `$user.id`, `$user.locale`, `$user.tenant` in where clauses
 
 ### Fixed
+
 - Resolving of many action parameters in `describe` output
 - Resolving of complex type action parameters in `describe` output
 
 ## Version 1.0.3 - 2026-06-11
 
 ### Removed
+
 - Hard-coded log level for sql and cds
 
 ## Version 1.0.2 - 2026-06-10
 
 ### Added
+
 - Support `@mcp.instructions` annotation to customize MCP server instructions per service
 - `offset` parameter to the `query` tool for stable pagination (CQN `limit.offset`)
 - Support for CDS 8
@@ -43,6 +48,7 @@
 - Auto-detect JSON vs SSE response format from the client's `Accept` header
 
 ### Changed
+
 - Adjust MCP server card generation to allow URI reference
 - Rely on runtime behaviour for `@cds.query.limit`
 - Log output now uses multi-line formatting with colored values for better readability

@@ -5,7 +5,7 @@ const DEBUG = cds.debug('mcp')
 require('./lib/api').registerCompileTargets()
 
 // Register MCP as a protocol adapter
-const protocols = cds.env.protocols ??= {}
+const protocols = (cds.env.protocols ??= {})
 if (!protocols.mcp) {
   protocols.mcp = {
     path: '/mcp',
@@ -20,11 +20,14 @@ cds.once('listening', ({ url }) => {
   if (!isDev) return
   if (cds.env.mcp?.autowire === false) return
 
-  const mcpServices = cds.service.providers.filter(srv =>
-    srv.endpoints.some(ep => ep.kind === 'mcp')
+  const mcpServices = cds.service.providers.filter((srv) =>
+    srv.endpoints.some((ep) => ep.kind === 'mcp')
   )
   if (mcpServices.length > 0) {
-    DEBUG?.('registering MCP services:', mcpServices.map(srv => srv.name))
+    DEBUG?.(
+      'registering MCP services:',
+      mcpServices.map((srv) => srv.name)
+    )
     require('./lib/clients').exportAll(mcpServices, url)
   }
 })
