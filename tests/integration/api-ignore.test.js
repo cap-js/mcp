@@ -4,12 +4,11 @@ const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
 describe('@cds.api.ignore annotation', () => {
-
   describe('entities', () => {
     it('hides ignored entity from tools/list entity enum', async () => {
       const { mcp } = mcpClient('/mcp/api-ignore-test')
       const response = await mcp('tools/list')
-      const queryTool = response.result.tools.find(t => t.name === 'query')
+      const queryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = queryTool.inputSchema.properties.entity.enum
 
       expect(entityEnum).to.include('BooksWithIgnored')
@@ -32,7 +31,7 @@ describe('@cds.api.ignore annotation', () => {
 
       // First check what entities are in the tools/list
       const toolsResponse = await mcp('tools/list')
-      const queryTool = toolsResponse.result.tools.find(t => t.name === 'query')
+      const queryTool = toolsResponse.result.tools.find((t) => t.name === 'query')
       const entityEnum = queryTool.inputSchema.properties.entity.enum
 
       // HiddenEntity should not be in the enum
@@ -70,7 +69,7 @@ describe('@cds.api.ignore annotation', () => {
       const { callTool } = mcpClient('/mcp/api-ignore-test')
       const { error } = await callTool('query', {
         entity: 'BooksWithIgnored',
-        select: [{ ref: ['title'] }, { ref: ['price'] }]  // price is @cds.api.ignore
+        select: [{ ref: ['title'] }, { ref: ['price'] }] // price is @cds.api.ignore
       })
 
       expect(error).to.exist
@@ -94,7 +93,7 @@ describe('@cds.api.ignore annotation', () => {
     it('hides ignored action from tools/list action enum', async () => {
       const { mcp } = mcpClient('/mcp/api-ignore-test')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find(t => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
 
       expect(actionEnum).to.include('visibleAction')

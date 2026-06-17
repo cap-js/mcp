@@ -14,7 +14,7 @@ permissions:
 jobs:
   requires-approval:
     runs-on: ubuntu-latest
-    name: "Waiting for PR approval as this workflow runs on pull_request_target"
+    name: 'Waiting for PR approval as this workflow runs on pull_request_target'
     if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.owner.login != 'cap-js'
     environment: pr-approval
     steps:
@@ -57,7 +57,7 @@ jobs:
         cds-version: [latest]
     steps:
       - name: Integration tests
-        uses: cap-js/mcp-adapter/.github/actions/integration-tests@main
+        uses: cap-js/mcp/.github/actions/integration-tests@main
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}

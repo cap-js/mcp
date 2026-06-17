@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
-cds.env.mcp ??= {}; cds.env.mcp.prefix = true
+cds.env.mcp ??= {}
+cds.env.mcp.prefix = true
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
@@ -9,7 +10,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   it('tool names are prefixed with slugified service name', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const toolNames = response.result.tools.map(t => t.name)
+    const toolNames = response.result.tools.map((t) => t.name)
     expect(toolNames).to.include('catalog_query')
     expect(toolNames).to.include('catalog_describe')
     expect(toolNames).to.include('catalog_call_action')

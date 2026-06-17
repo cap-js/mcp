@@ -7,6 +7,6 @@ const config = {
   silent: true,
   detectOpenHandles: true,
   // Pre-load ESM modules for require() compatibility
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-};
-module.exports = config;
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
+}
+module.exports = config

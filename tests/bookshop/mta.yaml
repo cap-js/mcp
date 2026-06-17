@@ -1,7 +1,7 @@
 _schema-version: 3.3.0
 ID: bookshop-mcp-poc
 version: 1.0.0
-description: "A simple CAP project."
+description: 'A simple CAP project.'
 parameters:
   enable-parallel-deployments: true
 build-parameters:
@@ -72,8 +72,8 @@ resources:
         tenant-mode: dedicated
         oauth2-configuration:
           credential-types:
-            - "binding-secret"
-            - "x509"
+            - 'binding-secret'
+            - 'x509'
           redirect-uris:
             - https://*~{app-api/app-uri}/**
         role-collections:
