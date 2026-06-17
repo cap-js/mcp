@@ -1,4 +1,5 @@
 # About this project
+
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
 ## Requirements and Setup
@@ -25,11 +26,11 @@ All configuration lives under `cds.mcp` in your `package.json`:
 }
 ```
 
-| Flag | Default | Description |
-|---|---|---|
-| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool. |
-| `toon_format` | `true` | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead. |
-| `prefix` | `false` | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`). |
+| Flag              | Default | Description                                                                                                                                                        |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool.                                                                   |
+| `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                        |
+| `prefix`          | `false` | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`). |
 
 For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
@@ -54,7 +55,6 @@ If you find any bug that may be a security problem, please follow the instructio
 ## Code of Conduct
 
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](https://github.com/cap-js/.github/blob/main/CODE_OF_CONDUCT.md) at all times.
-
 
 ## Licensing
 

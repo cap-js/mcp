@@ -1,7 +1,7 @@
-const cds = require("@sap/cds")
+const cds = require('@sap/cds')
 
 module.exports = class ProdService extends cds.Service {
-  emojis = ["😇", "😍"]
+  emojis = ['😇', '😍']
 
   getRandomEmoji() {
     return this.emojis[Math.floor(Math.random() * this.emojis.length)]

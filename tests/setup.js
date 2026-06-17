@@ -11,12 +11,15 @@ beforeAll(async () => {
 
 // Mock @toon-format/toon to return the dynamically imported module
 jest.mock('@toon-format/toon', () => {
-  return new Proxy({}, {
-    get(target, prop) {
-      if (!mockToonModule) {
-        throw new Error('@toon-format/toon not yet loaded - ensure beforeAll has run')
+  return new Proxy(
+    {},
+    {
+      get(target, prop) {
+        if (!mockToonModule) {
+          throw new Error('@toon-format/toon not yet loaded - ensure beforeAll has run')
+        }
+        return mockToonModule[prop]
       }
-      return mockToonModule[prop]
     }
-  })
+  )
 })
