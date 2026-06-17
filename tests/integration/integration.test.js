@@ -572,7 +572,7 @@ describe('query', () => {
 
     it('rejects path starting with non-existent element', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', {
+      const { error } = await callTool('query', {
         entity: 'Books',
         select: [{ ref: ['nonexistent', 'name'] }]
       })
