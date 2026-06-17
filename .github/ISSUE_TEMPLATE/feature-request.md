@@ -22,3 +22,5 @@ Add any other context or screenshots about the feature request here.
 **Have you already checked existing issues before creating a feature request?**
 If you find same feature requests reported, upvote the issue (+1)
 
+**Customer Info**
+Company: xyz

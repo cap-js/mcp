@@ -1,13 +1,18 @@
 name: Check Changelog
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+    types: [assigned, opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
+
+permissions:
+  contents: read
+
 jobs:
   Check-Changelog:
     name: Check Changelog Action
-    runs-on: [self-hosted, solinas]
+    runs-on: ubuntu-latest
     steps:
-      - name: Check changelog
-        uses: cap/.github/.github/actions/check-changelog@9f7b60fd8374f26f57c64546ea8a82e7e11f6adc # main
+      - uses: tarides/changelog-check-action@v3
+        with:
+          changelog: CHANGELOG.md

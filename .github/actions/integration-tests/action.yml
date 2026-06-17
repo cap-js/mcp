@@ -19,9 +19,6 @@ inputs:
   NODE_VERSION:
     description: "Node.js version to use for tests"
     required: true
-  CDS_VERSION:
-    description: "CDS version to use for tests"
-    required: true
 runs:
   using: "composite"
   steps:
@@ -30,8 +27,8 @@ runs:
       run: |
         wget "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.9.0&source=github-rel" -O cf-cli.tar.gz
         tar -xvzf cf-cli.tar.gz
-        mv cf /usr/local/bin/
-        mv cf8 /usr/local/bin/
+        sudo mv cf /usr/local/bin/
+        sudo mv cf8 /usr/local/bin/
         cf --version
 
     - name: Authenticate with Cloud Foundry
@@ -55,35 +52,19 @@ runs:
           fi
         done
 
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
     - name: Use Node.js ${{ inputs.NODE_VERSION }}
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
       with:
         node-version: ${{ inputs.NODE_VERSION }}
 
-    - name: Set CDS 8 compatible dependencies
-      if: ${{ inputs.CDS_VERSION == '8' }}
-      shell: bash
-      run: |
-        npm config set legacy-peer-deps=true
-        npm pkg set "devDependencies.@sap/cds=^8.9.8"
-        npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-        npm pkg set "devDependencies.@cap-js/cds-test=^0.4.1"
-        npm pkg set "overrides.@cap-js/sqlite=^1.0.0"
-        npm pkg set "overrides.@cap-js/hana=^1.0.0"
-        npm pkg set "overrides.@cap-js/db-service=^1.0.0"
-        npm pkg set "overrides.@cap-js/cds-test=^0.4.1"
-        npm pkg set "overrides.express=^4"
-        cd tests/bookshop
-        npm pkg set "dependencies.@cap-js/hana=^1.0.0"
-        npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-        cd ../../tests/bookshop-mtx
-        npm pkg set "dependencies.@cap-js/hana=^1.0.0"
-        npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-        npm pkg set "dependencies.@sap/cds-mtxs=^2"
-
     - name: Install global CDS
       shell: bash
-      run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION }}
+      run: npm i -g @sap/cds-dk
+
     - name: Install all dependencies
       shell: bash
       run: npm install
@@ -98,7 +79,6 @@ runs:
       shell: bash
       run: |
         echo "NODE_VERSION_HANA=$(echo ${{ inputs.NODE_VERSION }} | tr . _)" >> $GITHUB_ENV
-        echo "CDS_VERSION=$(echo ${{ inputs.CDS_VERSION }} | tr . _)" >> $GITHUB_ENV
     - name: CDS Versions being used
       shell: bash
       run: cds v -i
@@ -106,15 +86,15 @@ runs:
     # Deploy model to HANA
     - name: Create HDI Container
       shell: bash
-      run: cf create-service hana hdi-shared cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION
+      run: cf create-service hana hdi-shared cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA
     - name: Deploy to HANA
       shell: bash
-      run: cd tests/bookshop && CDS_ENV=production cds deploy --to hana:cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION
+      run: cd tests/bookshop && CDS_ENV=production cds deploy --to hana:cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA
 
     # Bind against BTP services and run tests
     - name: Bind to HANA service
       shell: bash
-      run: cds bind db -2 cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION -o package.json
+      run: cds bind db -2 cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA -o package.json
     - name: Run tests in hybrid mode
       shell: bash
       run: cds bind --exec -- npm run test
@@ -123,7 +103,7 @@ runs:
     - name: Delete HDI Container Key
       if: ${{ always() }}
       shell: bash
-      run: cf delete-service-key cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION-key -f
+      run: cf delete-service-key cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-key -f
 
     # Note: The initial delete attempt often fails due to an "ongoing operation on service binding" error.
     - name: Delete HDI Container
@@ -131,7 +111,7 @@ runs:
       shell: bash
       run: |
         for i in {1..3}; do
-          cf delete-service cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-$CDS_VERSION -f && break
+          cf delete-service cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA -f && break
           echo "HDI container delete failed, retrying ($i/3)..."
           sleep 10
           if [ "$i" -eq 3 ]; then

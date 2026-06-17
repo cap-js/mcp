@@ -13,25 +13,25 @@ permissions:
 
 jobs:
   requires-approval:
-    runs-on: [self-hosted, solinas]
-    name: Waiting for PR approval as this workflow runs on pull_request_target
-    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.owner.login != 'cap'
+    runs-on: ubuntu-latest
+    name: "Waiting for PR approval as this workflow runs on pull_request_target"
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.owner.login != 'cap-js'
     environment: pr-approval
     steps:
       - name: Approval Step
         run: echo "This job has been approved!"
 
   test:
-    runs-on: [self-hosted, solinas]
+    name: Tests
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
+    runs-on: ubuntu-latest
     timeout-minutes: 3
-    name: SQLite Tests with Node.js ${{ matrix.node-version }} and CAP ${{ matrix.cds-version }}
     strategy:
       fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
-        cds-version: [latest, 8]
+        cds-version: [latest]
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -40,53 +40,24 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Set CDS 8 compatible dependencies
-        if: matrix.cds-version == 8
-        run: |
-          npm config set legacy-peer-deps=true
-          npm pkg set "devDependencies.@sap/cds=^8.9.8"
-          npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-          npm pkg set "devDependencies.@cap-js/cds-test=^0.4.1"
-          npm pkg set "overrides.@cap-js/sqlite=^1.0.0"
-          npm pkg set "overrides.@cap-js/hana=^1.0.0"
-          npm pkg set "overrides.@cap-js/db-service=^1.0.0"
-          npm pkg set "overrides.@cap-js/cds-test=^0.4.1"
-          npm pkg set "overrides.express=^4"
-          cd tests/bookshop
-          npm pkg set "dependencies.@cap-js/hana=^1.0.0"
-          npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-          cd ../../tests/bookshop-mtx
-          npm pkg set "dependencies.@cap-js/hana=^1.0.0"
-          npm pkg set "devDependencies.@cap-js/sqlite=^1.0.0"
-          npm pkg set "dependencies.@sap/cds-mtxs=^2"
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && npm i
-      - run: npm run generate-sample-card
       - run: npm run test
 
-  test-hana:
-    runs-on: [self-hosted, solinas-medium]
-    container:
-      image: public.int.repositories.cloud.sap/ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+  integration-tests:
+    name: Integration Tests
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
-    timeout-minutes: 15
-    name: HANA Tests with Node.js ${{ matrix.node-version }} and CAP ${{ matrix.cds-version }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         node-version: [20.x, 22.x]
-        cds-version: [latest, 8]
+        cds-version: [latest]
     steps:
-      - run: apt-get update -y && apt-get install make wget -y
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: cap/.github/.github/actions/git-setup@9f7b60fd8374f26f57c64546ea8a82e7e11f6adc # main
-
-      - name: Run HANA integration tests
-        uses: ./.github/actions/integration-tests
+      - name: Integration tests
+        uses: cap-js/mcp-adapter/.github/actions/integration-tests@main
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
@@ -94,4 +65,3 @@ jobs:
           CF_ORG: ${{ secrets.CF_ORG }}
           CF_SPACE: ${{ secrets.CF_SPACE }}
           NODE_VERSION: ${{ matrix.node-version }}
-          CDS_VERSION: ${{ matrix.cds-version }}
