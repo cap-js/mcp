@@ -10,8 +10,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2",
-    "better-sqlite3": "12.10.0"
+    "@cap-js/sqlite": "^2"
   },
   "scripts": {
     "start": "cds-serve"
