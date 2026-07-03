@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
-cds.env.mcp ??= {}; cds.env.mcp.per_action_tool = true
+cds.env.mcp ??= {}
+cds.env.mcp.per_action_tool = true
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
@@ -10,7 +11,7 @@ describe('Per-Action Tools', () => {
     it('has per-action tools (sum, stock, add)', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.not.include('call_action')
       expect(toolNames).to.include('sum')
       expect(toolNames).to.include('stock')
@@ -20,14 +21,14 @@ describe('Per-Action Tools', () => {
     it('has describe tool', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.include('describe')
     })
 
     it('sum tool has proper schema with typed parameters', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const sumTool = response.result.tools.find(t => t.name === 'sum')
+      const sumTool = response.result.tools.find((t) => t.name === 'sum')
       expect(sumTool).to.exist
       expect(sumTool.description).to.equal('Add two integers. Returns: Integer')
       expect(sumTool.inputSchema.properties).to.have.property('x')
@@ -39,7 +40,7 @@ describe('Per-Action Tools', () => {
     it('stock tool has proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const stockTool = response.result.tools.find(t => t.name === 'stock')
+      const stockTool = response.result.tools.find((t) => t.name === 'stock')
       expect(stockTool).to.exist
       expect(stockTool.description).to.equal('Get current stock for a book. Returns: Integer')
       expect(stockTool.inputSchema.properties).to.have.property('id')
@@ -49,7 +50,7 @@ describe('Per-Action Tools', () => {
     it('add tool has proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const addTool = response.result.tools.find(t => t.name === 'add')
+      const addTool = response.result.tools.find((t) => t.name === 'add')
       expect(addTool).to.exist
       expect(addTool.description).to.equal('Add a value to an accumulator. Returns: Integer')
       expect(addTool.inputSchema.properties).to.have.property('x')
@@ -59,8 +60,8 @@ describe('Per-Action Tools', () => {
     it('function tools have readOnlyHint true', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const sumTool = response.result.tools.find(t => t.name === 'sum')
-      const stockTool = response.result.tools.find(t => t.name === 'stock')
+      const sumTool = response.result.tools.find((t) => t.name === 'sum')
+      const stockTool = response.result.tools.find((t) => t.name === 'stock')
       expect(sumTool.annotations.readOnlyHint).to.be.true
       expect(sumTool.annotations.idempotentHint).to.be.true
       expect(stockTool.annotations.readOnlyHint).to.be.true
@@ -70,7 +71,7 @@ describe('Per-Action Tools', () => {
     it('action tools have destructiveHint true', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const addTool = response.result.tools.find(t => t.name === 'add')
+      const addTool = response.result.tools.find((t) => t.name === 'add')
       expect(addTool.annotations.destructiveHint).to.be.true
       expect(addTool.annotations.readOnlyHint).to.be.false
     })
@@ -78,7 +79,7 @@ describe('Per-Action Tools', () => {
     it('marks @mandatory params as required in input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      const submitOrderTool = response.result.tools.find((t) => t.name === 'submitOrder')
       expect(submitOrderTool).to.exist
       // book param has @mandatory — should be required
       expect(submitOrderTool.inputSchema.required).to.include('book')
@@ -89,7 +90,7 @@ describe('Per-Action Tools', () => {
     it('uses enum constraint for string enum params in input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      const submitOrderTool = response.result.tools.find((t) => t.name === 'submitOrder')
       expect(submitOrderTool).to.exist
       expect(submitOrderTool.inputSchema.properties.priority.enum).to.deep.equal(['S', 'E'])
       expect(submitOrderTool.inputSchema.properties.priority.description).to.include('standard=S')
@@ -99,7 +100,7 @@ describe('Per-Action Tools', () => {
     it('applies @assert.range as min/max in input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const submitOrderTool = response.result.tools.find(t => t.name === 'submitOrder')
+      const submitOrderTool = response.result.tools.find((t) => t.name === 'submitOrder')
       expect(submitOrderTool).to.exist
       expect(submitOrderTool.inputSchema.properties.quantity.minimum).to.equal(1)
       expect(submitOrderTool.inputSchema.properties.quantity.maximum).to.equal(100)
@@ -108,7 +109,7 @@ describe('Per-Action Tools', () => {
     it('applies @assert.range with open intervals as exclusiveMinimum/exclusiveMaximum', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      const tool = response.result.tools.find((t) => t.name === 'applyDiscount')
       expect(tool).to.exist
       // percentage: @assert.range: [(0), (100)] → exclusive on both bounds
       expect(tool.inputSchema.properties.percentage.exclusiveMinimum).to.equal(0)
@@ -120,7 +121,7 @@ describe('Per-Action Tools', () => {
     it('applies @assert.range with infinity as single-sided bound', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      const tool = response.result.tools.find((t) => t.name === 'applyDiscount')
       expect(tool).to.exist
       // markup: @assert.range: [(0), _] → exclusive min only, no max
       expect(tool.inputSchema.properties.markup.exclusiveMinimum).to.equal(0)
@@ -131,18 +132,22 @@ describe('Per-Action Tools', () => {
     it('applies @assert.range for date/time as description suffix', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'applyDiscount')
+      const tool = response.result.tools.find((t) => t.name === 'applyDiscount')
       expect(tool).to.exist
       // effectiveDate: @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
       expect(tool.inputSchema.properties.effectiveDate.description).to.include('Range:')
-      expect(tool.inputSchema.properties.effectiveDate.description).to.include('2020-01-01T00:00:00Z')
-      expect(tool.inputSchema.properties.effectiveDate.description).to.include('2030-12-31T23:59:59Z')
+      expect(tool.inputSchema.properties.effectiveDate.description).to.include(
+        '2020-01-01T00:00:00Z'
+      )
+      expect(tool.inputSchema.properties.effectiveDate.description).to.include(
+        '2030-12-31T23:59:59Z'
+      )
     })
 
     it('applies @assert.format as pattern in input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'validateEmail')
+      const tool = response.result.tools.find((t) => t.name === 'validateEmail')
       expect(tool).to.exist
       expect(tool.inputSchema.properties.email.pattern).to.equal('^\\S+@\\S+\\.\\S+$')
     })
@@ -150,7 +155,7 @@ describe('Per-Action Tools', () => {
     it('withMany tool has updates param typed as array of objects', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'withMany')
+      const tool = response.result.tools.find((t) => t.name === 'withMany')
       expect(tool).to.exist
       expect(tool.description).to.include('Testing many in actions for ZOD schema')
       expect(tool.inputSchema.properties).to.have.property('updates')
@@ -164,7 +169,7 @@ describe('Per-Action Tools', () => {
     it('withManyCustomTypes tool has updates param typed as array of structured objects', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'withManyCustomTypes')
+      const tool = response.result.tools.find((t) => t.name === 'withManyCustomTypes')
       expect(tool).to.exist
       expect(tool.description).to.include('Testing many in combination with custom types')
       expect(tool.inputSchema.properties).to.have.property('updates')
@@ -183,7 +188,7 @@ describe('Per-Action Tools', () => {
     it('withCustomTypes tool has prop1 param typed as string (resolved custom type)', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'withCustomTypes')
+      const tool = response.result.tools.find((t) => t.name === 'withCustomTypes')
       expect(tool).to.exist
       expect(tool.description).to.include('Testing custom types in actions for ZOD schema')
       expect(tool.inputSchema.properties).to.have.property('prop1')
@@ -211,7 +216,9 @@ describe('Per-Action Tools', () => {
       expect(error).to.be.null
       expect(content.action).to.equal('withManyCustomTypes')
       expect(content.kind).to.equal('action')
-      expect(content.result).to.deep.equal([{ ID: '1', abc: 'hello', def: '2024-01-01T00:00:00Z', prop1: 'x' }])
+      expect(content.result).to.deep.equal([
+        { ID: '1', abc: 'hello', def: '2024-01-01T00:00:00Z', prop1: 'x' }
+      ])
     })
 
     it('calls withCustomTypes action with scalar custom type param', async () => {
@@ -227,5 +234,4 @@ describe('Per-Action Tools', () => {
       expect(content.result).to.have.property('abc', 'hello')
     })
   })
-
 })

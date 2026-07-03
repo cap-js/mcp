@@ -1,7 +1,8 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
+  "repository": "cap-js/mcp",
   "files": [
     "lib",
     "cds-plugin.js",
@@ -9,7 +10,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.3.6",
     "@toon-format/toon": "^2.1.0"
   },
@@ -24,7 +25,7 @@
     "jest-junit": "17.0.0"
   },
   "peerDependencies": {
-    "@sap/cds": ">=8",
+    "@sap/cds": "^8 || ^9",
     "express": "^4 || ^5.0.0"
   },
   "scripts": {
@@ -36,7 +37,10 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:hybrid": "cds bind --exec -- npm run test",
     "test:reporting": "npm run pretest && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
-    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp"
+    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
+    "lint": "npx eslint .",
+    "prettier": "npx -y prettier@3 --write .",
+    "prettier:check": "npx -y prettier@3 --check ."
   },
   "keywords": [
     "cap",
