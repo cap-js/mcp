@@ -32,7 +32,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     # Template instruction: Replace <repository name> and delete this comment
-    environment: npmjs:@cap-js/<repository name>
+    environment: npmjs:@cap-js/mcp
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
