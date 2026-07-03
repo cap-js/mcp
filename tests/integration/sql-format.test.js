@@ -132,6 +132,16 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       expect(error).to.be.null
       expect(content.sql).to.equal(sql)
     })
+
+    it('handles multiline SQL (LLM often generates newlines before FROM/WHERE)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        sql: 'SELECT ID, title\nFROM CatalogService.Books\nWHERE ID = 201\nLIMIT 1'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].title).to.equal('Wuthering Heights')
+    })
   })
 
   describe('describe (CDL)', () => {
