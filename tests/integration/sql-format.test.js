@@ -1,17 +1,18 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
-cds.env.mcp ??= {}; cds.env.mcp.format = 'sql'; cds.env.mcp.toon_format = false
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'sql'
+cds.env.mcp.toon_format = false
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
 describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
-
   describe('tools/list', () => {
     it('query tool accepts sql input schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const queryTool = response.result.tools.find(t => t.name === 'query')
+      const queryTool = response.result.tools.find((t) => t.name === 'query')
       expect(queryTool).to.exist
       expect(queryTool.inputSchema.properties).to.have.property('sql')
       expect(queryTool.inputSchema.properties.sql.type).to.equal('string')
@@ -24,7 +25,7 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
     it('describe tool is still available', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.include('describe')
     })
   })
@@ -45,7 +46,7 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
     it('supports WHERE clause', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
-        sql: "SELECT ID, title FROM CatalogService.Books WHERE ID = 201"
+        sql: 'SELECT ID, title FROM CatalogService.Books WHERE ID = 201'
       })
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(1)
@@ -73,7 +74,7 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
     it('rejects non-SELECT statements', async () => {
       const { callTool } = mcpClient()
       const { error } = await callTool('query', {
-        sql: "DELETE FROM CatalogService.Books WHERE ID = 201"
+        sql: 'DELETE FROM CatalogService.Books WHERE ID = 201'
       })
       expect(error).to.not.be.null
     })
@@ -118,7 +119,9 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       })
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(1)
-      const {amt} = await cds.run(SELECT.one.from("CatalogService.Books").columns('count(*) as amt'))
+      const { amt } = await cds.run(
+        SELECT.one.from('CatalogService.Books').columns('count(*) as amt')
+      )
       expect(content.count).to.equal(amt)
     })
 
