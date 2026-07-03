@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "dependencies": {
-    "@cap-js/hana": "^3",
+    "@cap-js/hana": "^2",
     "@cap-js/mcp": "file:../../",
     "@sap/xssec": "^4",
     "@toon-format/toon": "^2.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^3"
+    "@cap-js/sqlite": "^2",
+    "better-sqlite3": "12.10.0"
   },
   "scripts": {
     "start": "cds-serve"
