@@ -56,7 +56,7 @@ Set `format: "cqn"` to switch the `query` and `describe` tools to CQN mode to di
 
 **Behavior changes:**
 
-| Tool       | `"cqn"`                                   | `"sql"` (default)                                                     |
+| Tool       | `"cqn"`                                             | `"sql"` (default)                                           |
 | ---------- | --------------------------------------------------- | ----------------------------------------------------------- |
 | `describe` | Returns JSON with element types, keys, associations | Returns **CDS source** (CDL) via `cds.compile.to.cdl`       |
 | `query`    | Accepts CQN object (`entity`, `where`, `select`, …) | Accepts a **SQL SELECT string**, parsed via `cds.parse.cql` |

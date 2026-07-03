@@ -2,6 +2,7 @@ const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
 cds.env.mcp.prefix = true
+cds.env.mcp.toon_format = false
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
@@ -20,18 +21,21 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   })
 
   it('prefixed tools are callable', async () => {
-    const { callTool } = mcpClient()
-    const { content, error } = await callTool('catalog_describe', {})
-    expect(error).to.be.null
-    expect(content.service).to.equal('CatalogService')
+    const { mcp } = mcpClient()
+    const res = await mcp('tools/call', { name: 'catalog_describe', arguments: {} })
+    expect(res.result.isError).to.not.be.true
+    const text = res.result.content[0].text
+    expect(text).to.include('Books')
   })
 
   it('prefixed query tool works', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('catalog_query', { entity: 'Books' })
+    const { content, error } = await callTool('catalog_query', {
+      sql: 'SELECT ID, title FROM CatalogService.Books LIMIT 5'
+    })
     expect(error).to.be.null
-    expect(content.entity).to.equal('Books')
     expect(content.data).to.be.an('array')
+    expect(content.data.length).to.be.greaterThan(0)
   })
 
   it('prefixed call_action tool works', async () => {
