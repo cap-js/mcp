@@ -57,7 +57,7 @@ jobs:
         cds-version: ["9"]
     steps:
       - name: Integration tests
-        uses: cap-js/mcp/.github/actions/integration-tests@main
+        uses: cap-js/mcp/.github/actions/integration-tests@chore/polish
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
