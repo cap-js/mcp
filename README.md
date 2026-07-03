@@ -31,19 +31,19 @@ All configuration lives under `cds.mcp` in your `package.json`:
 | `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool.                                                                   |
 | `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                        |
 | `prefix`          | `false` | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`). |
-| `format`          | `"cqn"` | Query format mode. `"cqn"` uses CQN objects; `"sql"` accepts SQL strings and returns CDS definitions. See below.                                                   |
+| `format`          | `"sql"` | Query format mode. `"cqn"` uses CQN objects; `"sql"` accepts SQL strings and returns CDS definitions. See below.                                                   |
 
 For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
 ## SQL Format Mode
 
-Set `format: "sql"` to switch the `query` and `describe` tools to SQL/CDS mode:
+Set `format: "cqn"` to switch the `query` and `describe` tools to CQN mode to disable SQL format:
 
 ```json
 {
   "cds": {
     "mcp": {
-      "format": "sql"
+      "format": "cqn"
     }
   }
 }
@@ -56,7 +56,7 @@ Set `format: "sql"` to switch the `query` and `describe` tools to SQL/CDS mode:
 
 **Behavior changes:**
 
-| Tool       | `"cqn"` (default)                                   | `"sql"`                                                     |
+| Tool       | `"cqn"`                                   | `"sql"` (default)                                                     |
 | ---------- | --------------------------------------------------- | ----------------------------------------------------------- |
 | `describe` | Returns JSON with element types, keys, associations | Returns **CDS source** (CDL) via `cds.compile.to.cdl`       |
 | `query`    | Accepts CQN object (`entity`, `where`, `select`, …) | Accepts a **SQL SELECT string**, parsed via `cds.parse.cql` |
