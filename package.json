@@ -9,7 +9,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.3.6",
     "@toon-format/toon": "^2.1.0"
   },
@@ -24,7 +24,7 @@
     "jest-junit": "17.0.0"
   },
   "peerDependencies": {
-    "@sap/cds": ">=8",
+    "@sap/cds": "^8 || ^9",
     "express": "^4 || ^5.0.0"
   },
   "scripts": {

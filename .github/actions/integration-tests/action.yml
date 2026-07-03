@@ -19,6 +19,9 @@ inputs:
   NODE_VERSION:
     description: 'Node.js version to use for tests'
     required: true
+  CDS_VERSION:
+    description: 'CDS version to install globally (e.g. 9, latest)'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -63,7 +66,7 @@ runs:
 
     - name: Install global CDS
       shell: bash
-      run: npm i -g @sap/cds-dk
+      run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION }}
 
     - name: Install all dependencies
       shell: bash
