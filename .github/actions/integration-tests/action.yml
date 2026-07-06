@@ -77,9 +77,6 @@ runs:
     - name: Install all dependencies
       shell: bash
       run: npm install
-    - name: Generate sample card
-      shell: bash
-      run: npm run generate-sample-card
 
     - name: Set env variables for unique service naming
       shell: bash
