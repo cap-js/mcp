@@ -153,6 +153,38 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       expect(content.data[0].ID).to.equal(201)
       expect(content.data[0].title).to.equal('Wuthering Heights')
     })
+
+    it('supports implicit table aliases (SQL standard, no AS keyword)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        sql: 'SELECT b.ID, b.title FROM CatalogService.Books b WHERE b.ID = 201'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].title).to.equal('Wuthering Heights')
+    })
+
+    it('supports implicit aliases with JOIN', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('query', {
+        sql: 'SELECT b.ID, b.title FROM CatalogService.Books b INNER JOIN CatalogService.Genres g ON b.genre_ID = g.ID'
+      })
+      // Should not fail with parse/alias error — implicit aliases are SQL standard
+      // (may fail at CAP runtime for other reasons like unsupported JOIN)
+      if (error) {
+        expect(error).to.not.include('compilation failed')
+        expect(error).to.not.include('cannot be resolved')
+      }
+    })
+
+    it('supports OFFSET without false alias detection', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        sql: 'SELECT ID FROM CatalogService.Books LIMIT 2 OFFSET 1'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(2)
+    })
   })
 
   describe('describe (CDL)', () => {
