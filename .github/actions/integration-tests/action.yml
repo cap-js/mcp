@@ -22,6 +22,15 @@ inputs:
   CDS_VERSION:
     description: 'CDS version to install globally (e.g. 9, latest)'
     required: true
+  DB_MAJOR:
+    description: 'Major version to install for @cap-js/hana and @cap-js/sqlite (e.g. 2 for cds 9, 3 for cds 10)'
+    required: true
+  MTXS_MAJOR:
+    description: 'Major version to install for @sap/cds-mtxs (e.g. 3 for cds 9, 4 for cds 10)'
+    required: true
+  CDS_MAJOR:
+    description: 'Expected @sap/cds runtime major (e.g. 9 or 10). Used to assert the resolved runtime matches the matrix.'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -68,6 +77,20 @@ runs:
       shell: bash
       run: npm i -g @sap/cds-dk@${{ inputs.CDS_VERSION }}
 
+    - name: Pin CDS-line for root and test workspaces
+      shell: bash
+      run: |
+        npm pkg set "devDependencies.@sap/cds=^${{ inputs.CDS_MAJOR }}"
+        npm pkg set --workspace=tests/bookshop \
+          "dependencies.@sap/cds=^${{ inputs.CDS_MAJOR }}" \
+          "dependencies.@cap-js/hana=^${{ inputs.DB_MAJOR }}" \
+          "devDependencies.@cap-js/sqlite=^${{ inputs.DB_MAJOR }}"
+        npm pkg set --workspace=tests/bookshop-mtx \
+          "dependencies.@sap/cds=^${{ inputs.CDS_MAJOR }}" \
+          "dependencies.@cap-js/hana=^${{ inputs.DB_MAJOR }}" \
+          "devDependencies.@cap-js/sqlite=^${{ inputs.DB_MAJOR }}" \
+          "dependencies.@sap/cds-mtxs=^${{ inputs.MTXS_MAJOR }}"
+
     - name: Install all dependencies
       shell: bash
       run: npm install
@@ -85,6 +108,13 @@ runs:
     - name: CDS Versions being used
       shell: bash
       run: cds v -i
+    - name: Assert resolved @sap/cds major matches matrix
+      shell: bash
+      working-directory: tests/bookshop
+      run: |
+        got=$(node -p "require('@sap/cds/package.json').version.split('.')[0]")
+        want=${{ inputs.CDS_MAJOR }}
+        [[ "$got" == "$want" ]] || { echo "::error::cds runtime major $got != expected $want"; exit 1; }
 
     # Deploy model to HANA
     - name: Create HDI Container
