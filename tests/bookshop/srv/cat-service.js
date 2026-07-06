@@ -45,6 +45,14 @@ module.exports = class CatalogService extends cds.ApplicationService {
       return { book: id, discount: percentage }
     })
 
+    // Action: validate order data — reports ALL errors at once (multiple req.error calls)
+    this.on('validateOrder', (req) => {
+      const { book, quantity, email } = req.data
+      if (!book) req.error(400, 'Book is required', 'book')
+      if (!quantity || quantity < 1) req.error(400, 'Quantity must be 1 or more', 'quantity')
+      if (!email || !email.includes('@')) req.error(400, 'valid E-Mail is required', 'email')
+    })
+
     // Action: echo back array of {ID} objects (tests many inline struct)
     this.on('withMany', (req) => req.data.updates)
 
