@@ -43,6 +43,7 @@ jobs:
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && npm i
+      - run: cd tests/bookshop && cds v -i
       - run: npm run test
 
   integration-tests:

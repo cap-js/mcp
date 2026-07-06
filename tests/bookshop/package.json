@@ -5,8 +5,9 @@
   "dependencies": {
     "@cap-js/hana": "^2 || ^3",
     "@cap-js/mcp": "file:../../",
+    "@sap/cds": "^9 || ^10",
     "@sap/xssec": "^4",
-    "@toon-format/toon": "^2.1.0",
+    "@toon-format/toon": "^2.3.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
