@@ -113,6 +113,22 @@ describe('call_action tool', () => {
       })
       expect(error).to.match(/not found|invalid/i)
     })
+
+    it('returns all error details when handler reports multiple errors', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('call_action', {
+        action: 'validateOrder',
+        parameters: { book: 0, quantity: 0, email: 'invalid' }
+      })
+      expect(error).to.exist
+      expect(error).to.include('Book is required')
+      expect(error).to.include('Quantity must be 1 or more')
+      expect(error).to.include('valid E-Mail is required')
+      // Target fields should be included
+      expect(error).to.include('book')
+      expect(error).to.include('quantity')
+      expect(error).to.include('email')
+    })
   })
 
   describe('actions with complex types (many, custom types)', () => {
