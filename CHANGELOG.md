@@ -10,6 +10,10 @@
 
 - Support query SQL format for easier LLM handling. The SQL is converted to CQN and send via the service to avoid SQL injections. The describe tool returns CQL in this format instead of CSN.
 
+### Fixed
+
+- Errors with details from actions are now properly returned
+
 ## Version 1.1.0 - 2026-06-16
 
 ### Added
