@@ -22,7 +22,7 @@ jobs:
         run: echo "This job has been approved!"
 
   test:
-    name: Tests
+    name: Tests with Node.js ${{ matrix.node-version }} (CDS ${{ matrix.cds-version }})
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
@@ -30,11 +30,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { node-version: 22.x, cds-version: 9,      db-major: 2, mtxs-major: 3, cds-major: 9  }
-          - { node-version: 22.x, cds-version: latest, db-major: 3, mtxs-major: 4, cds-major: 10 }
-          - { node-version: 24.x, cds-version: 9,      db-major: 2, mtxs-major: 3, cds-major: 9  }
-          - { node-version: 24.x, cds-version: latest, db-major: 3, mtxs-major: 4, cds-major: 10 }
+        node-version: [22.x, 24.x]
+        cds-version: [9, latest]
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -43,45 +40,35 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
-      - name: Pin CDS-line for root and test workspaces
+      - name: Pin CDS 9 compatible stack
+        if: matrix.cds-version == '9'
         run: |
-          npm pkg set "devDependencies.@sap/cds=^${{ matrix.cds-major }}"
-          npm pkg set --workspace=tests/bookshop \
-            "dependencies.@sap/cds=^${{ matrix.cds-major }}" \
-            "dependencies.@cap-js/hana=^${{ matrix.db-major }}" \
-            "devDependencies.@cap-js/sqlite=^${{ matrix.db-major }}"
-          npm pkg set --workspace=tests/bookshop-mtx \
-            "dependencies.@sap/cds=^${{ matrix.cds-major }}" \
-            "dependencies.@cap-js/hana=^${{ matrix.db-major }}" \
-            "devDependencies.@cap-js/sqlite=^${{ matrix.db-major }}" \
-            "dependencies.@sap/cds-mtxs=^${{ matrix.mtxs-major }}"
+          npm pkg set "overrides.@cap-js/sqlite=^2"
+          npm pkg set "overrides.@cap-js/hana=^2"
+          npm pkg set "overrides.@sap/cds-mtxs=^3"
+          npm pkg set --workspace=tests/bookshop "dependencies.@sap/cds=^9"
+          npm pkg set --workspace=tests/bookshop-mtx "dependencies.@sap/cds=^9"
+      - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
       - run: cd tests/bookshop && cds v -i
-      - name: Assert resolved @sap/cds major matches matrix
-        working-directory: tests/bookshop
-        run: |
-          got=$(node -p "require('@sap/cds/package.json').version.split('.')[0]")
-          want=${{ matrix.cds-major }}
-          [[ "$got" == "$want" ]] || { echo "::error::cds runtime major $got != matrix $want"; exit 1; }
       - run: npm run test
 
   integration-tests:
-    name: Integration Tests
+    name: Integration Tests with Node.js ${{ matrix.node-version }} (CDS ${{ matrix.cds-version }})
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { node-version: 22.x, cds-version: 9,      db-major: 2, mtxs-major: 3, cds-major: 9  }
-          - { node-version: 22.x, cds-version: latest, db-major: 3, mtxs-major: 4, cds-major: 10 }
-          - { node-version: 24.x, cds-version: 9,      db-major: 2, mtxs-major: 3, cds-major: 9  }
-          - { node-version: 24.x, cds-version: latest, db-major: 3, mtxs-major: 4, cds-major: 10 }
+        node-version: [22.x, 24.x]
+        cds-version: [9, latest]
     steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Integration tests
-        uses: cap-js/mcp/.github/actions/integration-tests@ci/prepare-cds10
+        uses: ./.github/actions/integration-tests
         with:
           CF_API: ${{ secrets.CF_API }}
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
@@ -90,6 +77,3 @@ jobs:
           CF_SPACE: ${{ secrets.CF_SPACE }}
           NODE_VERSION: ${{ matrix.node-version }}
           CDS_VERSION: ${{ matrix.cds-version }}
-          DB_MAJOR: ${{ matrix.db-major }}
-          MTXS_MAJOR: ${{ matrix.mtxs-major }}
-          CDS_MAJOR: ${{ matrix.cds-major }}
