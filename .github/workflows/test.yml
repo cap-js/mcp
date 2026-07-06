@@ -22,7 +22,7 @@ jobs:
         run: echo "This job has been approved!"
 
   test:
-    name: Tests
+    name: Tests (${{ matrix.node-version }}, ${{ matrix.cds-version }})
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
       - run: npm run test
 
   integration-tests:
-    name: Integration Tests
+    name: Integration Tests (${{ matrix.node-version }}, ${{ matrix.cds-version }})
     needs: requires-approval
     if: always() && (needs.requires-approval.result == 'success' || needs.requires-approval.result == 'skipped')
     runs-on: ubuntu-latest
