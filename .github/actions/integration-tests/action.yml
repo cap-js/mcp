@@ -71,15 +71,13 @@ runs:
         npm pkg set "overrides.@cap-js/sqlite=^2"
         npm pkg set "overrides.@cap-js/hana=^2"
         npm pkg set "overrides.@sap/cds-mtxs=^3"
+        npm pkg set "devDependencies.@sap/cds=^9"
         npm pkg set --workspace=tests/bookshop "dependencies.@sap/cds=^9"
         npm pkg set --workspace=tests/bookshop-mtx "dependencies.@sap/cds=^9"
 
     - name: Install all dependencies
       shell: bash
       run: npm install
-    - name: Generate sample card
-      shell: bash
-      run: npm run generate-sample-card
 
     - name: Set env variables for unique service naming
       shell: bash
