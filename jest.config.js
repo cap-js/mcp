@@ -6,6 +6,7 @@ const config = {
   coverageReporters: ['json'],
   silent: true,
   detectOpenHandles: true,
+  forceExit: true,
   // Pre-load ESM modules for require() compatibility
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
 }

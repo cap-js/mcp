@@ -2,12 +2,9 @@ const cds = require('@sap/cds')
 
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
-  return JSON.parse(
-    str
-      .split('\n')
-      .find((l) => l.startsWith('data: '))
-      .slice(6)
-  )
+  const line = str.split('\n').find((l) => l.startsWith('data: '))
+  if (!line) throw new Error(`No SSE data line in response: ${str.slice(0, 200)}`)
+  return JSON.parse(line.slice(6))
 }
 
 function parseContent(text) {
