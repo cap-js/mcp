@@ -28,6 +28,16 @@
       "fuzzy": false
     },
     "requires": {
+      "kinds": {
+        "sqlite": {
+          "driver": "better-sqlite3"
+        }
+      },
+      "db": {
+        "[development]": {
+          "credentials": { "url": ":memory:" }
+        }
+      },
       "db-ext": {
         "[development]": {
           "model": "db/sqlite"

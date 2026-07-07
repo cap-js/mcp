@@ -33,6 +33,9 @@
     "hana": {
       "fuzzy": false
     },
+    "sqlite": {
+      "driver": "better-sqlite3"
+    },
     "requires": {
       "[production]": {
         "auth": "xsuaa"
