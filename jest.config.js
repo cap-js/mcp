@@ -4,7 +4,7 @@ const config = {
   moduleFileExtensions: ['js'],
   collectCoverageFrom: ['lib/**', 'cds-plugin.js'],
   coverageReporters: ['json'],
-  silent: true,
+  silent: false,
   detectOpenHandles: true,
   forceExit: true,
   // Pre-load ESM modules for require() compatibility
