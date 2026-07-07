@@ -83,6 +83,7 @@ runs:
       shell: bash
       run: |
         echo "NODE_VERSION_HANA=$(echo ${{ inputs.NODE_VERSION }} | tr . _)" >> $GITHUB_ENV
+        echo "CDS_VERSION_HANA=$(echo ${{ inputs.CDS_VERSION }} | tr . _)" >> $GITHUB_ENV
     - name: CDS Versions being used
       shell: bash
       run: cds v -i
@@ -90,15 +91,15 @@ runs:
     # Deploy model to HANA
     - name: Create HDI Container
       shell: bash
-      run: cf create-service hana hdi-shared cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA
+      run: cf create-service hana hdi-shared cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA
     - name: Deploy to HANA
       shell: bash
-      run: cd tests/bookshop && CDS_ENV=production cds deploy --to hana:cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA
+      run: cd tests/bookshop && CDS_ENV=production cds deploy --to hana:cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA
 
     # Bind against BTP services and run tests
     - name: Bind to HANA service
       shell: bash
-      run: cds bind db -2 cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA -o package.json
+      run: cds bind db -2 cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA -o package.json
     - name: Run tests in hybrid mode
       shell: bash
       run: cds bind --exec -- npm run test
@@ -107,7 +108,7 @@ runs:
     - name: Delete HDI Container Key
       if: ${{ always() }}
       shell: bash
-      run: cf delete-service-key cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA-key -f
+      run: cf delete-service-key cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA-key -f
 
     # Note: The initial delete attempt often fails due to an "ongoing operation on service binding" error.
     - name: Delete HDI Container
@@ -115,7 +116,7 @@ runs:
       shell: bash
       run: |
         for i in {1..3}; do
-          cf delete-service cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$NODE_VERSION_HANA -f && break
+          cf delete-service cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-$CDS_VERSION_HANA-$NODE_VERSION_HANA -f && break
           echo "HDI container delete failed, retrying ($i/3)..."
           sleep 10
           if [ "$i" -eq 3 ]; then
