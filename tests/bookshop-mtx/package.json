@@ -34,8 +34,9 @@
         }
       },
       "db": {
-        "[development]": {
-          "credentials": { "url": ":memory:" }
+        "credentials": { "url": ":memory:" },
+        "[hybrid]": {
+          "kind": "hana"
         }
       },
       "db-ext": {
