@@ -59,14 +59,18 @@ module.exports =
       })
 
     const callTool = async (name, args = {}) => {
-      const res = await mcp('tools/call', { name, arguments: args })
-      if (res.error) {
-        return { ...res, content: null, error: res.error.message }
-      }
-      return {
-        ...res,
-        content: res.result.isError ? null : parseContent(res.result.content[0].text),
-        error: res.result.isError ? res.result.content[0].text : null
+      try {
+        const res = await mcp('tools/call', { name, arguments: args })
+        if (res.error) {
+          return { ...res, content: null, error: res.error.message }
+        }
+        return {
+          ...res,
+          content: res.result.isError ? null : parseContent(res.result.content[0].text),
+          error: res.result.isError ? res.result.content[0].text : null
+        }
+      } catch (err) {
+        return { content: null, error: `callTool(${name}) failed: ${err.message}` }
       }
     }
 
