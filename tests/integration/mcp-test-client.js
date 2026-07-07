@@ -3,7 +3,7 @@ const cds = require('@sap/cds')
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
   const line = str.split('\n').find((l) => l.startsWith('data: '))
-  if (!line) throw new Error(`No SSE data line in response: ${str.slice(0, 200)}`)
+  if (!line) return { error: { message: `No SSE data line in response: ${str.slice(0, 200)}` } }
   return JSON.parse(line.slice(6))
 }
 
@@ -47,7 +47,7 @@ module.exports =
       } catch (err) {
         // Handle HTTP errors (401, 403) from authorization failures
         if (err.response?.data) return err.response.data
-        throw err
+        return { error: { message: err.message } }
       }
     }
 

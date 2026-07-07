@@ -7,8 +7,16 @@ const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
 describe('Tool Name Prefix (global prefix: true)', () => {
+  let callTool, mcp, initialize
+
+  beforeAll(() => {
+    const client = mcpClient()
+    callTool = client.callTool
+    mcp = client.mcp
+    initialize = client.initialize
+  })
+
   it('tool names are prefixed with slugified service name', async () => {
-    const { mcp } = mcpClient()
     const response = await mcp('tools/list')
     const toolNames = response.result.tools.map((t) => t.name)
     expect(toolNames).to.include('catalog_query')
@@ -20,14 +28,12 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   })
 
   it('prefixed tools are callable', async () => {
-    const { callTool } = mcpClient()
     const { content, error } = await callTool('catalog_describe', {})
     expect(error).to.be.null
     expect(content.service).to.equal('CatalogService')
   })
 
   it('prefixed query tool works', async () => {
-    const { callTool } = mcpClient()
     const { content, error } = await callTool('catalog_query', { entity: 'Books' })
     expect(error).to.be.null
     expect(content.entity).to.equal('Books')
@@ -35,7 +41,6 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   })
 
   it('prefixed call_action tool works', async () => {
-    const { callTool } = mcpClient()
     const { content, error } = await callTool('catalog_call_action', {
       action: 'sum',
       parameters: { x: 3, y: 4 }
@@ -45,14 +50,13 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   })
 
   it('default instructions reference prefixed tool names', async () => {
-    const { initialize } = mcpClient('/mcp/limit', 'alice:')
-    const response = await initialize()
+    const { initialize: limitInit } = mcpClient('/mcp/limit', 'alice:')
+    const response = await limitInit()
     expect(response.result.instructions).to.include('limit_describe')
     expect(response.result.instructions).to.include('limit_query')
   })
 
   it('custom @mcp.instructions are not modified by prefix', async () => {
-    const { initialize } = mcpClient()
     const response = await initialize()
     expect(response.result.instructions).to.equal(
       'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.'
