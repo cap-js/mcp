@@ -55,7 +55,8 @@
     "protocols": {
       "mcp": {
         "path": "/mcp",
-        "impl": "@cap-js/mcp/lib"
+        "impl": "@cap-js/mcp/lib",
+        "clients": {}
       }
     },
     "cdsc": {
