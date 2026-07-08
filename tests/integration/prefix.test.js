@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
+cds.env.mcp.format = 'sql'
 cds.env.mcp.prefix = true
 cds.env.mcp.toon_format = false
 
