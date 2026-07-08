@@ -34,7 +34,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   })
 
   it('prefixed query tool works', async () => {
-    const { content, error } = await callTool('catalog_query', { entity: 'Books' })
+    const { content, error } = await callTool('catalog_query', { entity: 'Books', limit: 5 })
     expect(error).to.be.null
     expect(content.entity).to.equal('Books')
     expect(content.data).to.be.an('array')
