@@ -52,6 +52,12 @@
   "author": "SAP SE (https://www.sap.com)",
   "license": "SEE LICENSE IN LICENSE",
   "cds": {
+    "protocols": {
+      "mcp": {
+        "path": "/mcp",
+        "impl": "@cap-js/mcp/lib"
+      }
+    },
     "cdsc": {
       "docs": true
     },
