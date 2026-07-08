@@ -11,32 +11,23 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "zod": "^4.3.6",
-    "@toon-format/toon": "^2.1.0"
-  },
-  "overrides": {
-    "minimatch": "^10.2.1",
-    "glob": "^13.0.0",
-    "test-exclude": "^8.0.0"
+    "@toon-format/toon": "^2.3.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cap-js/cds-test": "1.0.1",
-    "jest": "30.4.2",
-    "jest-junit": "17.0.0"
+    "@cap-js/cds-test": "^1.0.1"
   },
   "peerDependencies": {
-    "@sap/cds": "^8 || ^9",
-    "express": "^4 || ^5.0.0"
+    "@sap/cds": ">=8",
+    "express": ">=4"
   },
   "scripts": {
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
     "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
-    "generate-sample-card": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > expected-catalog-service-card.json",
-    "pretest": "(command -v cds >/dev/null || npm i -g @sap/cds-dk) && npm run generate-sample-card",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "test:reporting": "npm run pretest && node --experimental-vm-modules node_modules/jest/bin/jest.js --silent --ci --collectCoverage --reporters=default --reporters=jest-junit --coverageReporters=text --coverageReporters=cobertura",
+    "test:reporting": "NODE_OPTIONS=--experimental-vm-modules npx jest --silent --ci --collectCoverage --reporters=default --coverageReporters=text --coverageReporters=cobertura",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
     "lint": "npx eslint .",
     "prettier": "npx -y prettier@3 --write .",
@@ -52,6 +43,13 @@
   "author": "SAP SE (https://www.sap.com)",
   "license": "SEE LICENSE IN LICENSE",
   "cds": {
+    "protocols": {
+      "mcp": {
+        "path": "/mcp",
+        "impl": "@cap-js/mcp/lib",
+        "clients": {}
+      }
+    },
     "cdsc": {
       "docs": true
     },

@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "description": "A simple CAP project.",
   "dependencies": {
-    "@cap-js/hana": "^2",
+    "@cap-js/hana": ">=2",
     "@cap-js/mcp": "file:../../",
+    "@sap/cds": ">=9",
+    "@sap/hana-client": "^2.29.23",
     "@sap/xssec": "^4",
-    "@toon-format/toon": "^2.1.0",
+    "@toon-format/toon": "^2.3.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2"
+    "@cap-js/sqlite": ">=2",
+    "better-sqlite3": ">=12"
   },
   "scripts": {
     "start": "cds-serve"
@@ -30,6 +33,9 @@
     },
     "hana": {
       "fuzzy": false
+    },
+    "sqlite": {
+      "driver": "better-sqlite3"
     },
     "requires": {
       "[production]": {

@@ -67,7 +67,8 @@
                 "add",
                 "validateEmail",
                 "submitOrder",
-                "applyDiscount"
+                "applyDiscount",
+                "validateOrder"
               ]
             }
           }
@@ -99,7 +100,8 @@
               "add",
               "validateEmail",
               "submitOrder",
-              "applyDiscount"
+              "applyDiscount",
+              "validateOrder"
             ],
             "description": "The action or function to call"
           },
