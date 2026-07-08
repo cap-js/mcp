@@ -17,7 +17,14 @@ describe('@cds.query.limit', () => {
       price: +(Math.random() * 50 + 5).toFixed(2),
       currency_code: 'USD'
     }))
+    await db.run(DELETE.from(Books).where('ID >=', 1000, 'and ID <', 1200))
     await db.run(INSERT.into(Books).entries(books))
+  })
+
+  afterAll(async () => {
+    const db = await cds.connect.to('db')
+    const { Books } = cds.entities('sap.capire.bookshop')
+    await db.run(DELETE.from(Books).where('ID >=', 1000, 'and ID <', 1200))
   })
 
   // Service: @cds.query.limit.default: 10, @cds.query.limit.max: 50
