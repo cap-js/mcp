@@ -33,7 +33,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
     expect(content.service).to.equal('CatalogService')
   })
 
-  it.skip('prefixed query tool works', async () => {
+  it('prefixed query tool works', async () => {
     const { content, error } = await callTool('catalog_query', { entity: 'Books' })
     expect(error).to.be.null
     expect(content.entity).to.equal('Books')
