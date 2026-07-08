@@ -56,8 +56,7 @@
       "docs": true
     },
     "mcp": {
-      "autowire": true,
-      "format": "sql"
+      "autowire": true
     }
   },
   "workspaces": [
