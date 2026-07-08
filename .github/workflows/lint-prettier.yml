@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v6
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: npm i
       - run: npm run lint
       - run: npm run prettier:check
