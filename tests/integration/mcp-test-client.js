@@ -2,12 +2,9 @@ const cds = require('@sap/cds')
 
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
-  return JSON.parse(
-    str
-      .split('\n')
-      .find((l) => l.startsWith('data: '))
-      .slice(6)
-  )
+  const line = str.split('\n').find((l) => l.startsWith('data: '))
+  if (!line) return { error: { message: `No SSE data line in response: ${str.slice(0, 200)}` } }
+  return JSON.parse(line.slice(6))
 }
 
 function parseContent(text) {
@@ -50,7 +47,7 @@ module.exports =
       } catch (err) {
         // Handle HTTP errors (401, 403) from authorization failures
         if (err.response?.data) return err.response.data
-        throw err
+        return { error: { message: err.message } }
       }
     }
 
@@ -62,14 +59,18 @@ module.exports =
       })
 
     const callTool = async (name, args = {}) => {
-      const res = await mcp('tools/call', { name, arguments: args })
-      if (res.error) {
-        return { ...res, content: null, error: res.error.message }
-      }
-      return {
-        ...res,
-        content: res.result.isError ? null : parseContent(res.result.content[0].text),
-        error: res.result.isError ? res.result.content[0].text : null
+      try {
+        const res = await mcp('tools/call', { name, arguments: args })
+        if (res.error) {
+          return { ...res, content: null, error: res.error.message }
+        }
+        return {
+          ...res,
+          content: res.result.isError ? null : parseContent(res.result.content[0].text),
+          error: res.result.isError ? res.result.content[0].text : null
+        }
+      } catch (err) {
+        return { content: null, error: `callTool(${name}) failed: ${err.message}` }
       }
     }
 
