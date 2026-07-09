@@ -11,7 +11,7 @@ describe('Draft Tools', () => {
     it('registers draft tools for draft-enabled entities', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.include('activate-books')
       expect(toolNames).to.include('edit-books')
       expect(toolNames).to.include('create-books')
@@ -22,7 +22,7 @@ describe('Draft Tools', () => {
     it('registers composition child tools', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       // Books has composition 'chapters' -> should generate chapter tools
       expect(toolNames).to.include('create-chapter')
       expect(toolNames).to.include('update-chapter')
@@ -32,7 +32,7 @@ describe('Draft Tools', () => {
     it('does not register draft tools for non-draft entities', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.not.include('activate-authors')
       expect(toolNames).to.not.include('create-authors')
       expect(toolNames).to.not.include('activate-genres')
@@ -41,15 +41,47 @@ describe('Draft Tools', () => {
     it('activate tool has key parameter schema', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'activate-books')
+      const tool = response.result.tools.find((t) => t.name === 'activate-books')
       expect(tool).to.exist
       expect(tool.inputSchema.properties).to.have.property('ID')
+    })
+
+    it('activate tool is flagged with _meta.requiresHITL for agent plugins', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find((t) => t.name === 'activate-books')
+      expect(tool).to.exist
+      expect(tool._meta).to.exist
+      expect(tool._meta.requiresHITL).to.equal(true)
+    })
+
+    it('non-activate tools do not carry requiresHITL', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const create = response.result.tools.find((t) => t.name === 'create-books')
+      const update = response.result.tools.find((t) => t.name === 'update-books')
+      expect(create._meta?.requiresHITL).to.not.equal(true)
+      expect(update._meta?.requiresHITL).to.not.equal(true)
+    })
+
+    it('agent plugin can filter HITL-required tools from tools/list', async () => {
+      // Simulates how deepagents interruptOn would discover HITL tools
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const hitlToolNames = response.result.tools
+        .filter((t) => t._meta?.requiresHITL === true)
+        .map((t) => t.name)
+      // Only activate-* tools should surface as HITL-required
+      expect(hitlToolNames.length).to.be.greaterThan(0)
+      for (const name of hitlToolNames) {
+        expect(name.startsWith('activate-')).to.equal(true)
+      }
     })
 
     it('create tool has writable field parameters', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'create-books')
+      const tool = response.result.tools.find((t) => t.name === 'create-books')
       expect(tool).to.exist
       expect(tool.inputSchema.properties).to.have.property('title')
       expect(tool.inputSchema.properties).to.have.property('stock')
@@ -63,7 +95,7 @@ describe('Draft Tools', () => {
     it('update tool has key + writable field parameters', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'update-books')
+      const tool = response.result.tools.find((t) => t.name === 'update-books')
       expect(tool).to.exist
       expect(tool.inputSchema.properties).to.have.property('ID')
       expect(tool.inputSchema.properties).to.have.property('title')
@@ -72,7 +104,7 @@ describe('Draft Tools', () => {
     it('child create tool has parent key + writable params', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find(t => t.name === 'create-chapter')
+      const tool = response.result.tools.find((t) => t.name === 'create-chapter')
       expect(tool).to.exist
       // Should have parent key (Books.ID)
       expect(tool.inputSchema.properties).to.have.property('ID')
@@ -177,7 +209,7 @@ describe('Draft Tools', () => {
     it('does not register create tool for @readonly draft-enabled entities', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       // ReadOnlyAuthors is @readonly @odata.draft.enabled — no create tool
       expect(toolNames).to.not.include('create-read-only-author')
       // But other draft tools should still exist (activate, edit, update, discard)
@@ -190,7 +222,7 @@ describe('Draft Tools', () => {
     it('still registers create tool for non-readonly draft-enabled entities', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const toolNames = response.result.tools.map(t => t.name)
+      const toolNames = response.result.tools.map((t) => t.name)
       expect(toolNames).to.include('create-books')
     })
   })
@@ -204,7 +236,7 @@ describe('Draft Tools', () => {
       try {
         const { mcp } = client()
         const response = await mcp('tools/list')
-        const toolNames = response.result.tools.map(t => t.name)
+        const toolNames = response.result.tools.map((t) => t.name)
         expect(toolNames).to.include('admin_activate-books')
         expect(toolNames).to.include('admin_edit-books')
         expect(toolNames).to.include('admin_create-books')
