@@ -6,10 +6,6 @@
 
 ## Version 1.2.0 - Unreleased
 
-### Added
-
-- Support query SQL format for easier LLM handling. The SQL is converted to CQN and send via the service to avoid SQL injections. The describe tool returns CQL in this format instead of CSN.
-
 ## Version 1.1.1 - 2026-07-08
 
 ### Fixed
