@@ -16,6 +16,10 @@ service AdminService {
   @readonly @odata.draft.enabled
   entity ReadOnlyAuthors as projection on my.Authors;
 
+  @odata.draft.enabled
+  entity Documents as projection on my.Documents;
+  entity Sections as projection on my.Sections;
+
   @description: 'Add two integers (admin only)'
   function sum(x: Integer, y: Integer) returns Integer;
 

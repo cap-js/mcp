@@ -379,6 +379,71 @@ describe('Draft Tools', () => {
     })
   })
 
+  describe('backlink exclusion', () => {
+    // AdminService.Documents has composition Documents→sections (target Sections),
+    // and Sections has `document: Association to Documents` — a composition-parent backlink.
+    // The generated FK `document_ID` backs this backlink and must NOT appear in
+    // create/update tool schemas — it's set implicitly by the composition parent.
+
+    it('create-section schema omits document_ID FK (composition-parent backlink)', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find((t) => t.name === 'create-section')
+      expect(tool).to.exist
+      expect(tool.inputSchema.properties).to.have.property('title')
+      // Parent key from Documents present for composition navigation
+      expect(tool.inputSchema.properties).to.have.property('ID')
+      // Backlink FK `document_ID` must NOT be exposed
+      expect(tool.inputSchema.properties).to.not.have.property('document_ID')
+      // The assoc itself (document) also not writable (filtered as Association type)
+      expect(tool.inputSchema.properties).to.not.have.property('document')
+    })
+
+    it('update-section schema omits document_ID FK (composition-parent backlink)', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find((t) => t.name === 'update-section')
+      expect(tool).to.exist
+      expect(tool.inputSchema.properties).to.have.property('title')
+      expect(tool.inputSchema.properties).to.not.have.property('document_ID')
+      expect(tool.inputSchema.properties).to.not.have.property('document')
+    })
+
+    it('regular managed assoc FK stays writable (author_ID on Books)', async () => {
+      // Ensure filter only affects composition-parent backlinks, not regular assocs
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find((t) => t.name === 'create-books')
+      expect(tool).to.exist
+      // author_ID is a regular managed assoc FK — must remain writable
+      expect(tool.inputSchema.properties).to.have.property('author_ID')
+    })
+
+    // Entity-level backlink: Authors.books = "Association to many Books on books.author = $self"
+    it('update tool schema for entity with unmanaged backlink omits the backlink property', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const tool = response.result.tools.find((t) => t.name === 'update-read-only-authors')
+      expect(tool).to.exist
+      expect(tool.inputSchema.properties).to.have.property('name')
+      expect(tool.inputSchema.properties).to.not.have.property('books')
+    })
+
+    it('backlink is not exposed as key parameter in tools', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      for (const name of [
+        'activate-read-only-authors',
+        'edit-read-only-authors',
+        'discard-read-only-authors'
+      ]) {
+        const tool = response.result.tools.find((t) => t.name === name)
+        expect(tool, `${name} should exist`).to.exist
+        expect(tool.inputSchema.properties).to.not.have.property('books')
+      }
+    })
+  })
+
   describe('prefix handling', () => {
     it('draft tools are prefixed when cds.env.mcp.prefix is enabled', async () => {
       const originalValue = cds.env.mcp?.prefix
