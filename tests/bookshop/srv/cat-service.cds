@@ -9,6 +9,7 @@ service CatalogService {
   entity Books as
     projection on my.Books {
       *,
+      author.ID as authorID,
       author.name as author
     }
     excluding {
@@ -56,6 +57,13 @@ service CatalogService {
     markup: Decimal @assert.range: [(0), _],
     @description: 'Effective date for the discount'
     effectiveDate: DateTime @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
+  );
+
+  @description: 'Validate order data (reports all validation errors at once)'
+  action validateOrder(
+    book: Integer,
+    quantity: Integer,
+    email: String
   );
 }
 

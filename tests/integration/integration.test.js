@@ -1,5 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
@@ -10,7 +12,10 @@ describe('MCP Protocol', () => {
     expect(response.result).to.exist
     expect(response.result.protocolVersion).to.be.a('string')
     expect(response.result.serverInfo).to.have.property('name')
-    expect(response.result.serverInfo).to.have.property('description', 'Catalog service for browsing books.\nProvides read access to the book catalog including genres and author information.')
+    expect(response.result.serverInfo).to.have.property(
+      'description',
+      'Catalog service for browsing books.\nProvides read access to the book catalog including genres and author information.'
+    )
   })
 
   it('returns custom @mcp.instructions in initialize response', async () => {
@@ -48,7 +53,7 @@ describe('MCP Protocol', () => {
   it('lists query and describe tools', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const toolNames = response.result.tools.map(t => t.name)
+    const toolNames = response.result.tools.map((t) => t.name)
     expect(toolNames).to.include('query')
     expect(toolNames).to.include('describe')
   })
@@ -56,7 +61,7 @@ describe('MCP Protocol', () => {
   it('does not have per-entity tools by default', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const toolNames = response.result.tools.map(t => t.name)
+    const toolNames = response.result.tools.map((t) => t.name)
     expect(toolNames).to.not.include('query_Books')
     expect(toolNames).to.not.include('query_Genres')
   })
@@ -64,7 +69,7 @@ describe('MCP Protocol', () => {
   it('includes tool descriptions and input schemas', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const readQueryTool = response.result.tools.find(t => t.name === 'query')
+    const readQueryTool = response.result.tools.find((t) => t.name === 'query')
     expect(readQueryTool).to.have.property('description')
     expect(readQueryTool).to.have.property('inputSchema')
     expect(readQueryTool.inputSchema).to.have.property('properties')
@@ -110,6 +115,18 @@ describe('describe', () => {
     expect(elementNames).to.not.include('texts')
   })
 
+  it('does not include autoexposed composition targets in overview', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    const entityNames = Object.keys(content.entities)
+    // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
+    expect(entityNames).to.not.include('Books.chapters')
+    // Entities with @cds.autoexpose (CodeLists) should still be present
+    expect(entityNames).to.include('Genres')
+    expect(entityNames).to.include('Currencies')
+  })
+
   it('lists actions in describe output', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe')
@@ -122,7 +139,9 @@ describe('describe', () => {
   it('includes action parameters', async () => {
     const { callTool } = mcpClient()
     // Need to specify action to get parameter details
-    const { content: sumContent, error: sumError } = await callTool('describe', { actions: ['sum'] })
+    const { content: sumContent, error: sumError } = await callTool('describe', {
+      actions: ['sum']
+    })
     expect(sumError).to.be.null
     expect(sumContent.actions.sum.parameters).to.have.property('x')
     expect(sumContent.actions.sum.parameters).to.have.property('y')
@@ -141,7 +160,7 @@ describe('describe', () => {
   it('schema includes action enum in array items', async () => {
     const { mcp } = mcpClient()
     const response = await mcp('tools/list')
-    const describeTool = response.result.tools.find(t => t.name === 'describe')
+    const describeTool = response.result.tools.find((t) => t.name === 'describe')
     expect(describeTool.inputSchema.properties).to.have.property('actions')
     const actionEnum = describeTool.inputSchema.properties.actions.items.enum
     expect(actionEnum).to.include('sum')
@@ -171,9 +190,9 @@ describe('describe', () => {
 
   it('filters by both entity and action independently', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { 
-      entities: ['Books'], 
-      actions: ['add'] 
+    const { content, error } = await callTool('describe', {
+      entities: ['Books'],
+      actions: ['add']
     })
     expect(error).to.be.null
     // Only Books entity
@@ -214,7 +233,7 @@ describe('describe', () => {
     // FullyRestrictedService has no actions defined
     const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
     const response = await mcp('tools/list')
-    const describeTool = response.result.tools.find(t => t.name === 'describe')
+    const describeTool = response.result.tools.find((t) => t.name === 'describe')
     expect(describeTool.inputSchema.properties).to.not.have.property('action')
   })
 })
@@ -227,10 +246,10 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.entity).to.equal('Books')
       expect(content.count).to.equal(5)
-      const titles = content.data.map(b => b.title)
+      const titles = content.data.map((b) => b.title)
       expect(titles).to.include('Wuthering Heights')
       expect(titles).to.include('Jane Eyre')
-      expect(titles.some(t => t.startsWith('The Raven'))).to.be.true
+      expect(titles.some((t) => t.startsWith('The Raven'))).to.be.true
     })
 
     it('queries Genres entity and returns genre hierarchy', async () => {
@@ -239,7 +258,7 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.entity).to.equal('Genres')
       expect(content.count).to.equal(42)
-      const names = content.data.map(g => g.name)
+      const names = content.data.map((g) => g.name)
       expect(names).to.include('Fiction')
       expect(names).to.include('Non-Fiction')
       expect(names).to.include('Drama')
@@ -247,9 +266,9 @@ describe('query', () => {
 
     it('returns book data with all expected fields populated', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['ID'] }, '=', { val: 201 }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['ID'] }, '=', { val: 201 }]
       })
       expect(error).to.be.null
       const book = content.data[0]
@@ -264,9 +283,9 @@ describe('query', () => {
   describe('where', () => {
     it('filters by equality', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['title'] }, '=', { val: 'Jane Eyre' }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, '=', { val: 'Jane Eyre' }]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(1)
@@ -275,39 +294,35 @@ describe('query', () => {
 
     it('filters by comparison (greater than)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['stock'] }, '>', { val: 10 }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['stock'] }, '>', { val: 10 }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(book => expect(book.stock).to.be.greaterThan(10))
+      content.data.forEach((book) => expect(book.stock).to.be.greaterThan(10))
     })
 
     it('filters by comparison (less than)', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['price'] }, '<', { val: 12 }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['price'] }, '<', { val: 12 }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(book => expect(Number(book.price)).to.be.lessThan(12))
+      content.data.forEach((book) => expect(Number(book.price)).to.be.lessThan(12))
     })
 
     it('filters with AND condition', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [
-          { ref: ['stock'] }, '>', { val: 0 }, 
-          'and', 
-          { ref: ['price'] }, '<', { val: 15 }
-        ] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['stock'] }, '>', { val: 0 }, 'and', { ref: ['price'] }, '<', { val: 15 }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(book => {
+      content.data.forEach((book) => {
         expect(book.stock).to.be.greaterThan(0)
         expect(Number(book.price)).to.be.lessThan(15)
       })
@@ -315,34 +330,26 @@ describe('query', () => {
 
     it('filters with OR condition', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [
-          { ref: ['ID'] }, '=', { val: 201 }, 
-          'or', 
-          { ref: ['ID'] }, '=', { val: 207 }
-        ] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['ID'] }, '=', { val: 201 }, 'or', { ref: ['ID'] }, '=', { val: 207 }]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
-      const ids = content.data.map(b => b.ID)
+      const ids = content.data.map((b) => b.ID)
       expect(ids).to.include(201)
       expect(ids).to.include(207)
     })
 
     it('filters with IN clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [
-          { ref: ['ID'] }, 
-          'in', 
-          { list: [{ val: 201 }, { val: 207 }, { val: 251 }] }
-        ] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['ID'] }, 'in', { list: [{ val: 201 }, { val: 207 }, { val: 251 }] }]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(3)
-      const ids = content.data.map(b => b.ID)
+      const ids = content.data.map((b) => b.ID)
       expect(ids).to.include(201)
       expect(ids).to.include(207)
       expect(ids).to.include(251)
@@ -350,30 +357,24 @@ describe('query', () => {
 
     it('filters with LIKE clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['title'] }, 'like', { val: '%Raven%' }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['title'] }, 'like', { val: '%Raven%' }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(book => expect(book.title).to.include('Raven'))
+      content.data.forEach((book) => expect(book.title).to.include('Raven'))
     })
 
     it('filters with BETWEEN clause', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [
-          { ref: ['stock'] }, 
-          'between', 
-          { val: 10 }, 
-          'and', 
-          { val: 15 }
-        ] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['stock'] }, 'between', { val: 10 }, 'and', { val: 15 }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(book => {
+      content.data.forEach((book) => {
         expect(book.stock).to.be.at.least(10)
         expect(book.stock).to.be.at.most(15)
       })
@@ -381,13 +382,13 @@ describe('query', () => {
 
     it('filters with nested xpr for grouping', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
         where: [
-          { xpr: [{ ref: ['ID'] }, '=', { val: 201 }] }, 
-          'or', 
+          { xpr: [{ ref: ['ID'] }, '=', { val: 201 }] },
+          'or',
           { xpr: [{ ref: ['ID'] }, '=', { val: 252 }] }
-        ] 
+        ]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(2)
@@ -395,9 +396,9 @@ describe('query', () => {
 
     it('returns empty array when where matches nothing', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
-        where: [{ ref: ['ID'] }, '=', { val: 99999 }] 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        where: [{ ref: ['ID'] }, '=', { val: 99999 }]
       })
       expect(error).to.be.null
       expect(content.count).to.equal(0)
@@ -426,7 +427,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.data.length).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row.isbn).to.be.null
       })
 
@@ -472,13 +473,15 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.data).to.be.an('array')
     })
-
   })
 
   describe('select', () => {
     it('selects specific fields only', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', select: [{ ref: ['ID'] }, { ref: ['title'] }] })
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['ID'] }, { ref: ['title'] }]
+      })
       expect(error).to.be.null
       const book = content.data[0]
       expect(book).to.have.property('ID')
@@ -489,7 +492,10 @@ describe('query', () => {
 
     it('selects single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', select: [{ ref: ['title'] }] })
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        select: [{ ref: ['title'] }]
+      })
       expect(error).to.be.null
       expect(content.data[0]).to.have.property('title')
       expect(Object.keys(content.data[0])).to.have.lengthOf(1)
@@ -525,13 +531,17 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        select: [{ ref: ['ID'] }, { ref: ['name'] }, { ref: ['books'], expand: [{ ref: ['title'] }, { ref: ['stock'] }] }],
+        select: [
+          { ref: ['ID'] },
+          { ref: ['name'] },
+          { ref: ['books'], expand: [{ ref: ['title'] }, { ref: ['stock'] }] }
+        ],
         limit: 5
       })
       expect(error).to.be.null
       expect(content.data).to.be.an('array')
       // Edgar Allen Poe (ID 150) has 2 books
-      const poe = content.data.find(a => a.name === 'Edgar Allen Poe')
+      const poe = content.data.find((a) => a.name === 'Edgar Allen Poe')
       expect(poe.books).to.be.an('array')
       expect(poe.books).to.have.length(2)
       expect(poe.books[0]).to.have.property('title')
@@ -576,7 +586,7 @@ describe('query', () => {
 
     it('rejects path starting with non-existent element', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', {
+      const { error } = await callTool('query', {
         entity: 'Books',
         select: [{ ref: ['nonexistent', 'name'] }]
       })
@@ -588,7 +598,9 @@ describe('query', () => {
       const { callTool } = mcpClient()
       // Create a select clause that exceeds 1000 chars when serialized
       // Each ref object adds ~30 chars, so 50 fields should exceed 1000
-      const manyFields = Array.from({ length: 50 }, (_, i) => ({ ref: [`field_${i.toString().padStart(3, '0')}`] }))
+      const manyFields = Array.from({ length: 50 }, (_, i) => ({
+        ref: [`field_${i.toString().padStart(3, '0')}`]
+      }))
       const { error } = await callTool('query', {
         entity: 'Books',
         select: manyFields
@@ -617,15 +629,23 @@ describe('query', () => {
   describe('orderBy', () => {
     it('orders by single field', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['title'] }], select: [{ ref: ['title'] }] })
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        orderBy: [{ ref: ['title'] }],
+        select: [{ ref: ['title'] }]
+      })
       expect(error).to.be.null
-      const titles = content.data.map(b => b.title)
+      const titles = content.data.map((b) => b.title)
       expect(titles).to.eql([...titles].sort())
     })
 
     it('orders by array of fields', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['stock'] }, { ref: ['title'] }], select: [{ ref: ['stock'] }, { ref: ['title'] }] })
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        orderBy: [{ ref: ['stock'] }, { ref: ['title'] }],
+        select: [{ ref: ['stock'] }, { ref: ['title'] }]
+      })
       expect(error).to.be.null
       for (let i = 1; i < content.data.length; i++) {
         const prev = content.data[i - 1]
@@ -638,39 +658,45 @@ describe('query', () => {
 
     it('orders by ID', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { entity: 'Books', orderBy: [{ ref: ['ID'] }], select: [{ ref: ['ID'] }] })
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
+        orderBy: [{ ref: ['ID'] }],
+        select: [{ ref: ['ID'] }]
+      })
       expect(error).to.be.null
-      const ids = content.data.map(b => b.ID)
+      const ids = content.data.map((b) => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => a - b))
     })
 
     it('orders by single field descending', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
         orderBy: [{ ref: ['title'], sort: 'desc' }],
-        select: [{ ref: ['title'] }] 
+        select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
-      const titles = content.data.map(b => b.title)
+      const titles = content.data.map((b) => b.title)
       expect(titles).to.eql([...titles].sort().reverse())
     })
 
     it('orders by ID descending', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('query', { 
-        entity: 'Books', 
+      const { content, error } = await callTool('query', {
+        entity: 'Books',
         orderBy: [{ ref: ['ID'], sort: 'desc' }],
-        select: [{ ref: ['ID'] }] 
+        select: [{ ref: ['ID'] }]
       })
       expect(error).to.be.null
-      const ids = content.data.map(b => b.ID)
+      const ids = content.data.map((b) => b.ID)
       expect(ids).to.eql([...ids].sort((a, b) => b - a))
     })
 
     it('rejects orderBy clause exceeding 1000 character limit', async () => {
       const { callTool } = mcpClient()
-      const manyOrders = Array.from({ length: 100 }, (_, i) => ({ ref: [`field_${i.toString().padStart(3, '0')}`] }))
+      const manyOrders = Array.from({ length: 100 }, (_, i) => ({
+        ref: [`field_${i.toString().padStart(3, '0')}`]
+      }))
       const { error } = await callTool('query', {
         entity: 'Books',
         orderBy: manyOrders,
@@ -692,7 +718,7 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
       // Each genre_ID should appear only once
-      const genreIds = content.data.map(b => b.genre_ID)
+      const genreIds = content.data.map((b) => b.genre_ID)
       const uniqueIds = [...new Set(genreIds)]
       expect(genreIds.length).to.equal(uniqueIds.length)
     })
@@ -707,7 +733,7 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
       // Each combination should be unique
-      const combinations = content.data.map(b => `${b.genre_ID}-${b.stock}`)
+      const combinations = content.data.map((b) => `${b.genre_ID}-${b.stock}`)
       const uniqueCombinations = [...new Set(combinations)]
       expect(combinations.length).to.equal(uniqueCombinations.length)
     })
@@ -716,15 +742,12 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [
-          { ref: ['genre_ID'] },
-          { func: 'count', args: ['*'], as: 'bookCount' }
-        ],
+        select: [{ ref: ['genre_ID'] }, { func: 'count', args: ['*'], as: 'bookCount' }],
         groupBy: ['genre_ID']
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('bookCount')
         expect(row.bookCount).to.be.a('number')
@@ -744,7 +767,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('totalStock')
         expect(row.totalStock).to.be.a('number')
@@ -763,7 +786,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('avgPrice')
         expect(row.avgPrice).to.be.a('number')
@@ -783,7 +806,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('minPrice')
         expect(row).to.have.property('maxPrice')
@@ -795,16 +818,13 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [
-          { ref: ['genre_ID'] },
-          { func: 'count', args: ['*'], as: 'bookCount' }
-        ],
+        select: [{ ref: ['genre_ID'] }, { func: 'count', args: ['*'], as: 'bookCount' }],
         where: [{ ref: ['stock'] }, '>', { val: 5 }],
         groupBy: ['genre_ID']
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('bookCount')
       })
@@ -824,7 +844,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row).to.have.property('genre_ID')
         expect(row).to.have.property('bookCount')
         expect(row).to.have.property('totalStock')
@@ -836,10 +856,7 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [
-          { ref: ['genre_ID'] },
-          { func: 'count', args: ['*'], as: 'bookCount' }
-        ],
+        select: [{ ref: ['genre_ID'] }, { func: 'count', args: ['*'], as: 'bookCount' }],
         groupBy: ['genre_ID'],
         orderBy: [{ ref: ['bookCount'], sort: 'desc' }]
       })
@@ -853,7 +870,10 @@ describe('query', () => {
 
     it('rejects groupBy clause exceeding 1000 character limit', async () => {
       const { callTool } = mcpClient()
-      const manyFields = Array.from({ length: 100 }, (_, i) => `field_${i.toString().padStart(3, '0')}`)
+      const manyFields = Array.from(
+        { length: 100 },
+        (_, i) => `field_${i.toString().padStart(3, '0')}`
+      )
       const { error } = await callTool('query', {
         entity: 'Books',
         select: ['ID'],
@@ -869,25 +889,24 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [
-          { ref: ['genre_ID'] },
-          { func: 'count', args: ['*'], as: 'bookCount' }
-        ],
+        select: [{ ref: ['genre_ID'] }, { func: 'count', args: ['*'], as: 'bookCount' }],
         groupBy: ['genre_ID'],
         having: [{ func: 'count', args: ['*'] }, '>', { val: 1 }]
       })
       expect(error).to.be.null
       // Only genres with more than 1 book should be returned
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row.bookCount).to.be.greaterThan(1)
       })
     })
 
     it('rejects having clause exceeding 1000 character limit', async () => {
       const { callTool } = mcpClient()
-      const longConditions = Array.from({ length: 50 }, (_, i) =>
-        [{ func: 'count', args: ['*'] }, '>', { val: i }]
-      ).flat()
+      const longConditions = Array.from({ length: 50 }, (_, i) => [
+        { func: 'count', args: ['*'] },
+        '>',
+        { val: i }
+      ]).flat()
       const { error } = await callTool('query', {
         entity: 'Books',
         select: [{ ref: ['genre_ID'] }],
@@ -938,7 +957,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       // Each genre_ID should appear only once
-      const genreIds = content.data.map(b => b.genre_ID)
+      const genreIds = content.data.map((b) => b.genre_ID)
       const uniqueIds = [...new Set(genreIds)]
       expect(genreIds.length).to.equal(uniqueIds.length)
     })
@@ -952,7 +971,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       // Each combination should be unique
-      const combinations = content.data.map(b => `${b.genre_ID}-${b.currency_code}`)
+      const combinations = content.data.map((b) => `${b.genre_ID}-${b.currency_code}`)
       const uniqueCombinations = [...new Set(combinations)]
       expect(combinations.length).to.equal(uniqueCombinations.length)
     })
@@ -966,7 +985,7 @@ describe('query', () => {
         orderBy: [{ ref: ['genre_ID'], sort: 'asc' }]
       })
       expect(error).to.be.null
-      const genreIds = content.data.map(b => b.genre_ID)
+      const genreIds = content.data.map((b) => b.genre_ID)
       // Should be sorted and unique
       expect(genreIds.length).to.equal([...new Set(genreIds)].length)
       for (let i = 1; i < genreIds.length; i++) {
@@ -983,7 +1002,7 @@ describe('query', () => {
         where: [{ ref: ['stock'] }, '>', { val: 0 }]
       })
       expect(error).to.be.null
-      const codes = content.data.map(b => b.currency_code)
+      const codes = content.data.map((b) => b.currency_code)
       expect(codes.length).to.equal([...new Set(codes)].length)
     })
   })
@@ -1110,7 +1129,10 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [{ ref: ['title'] }, { func: 'length', args: [{ ref: ['title'] }], as: 'titleLen' }],
+        select: [
+          { ref: ['title'] },
+          { func: 'length', args: [{ ref: ['title'] }], as: 'titleLen' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 251 }]
       })
       expect(error).to.be.null
@@ -1127,14 +1149,16 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => expect(row.title.length).to.be.lessThan(10))
+      content.data.forEach((row) => expect(row.title.length).to.be.lessThan(10))
     })
 
     it('uses substring in select', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [{ func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 4 }], as: 'prefix' }],
+        select: [
+          { func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 4 }], as: 'prefix' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 251 }]
       })
       expect(error).to.be.null
@@ -1145,7 +1169,11 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        where: [{ func: 'contains', args: [{ ref: ['title'] }, { val: 'Raven' }] }, '=', { val: true }],
+        where: [
+          { func: 'contains', args: [{ ref: ['title'] }, { val: 'Raven' }] },
+          '=',
+          { val: true }
+        ],
         select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
@@ -1157,19 +1185,27 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        where: [{ func: 'startswith', args: [{ ref: ['title'] }, { val: 'The' }] }, '=', { val: true }],
+        where: [
+          { func: 'startswith', args: [{ ref: ['title'] }, { val: 'The' }] },
+          '=',
+          { val: true }
+        ],
         select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => expect(row.title.startsWith('The')).to.be.true)
+      content.data.forEach((row) => expect(row.title.startsWith('The')).to.be.true)
     })
 
     it('uses endswith in where clause', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        where: [{ func: 'endswith', args: [{ ref: ['title'] }, { val: 'Eyre' }] }, '=', { val: true }],
+        where: [
+          { func: 'endswith', args: [{ ref: ['title'] }, { val: 'Eyre' }] },
+          '=',
+          { val: true }
+        ],
         select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
@@ -1205,7 +1241,10 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [{ ref: ['price'] }, { func: 'round', args: [{ ref: ['price'] }], as: 'roundedPrice' }],
+        select: [
+          { ref: ['price'] },
+          { func: 'round', args: [{ ref: ['price'] }], as: 'roundedPrice' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 201 }]
       })
       expect(error).to.be.null
@@ -1217,7 +1256,10 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [{ ref: ['price'] }, { func: 'floor', args: [{ ref: ['price'] }], as: 'floorPrice' }],
+        select: [
+          { ref: ['price'] },
+          { func: 'floor', args: [{ ref: ['price'] }], as: 'floorPrice' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 207 }]
       })
       expect(error).to.be.null
@@ -1229,7 +1271,10 @@ describe('query', () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
         entity: 'Books',
-        select: [{ ref: ['price'] }, { func: 'ceiling', args: [{ ref: ['price'] }], as: 'ceilPrice' }],
+        select: [
+          { ref: ['price'] },
+          { func: 'ceiling', args: [{ ref: ['price'] }], as: 'ceilPrice' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 207 }]
       })
       expect(error).to.be.null
@@ -1247,7 +1292,7 @@ describe('query', () => {
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
       // price 13.13 rounds to 13
-      content.data.forEach(row => expect(Math.round(row.price)).to.equal(13))
+      content.data.forEach((row) => expect(Math.round(row.price)).to.equal(13))
     })
   })
 
@@ -1256,7 +1301,10 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        select: [{ ref: ['name'] }, { func: 'year', args: [{ ref: ['dateOfBirth'] }], as: 'birthYear' }],
+        select: [
+          { ref: ['name'] },
+          { func: 'year', args: [{ ref: ['dateOfBirth'] }], as: 'birthYear' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 150 }]
       })
       expect(error).to.be.null
@@ -1280,7 +1328,10 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        select: [{ ref: ['name'] }, { func: 'month', args: [{ ref: ['dateOfBirth'] }], as: 'birthMonth' }],
+        select: [
+          { ref: ['name'] },
+          { func: 'month', args: [{ ref: ['dateOfBirth'] }], as: 'birthMonth' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 101 }]
       })
       expect(error).to.be.null
@@ -1292,7 +1343,10 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        select: [{ ref: ['name'] }, { func: 'day', args: [{ ref: ['dateOfBirth'] }], as: 'birthDay' }],
+        select: [
+          { ref: ['name'] },
+          { func: 'day', args: [{ ref: ['dateOfBirth'] }], as: 'birthDay' }
+        ],
         where: [{ ref: ['ID'] }, '=', { val: 107 }]
       })
       expect(error).to.be.null
@@ -1343,7 +1397,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => expect(row.price * row.stock).to.be.greaterThan(1000))
+      content.data.forEach((row) => expect(row.price * row.stock).to.be.greaterThan(1000))
     })
   })
 
@@ -1356,7 +1410,7 @@ describe('query', () => {
         select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
-      content.data.forEach(row => expect(row.descr).to.not.exist)
+      content.data.forEach((row) => expect(row.descr).to.not.exist)
     })
 
     it('uses is not null in where', async () => {
@@ -1368,7 +1422,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => expect(row.descr).to.exist)
+      content.data.forEach((row) => expect(row.descr).to.exist)
     })
 
     it('uses not in in where', async () => {
@@ -1379,7 +1433,7 @@ describe('query', () => {
         select: [{ ref: ['ID'] }, { ref: ['title'] }]
       })
       expect(error).to.be.null
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row.ID).to.not.equal(201)
         expect(row.ID).to.not.equal(207)
       })
@@ -1393,20 +1447,23 @@ describe('query', () => {
         select: [{ ref: ['title'] }]
       })
       expect(error).to.be.null
-      content.data.forEach(row => expect(row.title.startsWith('The')).to.be.false)
+      content.data.forEach((row) => expect(row.title.startsWith('The')).to.be.false)
     })
 
     it('uses exists with infix filter in where', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        where: ['exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }],
+        where: [
+          'exists',
+          { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }
+        ],
         select: [{ ref: ['ID'] }, { ref: ['name'] }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
       // Edgar Allen Poe has books with stock 333 and 555
-      const names = content.data.map(a => a.name)
+      const names = content.data.map((a) => a.name)
       expect(names).to.include('Edgar Allen Poe')
     })
 
@@ -1414,11 +1471,15 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        where: ['not', 'exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }],
+        where: [
+          'not',
+          'exists',
+          { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 100 }] }] }
+        ],
         select: [{ ref: ['name'] }]
       })
       expect(error).to.be.null
-      const names = content.data.map(a => a.name)
+      const names = content.data.map((a) => a.name)
       expect(names).to.not.include('Edgar Allen Poe')
     })
 
@@ -1426,16 +1487,30 @@ describe('query', () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
       const { content, error } = await callTool('query', {
         entity: 'Authors',
-        where: ['exists', { ref: [{ id: 'books', where: [
-          { ref: ['stock'] }, '>', { val: 100 },
-          'and',
-          { ref: ['price'] }, '<', { val: 15 }
-        ] }] }],
+        where: [
+          'exists',
+          {
+            ref: [
+              {
+                id: 'books',
+                where: [
+                  { ref: ['stock'] },
+                  '>',
+                  { val: 100 },
+                  'and',
+                  { ref: ['price'] },
+                  '<',
+                  { val: 15 }
+                ]
+              }
+            ]
+          }
+        ],
         select: [{ ref: ['name'] }]
       })
       expect(error).to.be.null
       // Edgar Allen Poe: The Raven (stock=333, price=13.13) and Eleonora (stock=555, price=14) match
-      const names = content.data.map(a => a.name)
+      const names = content.data.map((a) => a.name)
       expect(names).to.include('Edgar Allen Poe')
       // Brontës have stock 12 and 11, so they shouldn't match
       expect(names).to.not.include('Emily Brontë')
@@ -1447,16 +1522,19 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Authors',
         where: [
-          'exists', { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 0 }] }] },
+          'exists',
+          { ref: [{ id: 'books', where: [{ ref: ['stock'] }, '>', { val: 0 }] }] },
           'and',
-          { func: 'year', args: [{ ref: ['dateOfBirth'] }] }, '<', { val: 1820 }
+          { func: 'year', args: [{ ref: ['dateOfBirth'] }] },
+          '<',
+          { val: 1820 }
         ],
         select: [{ ref: ['name'] }, { ref: ['dateOfBirth'] }]
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
       // All authors have books with stock > 0, but only Poe (1809) and the Brontës (1818) were born before 1820
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         const year = new Date(row.dateOfBirth).getFullYear()
         expect(year).to.be.lessThan(1820)
       })
@@ -1469,7 +1547,11 @@ describe('query', () => {
       const { content, error } = await callTool('query', {
         entity: 'Books',
         select: [
-          { func: 'toupper', args: [{ func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 3 }] }], as: 'code' }
+          {
+            func: 'toupper',
+            args: [{ func: 'substring', args: [{ ref: ['title'] }, { val: 0 }, { val: 3 }] }],
+            as: 'code'
+          }
         ],
         where: [{ ref: ['ID'] }, '=', { val: 251 }]
       })
@@ -1490,7 +1572,7 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => {
+      content.data.forEach((row) => {
         expect(row.titleLen).to.be.at.most(10)
         expect(Number.isInteger(row.roundedPrice)).to.be.true
       })
@@ -1509,7 +1591,9 @@ describe('query', () => {
       })
       expect(error).to.be.null
       expect(content.count).to.be.greaterThan(0)
-      content.data.forEach(row => expect(Math.floor(row.value / row.stock || row.value)).to.be.at.least(0))
+      content.data.forEach((row) =>
+        expect(Math.floor(row.value / row.stock || row.value)).to.be.at.least(0)
+      )
     })
   })
 })
@@ -1571,7 +1655,7 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('lists tools with filtered entity enum (Books, Genres)', async () => {
       const { mcp } = aliceClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.include('Books')
       expect(entityEnum).to.include('Genres')
@@ -1607,7 +1691,7 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('only shows unrestricted entities in entity enum (public entities)', async () => {
       const { mcp } = bobClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // Genres and Currencies have @cds.autoexpose - READ is allowed
       expect(entityEnum).to.include.members(['Genres', 'Currencies'])
@@ -1636,7 +1720,7 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
     it('only shows unrestricted entities in entity enum (public entities)', async () => {
       const { mcp } = anonClient()
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // Genres and Currencies have @cds.autoexpose - READ is allowed
       expect(entityEnum).to.include.members(['Genres', 'Currencies'])
@@ -1654,7 +1738,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
     it('can access Books entity plus autoexpose entities', async () => {
       const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
       const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // alice (admin) can access Books (restricted to admin) + entities with @cds.autoexpose
       expect(entityEnum).to.include('Books')
@@ -1672,7 +1756,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
       const response = await mcp('tools/list')
       expect(response.error).to.not.exist
       // bob has no roles but can still access entities with @cds.autoexpose
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       expect(readQueryTool).to.exist
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.include.members(['Genres', 'Currencies'])
@@ -1688,7 +1772,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
       const response = await mcp('tools/list')
       expect(response.error).to.not.exist
       // unauthenticated users can still access entities with @cds.autoexpose
-      const readQueryTool = response.result.tools.find(t => t.name === 'query')
+      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       expect(readQueryTool).to.exist
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       expect(entityEnum).to.include.members(['Genres', 'Currencies'])

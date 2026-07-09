@@ -1,6 +1,8 @@
 const cds = require('@sap/cds')
 
 const test = cds.test(__dirname + '/../bookshop')
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
@@ -33,7 +35,7 @@ describe('Context Resolution', () => {
     // Associations should have type, target, cardinality
     expect(content.entities.Books.elements.genre.type).to.equal('Association (1-1)')
     expect(content.entities.Books.elements.genre.target).to.equal('CatalogService.Genres')
-    
+
     // Should not have isAssociation or key fields on elements
     expect(content.entities.Books.elements.ID.isAssociation).to.be.undefined
     expect(content.entities.Books.elements.ID.key).to.be.undefined
@@ -130,7 +132,10 @@ describe('Context Resolution', () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['submitOrder'] })
     expect(error).to.be.null
-    expect(content.actions.submitOrder.parameters.priority.enum).to.deep.equal({ standard: 'S', express: 'E' })
+    expect(content.actions.submitOrder.parameters.priority.enum).to.deep.equal({
+      standard: 'S',
+      express: 'E'
+    })
   })
 
   it('resolves @assert.range on entity elements', async () => {
@@ -162,7 +167,9 @@ describe('Context Resolution', () => {
     const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     // Date range: publishedAt @assert.range: ['2000-01-01T00:00:00Z', '2099-12-31T23:59:59Z']
-    expect(content.entities.Books.elements.publishedAt.range).to.equal('[2000-01-01T00:00:00Z, 2099-12-31T23:59:59Z]')
+    expect(content.entities.Books.elements.publishedAt.range).to.equal(
+      '[2000-01-01T00:00:00Z, 2099-12-31T23:59:59Z]'
+    )
   })
 
   it('resolves @assert.range on action parameters', async () => {
@@ -181,7 +188,9 @@ describe('Context Resolution', () => {
     // markup: @assert.range: [(0), _]
     expect(content.actions.applyDiscount.parameters.markup.range).to.equal('(0, +∞)')
     // effectiveDate: @assert.range: ['2020-01-01T00:00:00Z', '2030-12-31T23:59:59Z']
-    expect(content.actions.applyDiscount.parameters.effectiveDate.range).to.equal('[2020-01-01T00:00:00Z, 2030-12-31T23:59:59Z]')
+    expect(content.actions.applyDiscount.parameters.effectiveDate.range).to.equal(
+      '[2020-01-01T00:00:00Z, 2030-12-31T23:59:59Z]'
+    )
   })
 
   it('resolves @assert.format on entity elements', async () => {
@@ -202,30 +211,42 @@ describe('Context Resolution', () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
     expect(error).to.be.null
-    expect(content.actions.withArrayParams.parameters.manyStringParam.type).to.equal('Array of String')
-    expect(content.actions.withArrayParams.parameters.arrayOfStringParam.type).to.equal('Array of String')
+    expect(content.actions.withArrayParams.parameters.manyStringParam.type).to.equal(
+      'Array of String'
+    )
+    expect(content.actions.withArrayParams.parameters.arrayOfStringParam.type).to.equal(
+      'Array of String'
+    )
   })
 
   it('resolves array of inline struct type on parameters (many {...})', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
     expect(error).to.be.null
-    expect(content.actions.withArrayParams.parameters.manyStructParam.type).to.equal('Array of {name: String, value: Integer}')
+    expect(content.actions.withArrayParams.parameters.manyStructParam.type).to.equal(
+      'Array of {name: String, value: Integer}'
+    )
   })
 
   it('resolves array of custom type on parameters (many CustomType)', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withArrayParams'] })
     expect(error).to.be.null
-    expect(content.actions.withArrayParams.parameters.customTypeParam.type).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
-    expect(content.actions.withArrayParams.parameters.customTypeParam.description).to.equal('A many custom type parameter')
+    expect(content.actions.withArrayParams.parameters.customTypeParam.type).to.equal(
+      'Array of {ID: String, abc: String, def: DateTime, prop1: String}'
+    )
+    expect(content.actions.withArrayParams.parameters.customTypeParam.description).to.equal(
+      'A many custom type parameter'
+    )
   })
 
   it('resolves array of custom type on dedicated action (many CustomType)', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withManyCustomTypes'] })
     expect(error).to.be.null
-    expect(content.actions.withManyCustomTypes.parameters.updates.type).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
+    expect(content.actions.withManyCustomTypes.parameters.updates.type).to.equal(
+      'Array of {ID: String, abc: String, def: DateTime, prop1: String}'
+    )
   })
 
   it('resolves scalar custom type alias on parameters', async () => {
@@ -239,14 +260,18 @@ describe('Context Resolution', () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withCustomTypes'] })
     expect(error).to.be.null
-    expect(content.actions.withCustomTypes.returns).to.equal('{ID: String, abc: String, def: DateTime, prop1: String}')
+    expect(content.actions.withCustomTypes.returns).to.equal(
+      '{ID: String, abc: String, def: DateTime, prop1: String}'
+    )
   })
 
   it('resolves array of structured custom type on returns', async () => {
     const { callTool } = mcpClient()
     const { content, error } = await callTool('describe', { actions: ['withManyCustomTypes'] })
     expect(error).to.be.null
-    expect(content.actions.withManyCustomTypes.returns).to.equal('Array of {ID: String, abc: String, def: DateTime, prop1: String}')
+    expect(content.actions.withManyCustomTypes.returns).to.equal(
+      'Array of {ID: String, abc: String, def: DateTime, prop1: String}'
+    )
   })
 
   it('resolves array of inline struct on returns', async () => {
@@ -267,5 +292,4 @@ describe('Context Resolution', () => {
     const { content: contentDe } = await callToolDe('describe', { entities: ['Books'] })
     expect(contentDe.entities.Books.description).to.include('Bücher')
   })
-
 })

@@ -3,9 +3,7 @@
   "name": "sap.cds.services/catalog",
   "title": "CatalogService",
   "version": "1.0.0",
-  "supportedProtocolVersions": [
-    "2025-11-25"
-  ],
+  "supportedProtocolVersions": ["2025-11-25"],
   "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
   "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.",
   "remotes": [
@@ -27,11 +25,7 @@
         "properties": {
           "entity": {
             "type": "string",
-            "enum": [
-              "Books",
-              "Genres",
-              "Currencies"
-            ],
+            "enum": ["Books", "Genres", "Currencies"],
             "description": "The entity to query"
           },
           "where": {
@@ -70,9 +64,7 @@
                                 }
                               }
                             },
-                            "required": [
-                              "id"
-                            ],
+                            "required": ["id"],
                             "additionalProperties": false
                           }
                         ]
@@ -88,9 +80,7 @@
                       }
                     }
                   },
-                  "required": [
-                    "ref"
-                  ],
+                  "required": ["ref"],
                   "additionalProperties": false
                 },
                 {
@@ -109,9 +99,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "xpr"
-                  ],
+                  "required": ["xpr"],
                   "additionalProperties": false
                 }
               ]
@@ -158,22 +146,14 @@
                 },
                 "sort": {
                   "type": "string",
-                  "enum": [
-                    "asc",
-                    "desc"
-                  ]
+                  "enum": ["asc", "desc"]
                 },
                 "nulls": {
                   "type": "string",
-                  "enum": [
-                    "first",
-                    "last"
-                  ]
+                  "enum": ["first", "last"]
                 }
               },
-              "required": [
-                "ref"
-              ],
+              "required": ["ref"],
               "additionalProperties": false
             }
           },
@@ -190,9 +170,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "entity"
-        ],
+        "required": ["entity"],
         "additionalProperties": false,
         "definitions": {
           "__schema0": {
@@ -221,18 +199,14 @@
                               }
                             }
                           },
-                          "required": [
-                            "id"
-                          ],
+                          "required": ["id"],
                           "additionalProperties": false
                         }
                       ]
                     }
                   }
                 },
-                "required": [
-                  "ref"
-                ],
+                "required": ["ref"],
                 "additionalProperties": false
               },
               {
@@ -255,9 +229,7 @@
                     ]
                   }
                 },
-                "required": [
-                  "val"
-                ],
+                "required": ["val"],
                 "additionalProperties": false
               },
               {
@@ -273,9 +245,7 @@
                     }
                   }
                 },
-                "required": [
-                  "xpr"
-                ],
+                "required": ["xpr"],
                 "additionalProperties": false
               },
               {
@@ -283,18 +253,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  "=",
-                  "!=",
-                  "<",
-                  "<=",
-                  ">",
-                  ">=",
-                  "+",
-                  "-",
-                  "*",
-                  "/"
-                ]
+                "enum": ["=", "!=", "<", "<=", ">", ">=", "+", "-", "*", "/"]
               },
               {
                 "type": "string",
@@ -347,18 +306,14 @@
                                     }
                                   }
                                 },
-                                "required": [
-                                  "id"
-                                ],
+                                "required": ["id"],
                                 "additionalProperties": false
                               }
                             ]
                           }
                         }
                       },
-                      "required": [
-                        "ref"
-                      ],
+                      "required": ["ref"],
                       "additionalProperties": false
                     },
                     {
@@ -381,9 +336,7 @@
                           ]
                         }
                       },
-                      "required": [
-                        "val"
-                      ],
+                      "required": ["val"],
                       "additionalProperties": false
                     },
                     {
@@ -393,9 +346,7 @@
                 }
               }
             },
-            "required": [
-              "list"
-            ],
+            "required": ["list"],
             "additionalProperties": false
           },
           "__schema2": {
@@ -404,26 +355,63 @@
               "func": {
                 "type": "string",
                 "enum": [
+                  "count",
+                  "countdistinct",
+                  "sum",
+                  "avg",
+                  "average",
+                  "min",
+                  "max",
                   "concat",
+                  "contains",
+                  "endswith",
+                  "indexof",
                   "length",
-                  "trim",
+                  "startswith",
+                  "substring",
+                  "matchespattern",
                   "tolower",
                   "toupper",
-                  "contains",
-                  "startswith",
-                  "endswith",
-                  "substring",
+                  "trim",
+                  "lower",
+                  "upper",
+                  "date",
+                  "day",
+                  "fractionalseconds",
+                  "hour",
+                  "maxdatetime",
+                  "mindatetime",
+                  "minute",
+                  "month",
+                  "second",
+                  "time",
+                  "totaloffsetminutes",
+                  "totalseconds",
+                  "year",
+                  "now",
+                  "current_date",
+                  "current_time",
+                  "current_timestamp",
+                  "current_utcdate",
+                  "current_utctime",
+                  "current_utctimestamp",
                   "ceiling",
                   "floor",
                   "round",
-                  "year",
-                  "month",
-                  "day",
-                  "count",
-                  "sum",
-                  "avg",
-                  "min",
-                  "max"
+                  "ceil",
+                  "abs",
+                  "mod",
+                  "power",
+                  "sqrt",
+                  "case",
+                  "coalesce",
+                  "nullif",
+                  "cast",
+                  "nano100_between",
+                  "seconds_between",
+                  "days_between",
+                  "months_between",
+                  "years_between"
                 ],
                 "description": "Portable function name (case-sensitive)"
               },
@@ -459,18 +447,14 @@
                                     }
                                   }
                                 },
-                                "required": [
-                                  "id"
-                                ],
+                                "required": ["id"],
                                 "additionalProperties": false
                               }
                             ]
                           }
                         }
                       },
-                      "required": [
-                        "ref"
-                      ],
+                      "required": ["ref"],
                       "additionalProperties": false
                     },
                     {
@@ -493,9 +477,7 @@
                           ]
                         }
                       },
-                      "required": [
-                        "val"
-                      ],
+                      "required": ["val"],
                       "additionalProperties": false
                     },
                     {
@@ -511,9 +493,7 @@
                           }
                         }
                       },
-                      "required": [
-                        "xpr"
-                      ],
+                      "required": ["xpr"],
                       "additionalProperties": false
                     }
                   ]
@@ -525,10 +505,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "func",
-              "args"
-            ],
+            "required": ["func", "args"],
             "additionalProperties": false
           },
           "__schema3": {
@@ -561,9 +538,7 @@
                               }
                             }
                           },
-                          "required": [
-                            "id"
-                          ],
+                          "required": ["id"],
                           "additionalProperties": false
                         }
                       ]
@@ -579,9 +554,7 @@
                     }
                   }
                 },
-                "required": [
-                  "ref"
-                ],
+                "required": ["ref"],
                 "additionalProperties": false
               }
             ]
@@ -606,11 +579,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Books",
-                "Genres",
-                "Currencies"
-              ]
+              "enum": ["Books", "Genres", "Currencies"]
             }
           },
           "actions": {
@@ -628,7 +597,8 @@
                 "add",
                 "validateEmail",
                 "submitOrder",
-                "applyDiscount"
+                "applyDiscount",
+                "validateOrder"
               ]
             }
           }
@@ -660,7 +630,8 @@
               "add",
               "validateEmail",
               "submitOrder",
-              "applyDiscount"
+              "applyDiscount",
+              "validateOrder"
             ],
             "description": "The action or function to call"
           },
@@ -671,9 +642,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "action"
-        ],
+        "required": ["action"],
         "additionalProperties": false
       },
       "annotations": {

@@ -4,7 +4,11 @@ using {sap.capire.bookshop as my} from '../db/schema';
 @requires: 'admin'
 service AdminService {
   @cds.redirection.target
-  entity Authors as projection on my.Authors;
+  entity Authors as projection on my.Authors {
+    *,
+    years_between(dateOfBirth, dateOfDeath) as age: Integer,
+    year(dateOfBirth) || ' – ' || year(dateOfDeath) as lifetime : String
+  };
   @odata.draft.enabled
   entity Books   as projection on my.Books;
   entity Genres  as projection on my.Genres;

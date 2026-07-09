@@ -3,63 +3,54 @@ name: Release
 on:
   workflow_dispatch:
 
-concurrency:
-  group: release-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
-
-env:
-  XMAKE_PROJECT_ID: ght-cap-mcp-adapter
-  XMAKE_RELEASE_MODE: stage_and_promote # or 'stage' or 'stage_and_promote'
+permissions:
+  contents: read
 
 jobs:
-
   test:
-    runs-on: [self-hosted, solinas]
-    timeout-minutes: 3
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x, 24.x]
         cds-version: [latest]
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i -g @sap/cds-dk@${{ matrix.cds-version }}
       - run: npm i
+      - run: npm run lint
       - run: cd tests/bookshop && npm i
-      - run: npm run generate-sample-card
-      - run: node --experimental-vm-modules node_modules/jest/bin/jest.js
-
-  # Pre-release: upload test results and run BlackDuck scans
-  upload-test-results:
-    uses: cap/.github/.github/workflows/pre-release.yml@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
-    secrets:
-      cumulus-token: ${{ secrets.CUMULUS_TOKEN_CDS_UMBRELLA }}
-    with:
-      # See https://onboarding.hyperspace.tools.sap/pipelines/47130/extensible/config/cumulusUpload
-      cumulus-pipeline-id: 'ddf05dd6-2543-4caa-b659-c8e123441ccb'
-      cobertura-file: 'coverage/cobertura-coverage.xml'
-      junit-file: 'junit.xml'
-      release-branch: 'release'
-      npm-script: 'test:reporting'
-
-  blackduck-scans:
-    uses: cap/.github/.github/workflows/scans.yml@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
-    secrets: inherit
-    with:
-      project: CDSUMBRELLA
-
-  artifactory:
-    needs: [upload-test-results, blackduck-scans, test]
-    runs-on: [self-hosted, solinas-medium]
+      - run: npm run test
+  publish-npm:
+    permissions:
+      contents: write
+      id-token: write
+    needs: test
+    runs-on: ubuntu-latest
+    environment: npmjs:@cap-js/mcp
     steps:
-      - uses: cap/.github/.github/actions/release@ffc33468176cbd4763d8d1e2556a2dfa0ae55a06 # main
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          xmake-token: ${{ secrets.XMAKE_TOKEN }}
-          xmake-user: ${{ secrets.XMAKE_USER }}
-          mode: stage_and_promote
-          # treeish: release # default
-
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+      - run: npm i
+      - name: get-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - name: Parse changelog
+        id: parse-changelog
+        uses: schwma/parse-changelog-action@v1.2.0
+        with:
+          version: '${{ steps.package-version.outputs.current-version }}'
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: 'v${{ steps.package-version.outputs.current-version }}'
+          body: '${{ steps.parse-changelog.outputs.body }}'
+      - name: Publish package to npmjs.com
+        run: npm publish --access public --provenance
