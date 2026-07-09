@@ -2,6 +2,7 @@ const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
+const { _isCompositionParentBacklink } = require('../../lib/draft')
 
 describe('Draft Tools', () => {
   // AdminService.Books is @odata.draft.enabled
@@ -441,6 +442,66 @@ describe('Draft Tools', () => {
         expect(tool, `${name} should exist`).to.exist
         expect(tool.inputSchema.properties).to.not.have.property('books')
       }
+    })
+
+    describe('_isCompositionParentBacklink helper', () => {
+      // Chai `expect` is bound to node:test; use jest-style equality via chai
+      let model
+      before(() => {
+        model = cds.services.AdminService.model
+      })
+
+      it('true for composition-parent backlink (Sections.document → Documents)', () => {
+        const sections = model.definitions['AdminService.Sections']
+        const doc = sections.elements.document
+        expect(_isCompositionParentBacklink(sections, doc, model)).to.equal(true)
+      })
+
+      it('false for regular managed assoc with many-to-many backlink counterpart', () => {
+        // Authors.books points back to Books.author, so Books.author._isBacklink=true.
+        // But Authors has no Composition to Books → not a composition-parent backlink.
+        const books = model.definitions['AdminService.Books']
+        expect(_isCompositionParentBacklink(books, books.elements.author, model)).to.equal(false)
+      })
+
+      it('false for the unmanaged backlink assoc itself (Authors.books)', () => {
+        const authors = model.definitions['sap.capire.bookshop.Authors']
+        expect(_isCompositionParentBacklink(authors, authors.elements.books, model)).to.equal(
+          false
+        )
+      })
+
+      it('false for the composition side itself (Documents.sections)', () => {
+        const documents = model.definitions['AdminService.Documents']
+        expect(
+          _isCompositionParentBacklink(documents, documents.elements.sections, model)
+        ).to.equal(false)
+      })
+
+      it('false for non-association elements', () => {
+        const books = model.definitions['AdminService.Books']
+        expect(_isCompositionParentBacklink(books, books.elements.title, model)).to.equal(false)
+        expect(_isCompositionParentBacklink(books, books.elements.stock, model)).to.equal(false)
+      })
+
+      it('false when assocElem is undefined/null', () => {
+        const books = model.definitions['AdminService.Books']
+        expect(_isCompositionParentBacklink(books, undefined, model)).to.equal(false)
+        expect(_isCompositionParentBacklink(books, null, model)).to.equal(false)
+      })
+
+      it('false when model has no definitions', () => {
+        const sections = model.definitions['AdminService.Sections']
+        const doc = sections.elements.document
+        expect(_isCompositionParentBacklink(sections, doc, {})).to.equal(false)
+        expect(_isCompositionParentBacklink(sections, doc, null)).to.equal(false)
+      })
+
+      it('false when target entity not resolvable in model', () => {
+        const sections = model.definitions['AdminService.Sections']
+        const fake = { _isBacklink: true, target: 'Unknown.Entity' }
+        expect(_isCompositionParentBacklink(sections, fake, model)).to.equal(false)
+      })
     })
   })
 
