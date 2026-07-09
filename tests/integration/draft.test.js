@@ -205,6 +205,158 @@ describe('Draft Tools', () => {
     })
   })
 
+  describe('CAP draft API integration (end-to-end)', () => {
+    // Run privileged reads bypassing auth (test asserts on DB state, not permissions)
+    const asAdmin = (fn) =>
+      cds.tx({ user: new cds.User({ id: 'alice', roles: ['admin'] }) }, async (tx) => fn(tx))
+
+    it('create-books dispatches NEW event and app handler generates ID', async () => {
+      const { callTool } = client()
+      const { content, error } = await callTool('create-books', {
+        title: 'Draft Lifecycle Book',
+        stock: 7,
+        author_ID: 101
+      })
+      expect(error).to.be.null
+      expect(content).to.exist
+      expect(content.action).to.equal('create-books')
+
+      const srv = cds.services['AdminService']
+      const found = await asAdmin((tx) =>
+        tx.run(SELECT.from(srv.entities.Books.drafts).where({ title: 'Draft Lifecycle Book' }))
+      )
+      expect(found.length).to.be.greaterThan(0)
+      expect(found[0].ID).to.be.a('number')
+      await callTool('discard-books', { ID: found[0].ID })
+    })
+
+    it('update-books dispatches UPDATE event on draft', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      const created = await callTool('create-books', {
+        title: 'To Be Updated',
+        stock: 1,
+        author_ID: 101
+      })
+      expect(created.error).to.be.null
+      const [draft] = await asAdmin((tx) =>
+        tx.run(SELECT.from(srv.entities.Books.drafts).where({ title: 'To Be Updated' }))
+      )
+      const draftID = draft.ID
+
+      const { error } = await callTool('update-books', {
+        ID: draftID,
+        title: 'Updated Title'
+      })
+      expect(error).to.be.null
+
+      const updated = await asAdmin((tx) =>
+        tx.run(SELECT.one.from(srv.entities.Books.drafts).where({ ID: draftID }))
+      )
+      expect(updated?.title).to.equal('Updated Title')
+      await callTool('discard-books', { ID: draftID })
+    })
+
+    it('activate-books dispatches draftActivate and promotes draft to active', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      await callTool('create-books', {
+        title: 'To Be Activated',
+        stock: 5,
+        author_ID: 101
+      })
+      const [draft] = await asAdmin((tx) =>
+        tx.run(SELECT.from(srv.entities.Books.drafts).where({ title: 'To Be Activated' }))
+      )
+      const draftID = draft.ID
+
+      const { error } = await callTool('activate-books', { ID: draftID })
+      expect(error).to.be.null
+
+      const active = await asAdmin((tx) =>
+        tx.run(SELECT.one.from(srv.entities.Books).where({ ID: draftID }))
+      )
+      const remainingDraft = await asAdmin((tx) =>
+        tx.run(SELECT.one.from(srv.entities.Books.drafts).where({ ID: draftID }))
+      )
+      expect(active?.title).to.equal('To Be Activated')
+      expect(remainingDraft).to.not.exist
+      await asAdmin((tx) => tx.run(DELETE.from(srv.entities.Books).where({ ID: draftID })))
+    })
+
+    it('edit-books dispatches draftEdit and creates draft copy of active', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      // Cleanup any prior draft for ID=201 to make test idempotent
+      await callTool('discard-books', { ID: 201 })
+
+      const { error } = await callTool('edit-books', { ID: 201 })
+      expect(error).to.be.null
+
+      const draft = await asAdmin((tx) =>
+        tx.run(SELECT.one.from(srv.entities.Books.drafts).where({ ID: 201 }))
+      )
+      expect(draft?.ID).to.equal(201)
+
+      await callTool('discard-books', { ID: 201 })
+    })
+
+    it('discard-books dispatches CANCEL and removes draft', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      await callTool('create-books', {
+        title: 'To Be Discarded',
+        stock: 1,
+        author_ID: 101
+      })
+      const [draft] = await asAdmin((tx) =>
+        tx.run(SELECT.from(srv.entities.Books.drafts).where({ title: 'To Be Discarded' }))
+      )
+      const draftID = draft.ID
+
+      const { error } = await callTool('discard-books', { ID: draftID })
+      expect(error).to.be.null
+
+      const remaining = await asAdmin((tx) =>
+        tx.run(SELECT.one.from(srv.entities.Books.drafts).where({ ID: draftID }))
+      )
+      expect(remaining).to.not.exist
+    })
+
+    it('app handler fires on NEW event (before-NEW ID generation)', async () => {
+      const srv = cds.services['AdminService']
+      const Books = srv.entities.Books
+
+      let handlerCallCount = 0
+      const spy = () => {
+        handlerCallCount++
+      }
+      srv.before('NEW', Books.drafts, spy)
+      try {
+        const { callTool } = client()
+        const { error } = await callTool('create-books', {
+          title: 'Handler Spy Book',
+          stock: 1,
+          author_ID: 101
+        })
+        expect(error).to.be.null
+        expect(handlerCallCount).to.be.greaterThan(0)
+        const [draft] = await asAdmin((tx) =>
+          tx.run(SELECT.from(Books.drafts).where({ title: 'Handler Spy Book' }))
+        )
+        if (draft) await callTool('discard-books', { ID: draft.ID })
+      } finally {
+        const handlers = srv._handlers?.before || []
+        const idx = handlers.findIndex((h) => h.handler === spy)
+        if (idx !== -1) handlers.splice(idx, 1)
+      }
+    })
+  })
+
   describe('readonly entities', () => {
     it('does not register create tool for @readonly draft-enabled entities', async () => {
       const { mcp } = client()

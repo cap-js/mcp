@@ -5,7 +5,8 @@ module.exports = class AdminService extends cds.ApplicationService {
     const { Books } = this.entities
 
     /**
-     * Generate IDs for new Books drafts
+     * Generate IDs for new Books drafts.
+     * Books uses cds.Integer keys without auto-generation — HANA rejects NULL.
      */
     this.before('NEW', Books.drafts, async (req) => {
       if (req.data.ID) return
