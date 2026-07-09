@@ -1,5 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
 cds.env.query = {
   ...cds.env.query,
   limit: { default: 15, max: 200 }

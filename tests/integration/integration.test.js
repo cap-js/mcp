@@ -1,5 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
@@ -111,6 +113,18 @@ describe('describe', () => {
     expect(elementNames).to.include('name')
     expect(elementNames).to.not.include('localized')
     expect(elementNames).to.not.include('texts')
+  })
+
+  it('does not include autoexposed composition targets in overview', async () => {
+    const { callTool } = mcpClient()
+    const { content, error } = await callTool('describe')
+    expect(error).to.be.null
+    const entityNames = Object.keys(content.entities)
+    // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
+    expect(entityNames).to.not.include('Books.chapters')
+    // Entities with @cds.autoexpose (CodeLists) should still be present
+    expect(entityNames).to.include('Genres')
+    expect(entityNames).to.include('Currencies')
   })
 
   it('lists actions in describe output', async () => {
