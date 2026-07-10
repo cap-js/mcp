@@ -358,6 +358,47 @@ describe('Draft Tools', () => {
       await DELETE.from(srv.entities.Books).where({ ID: draftID })
     })
 
+    it('activate-documents includes full draft tree in req.data', async () => {
+      const docClient = () => mcpClient('/mcp/admin', 'alice:')
+      const { callTool } = docClient()
+      const srv = cds.services['AdminService']
+
+      // Create draft document with composition children
+      await callTool('create-documents', { title: 'Tree Activate Doc' })
+      const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
+        title: 'Tree Activate Doc'
+      })
+      const docID = doc.ID
+
+      // Add a note and a section to the draft
+      await callTool('create-note', { document_ID: docID, text: 'Note in tree' })
+      await callTool('create-section', { document_ID: docID, title: 'Section in tree' })
+
+      // Spy on SAVE to capture req.data
+      let saveData
+      const spy = (req) => {
+        saveData = req.data
+      }
+      srv.before('SAVE', srv.entities.Documents, spy)
+
+      try {
+        const { error } = await callTool('activate-documents', { ID: docID })
+        expect(error).to.be.null
+        expect(saveData).to.exist
+        // Draft tree should include composition children
+        expect(saveData.notes).to.be.an('array').with.lengthOf(1)
+        expect(saveData.notes[0].text).to.equal('Note in tree')
+        expect(saveData.sections).to.be.an('array').with.lengthOf(1)
+        expect(saveData.sections[0].title).to.equal('Section in tree')
+      } finally {
+        const handlers = srv._handlers?.before || []
+        const idx = handlers.findIndex((h) => h.handler === spy)
+        if (idx !== -1) handlers.splice(idx, 1)
+        // Cleanup
+        await DELETE.from(srv.entities.Documents).where({ ID: docID })
+      }
+    })
+
     it('edit-books dispatches draftEdit and creates draft copy of active', async () => {
       const { callTool } = client()
       const srv = cds.services['AdminService']
