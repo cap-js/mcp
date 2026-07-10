@@ -415,6 +415,42 @@ describe('Draft Tools', () => {
       await callTool('discard-books', { ID: 201 })
     })
 
+    it('edit-documents copies full composition tree into draft', async () => {
+      const docClient = () => mcpClient('/mcp/admin', 'alice:')
+      const { callTool } = docClient()
+      const srv = cds.services['AdminService']
+
+      // Create and activate a document with children
+      await callTool('create-documents', { title: 'Edit Tree Doc' })
+      const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
+        title: 'Edit Tree Doc'
+      })
+      const docID = doc.ID
+      await callTool('create-note', { document_ID: docID, text: 'Persisted note' })
+      await callTool('create-section', { document_ID: docID, title: 'Persisted section' })
+      await callTool('activate-documents', { ID: docID })
+
+      // Now edit the active document — should copy tree to draft
+      const { error } = await callTool('edit-documents', { ID: docID })
+      expect(error).to.be.null
+
+      // Verify draft children exist
+      const noteDraft = srv.model.definitions['AdminService.Documents.notes.drafts']
+      const notes = await SELECT.from(noteDraft).where({ up__ID: docID })
+      expect(notes).to.be.an('array').with.lengthOf(1)
+      expect(notes[0].text).to.equal('Persisted note')
+
+      const sectionDrafts = await SELECT.from(srv.entities.Sections.drafts).where({
+        document_ID: docID
+      })
+      expect(sectionDrafts).to.be.an('array').with.lengthOf(1)
+      expect(sectionDrafts[0].title).to.equal('Persisted section')
+
+      // Cleanup
+      await callTool('discard-documents', { ID: docID })
+      await DELETE.from(srv.entities.Documents).where({ ID: docID })
+    })
+
     it('discard-books dispatches CANCEL and removes draft', async () => {
       const { callTool } = client()
       const srv = cds.services['AdminService']
