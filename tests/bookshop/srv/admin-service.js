@@ -15,6 +15,29 @@ module.exports = class AdminService extends cds.ApplicationService {
       req.data.ID = Math.max(id1 || 0, id2 || 0) + 1
     })
 
+    // Generate IDs for Documents draft
+    const { Documents } = this.entities
+    this.before('NEW', Documents.drafts, async (req) => {
+      if (req.data.ID) return
+      const { ID: id1 } = await SELECT.one.from(Documents).columns('max(ID) as ID')
+      const { ID: id2 } = await SELECT.one.from(Documents.drafts).columns('max(ID) as ID')
+      req.data.ID = Math.max(id1 || 0, id2 || 0) + 1
+    })
+
+    const addIntegerIDHandler = (entity) => {
+      if (!entity?.drafts) return
+      this.before('NEW', entity.drafts, async (req) => {
+        if (req.data.ID) return
+        const { ID: id1 } = await SELECT.one.from(entity).columns('max(ID) as ID')
+        const { ID: id2 } = await SELECT.one.from(entity.drafts).columns('max(ID) as ID')
+        req.data.ID = Math.max(id1 || 0, id2 || 0) + 1
+      })
+    }
+
+    addIntegerIDHandler(this.entities['Documents.notes'])
+    addIntegerIDHandler(this.entities.Sections)
+    addIntegerIDHandler(this.entities.Paragraphs)
+
     // Simple arithmetic - something OData can't do
     this.on('sum', (req) => {
       const { x, y } = req.data

@@ -54,20 +54,31 @@ entity Genres : cuid, sap.common.CodeList {
 type Price : Decimal(9, 2);
 
 /**
- * Test-only entities exercising composition with an explicit backlink association.
- * The child (Section) has both an implicit `up_` (composition parent) AND
- * an explicit `document` assoc pointing back to the parent Document.
- * Used to test that FK columns backing composition-parent backlinks are hidden
- * from draft tool schemas.
+ * Test-only entities exercising composition patterns for draft tools.
+ *
+ * Documents → Sections (named entity, explicit backlink `document`)
+ *           → Sections → Paragraphs (2nd level, named, explicit backlink `section`)
+ * Documents → notes (inline anonymous composition, no explicit backlink)
  */
 entity Documents {
-  key ID    : Integer;
-      title : String;
+  key ID       : Integer;
+      title    : String;
       sections : Composition of many Sections on sections.document = $self;
+      notes    : Composition of many {
+          key ID   : Integer;
+              text : String;
+      };
 }
 
 entity Sections {
-  key ID       : Integer;
-      title    : String;
-      document : Association to Documents;
+  key ID         : Integer;
+      title      : String;
+      document   : Association to Documents;
+      paragraphs : Composition of many Paragraphs on paragraphs.section = $self;
+}
+
+entity Paragraphs {
+  key ID      : Integer;
+      body    : String;
+      section : Association to Sections;
 }

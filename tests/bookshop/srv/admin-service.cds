@@ -19,6 +19,7 @@ service AdminService {
   @odata.draft.enabled
   entity Documents as projection on my.Documents;
   entity Sections as projection on my.Sections;
+  entity Paragraphs as projection on my.Paragraphs;
 
   @description: 'Add two integers (admin only)'
   function sum(x: Integer, y: Integer) returns Integer;
