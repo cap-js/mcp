@@ -4,7 +4,13 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.2.0 - Unreleased
+## Version 1.2.1 - Unreleased
+
+## Version 1.2.0 - 17.07.2026
+
+### Added
+
+- Experimental "sql" mode for mcp tools, to send SQL, which is transpiled to CQN instead of raw CQN, lowering output tokens for agents
 
 ## Version 1.1.1 - 2026-07-08
 
