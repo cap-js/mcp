@@ -1026,6 +1026,186 @@ describe('Draft Tools', () => {
     })
   })
 
+  describe('draft isolation between users', () => {
+    const alice = () => mcpClient('/mcp/admin', 'alice:')
+    const carol = () => mcpClient('/mcp/admin', 'carol:')
+
+    it('user cannot see drafts created by another user via CQN query', async () => {
+      const { callTool: aliceCall } = alice()
+      await aliceCall('create-books', { title: 'Alice Private Draft', stock: 1, author_ID: 101 })
+
+      const aliceQuery = await aliceCall('query', { entity: 'Books.drafts' })
+      expect(aliceQuery.error).to.be.null
+      expect(
+        aliceQuery.content.data.some((draft) => draft.title === 'Alice Private Draft')
+      ).to.equal(true)
+
+      const { callTool: carolCall } = carol()
+      const carolQuery = await carolCall('query', { entity: 'Books.drafts' })
+      expect(carolQuery.error).to.be.null
+      expect(
+        carolQuery.content.data.some((draft) => draft.title === 'Alice Private Draft')
+      ).to.equal(false)
+
+      const srv = cds.services['AdminService']
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'Alice Private Draft'
+      })
+      if (draft) await aliceCall('discard-books', { ID: draft.ID })
+    })
+
+    it('user cannot see drafts created by another user via SQL query', async () => {
+      const { callTool: aliceCall } = alice()
+      await aliceCall('create-books', { title: 'Alice SQL Draft', stock: 2, author_ID: 101 })
+
+      const originalFormat = cds.env.mcp?.format
+      cds.env.mcp ??= {}
+      cds.env.mcp.format = 'sql'
+
+      const aliceQuery = await aliceCall('query', {
+        sql: "SELECT title FROM AdminService.Books.drafts WHERE title = 'Alice SQL Draft'"
+      })
+      expect(aliceQuery.error).to.be.null
+      expect(aliceQuery.content.data).to.have.lengthOf(1)
+
+      const { callTool: carolCall } = carol()
+      const carolQuery = await carolCall('query', {
+        sql: "SELECT title FROM AdminService.Books.drafts WHERE title = 'Alice SQL Draft'"
+      })
+      expect(carolQuery.error).to.be.null
+      expect(carolQuery.content.data).to.have.lengthOf(0)
+
+      if (originalFormat === undefined) delete cds.env.mcp.format
+      else cds.env.mcp.format = originalFormat
+
+      const srv = cds.services['AdminService']
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'Alice SQL Draft'
+      })
+      if (draft) await aliceCall('discard-books', { ID: draft.ID })
+    })
+
+    it('user cannot see child composition drafts created by another user', async () => {
+      const { callTool: aliceCall } = alice()
+      const srv = cds.services['AdminService']
+
+      await aliceCall('create-documents', { title: 'Alice Isolated Doc' })
+      const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
+        title: 'Alice Isolated Doc'
+      })
+      const docID = doc.ID
+      await aliceCall('create-section', { document_ID: docID, title: 'Alice Section' })
+
+      const aliceQuery = await aliceCall('query', { entity: 'Sections.drafts' })
+      expect(aliceQuery.error).to.be.null
+      expect(aliceQuery.content.data.some((draft) => draft.title === 'Alice Section')).to.equal(
+        true
+      )
+
+      const { callTool: carolCall } = carol()
+      const carolQuery = await carolCall('query', { entity: 'Sections.drafts' })
+      expect(carolQuery.error).to.be.null
+      expect(carolQuery.content.data.some((draft) => draft.title === 'Alice Section')).to.equal(
+        false
+      )
+
+      await aliceCall('discard-documents', { ID: docID })
+    })
+
+    it('user cannot activate or discard drafts created by another user', async () => {
+      const { callTool: aliceCall } = alice()
+      const { callTool: carolCall } = carol()
+      const srv = cds.services['AdminService']
+
+      await aliceCall('create-books', { title: 'Alice Protected Draft', stock: 3, author_ID: 101 })
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'Alice Protected Draft'
+      })
+      const draftID = draft.ID
+
+      const activate = await carolCall('activate-books', { ID: draftID })
+      expect(activate.error).to.exist
+      const active = await SELECT.one.from(srv.entities.Books).where({ ID: draftID })
+      expect(active).to.not.exist
+
+      const discard = await carolCall('discard-books', { ID: draftID })
+      expect(discard.error).to.exist
+      const remaining = await SELECT.one.from(srv.entities.Books.drafts).where({ ID: draftID })
+      expect(remaining).to.exist
+
+      await aliceCall('discard-books', { ID: draftID })
+    })
+
+    it("user cannot create or update child records on another user's draft", async () => {
+      const { callTool: aliceCall } = alice()
+      const { callTool: carolCall } = carol()
+      const srv = cds.services['AdminService']
+
+      await aliceCall('create-documents', { title: 'Alice Child Protected Doc' })
+      const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
+        title: 'Alice Child Protected Doc'
+      })
+      const docID = doc.ID
+
+      const sectionCreated = await aliceCall('create-section', {
+        document_ID: docID,
+        title: 'Alice Protected Section'
+      })
+      const sectionID = sectionCreated.content.result[0].ID
+
+      const paragraphCreated = await aliceCall('create-paragraph', {
+        document_ID: docID,
+        section_ID: sectionID,
+        body: 'Alice Protected Paragraph'
+      })
+      const paragraphID = paragraphCreated.content.result[0].ID
+
+      const createSection = await carolCall('create-section', {
+        document_ID: docID,
+        title: 'Carol Forbidden Section'
+      })
+      expect(createSection.error).to.exist
+      const forbiddenSection = await SELECT.one.from(srv.entities.Sections.drafts).where({
+        title: 'Carol Forbidden Section'
+      })
+      expect(forbiddenSection).to.not.exist
+
+      const updateSection = await carolCall('update-section', {
+        document_ID: docID,
+        ID: sectionID,
+        title: 'Carol Forbidden Update'
+      })
+      expect(updateSection.error).to.exist
+      const section = await SELECT.one.from(srv.entities.Sections.drafts).where({ ID: sectionID })
+      expect(section.title).to.equal('Alice Protected Section')
+
+      const createParagraph = await carolCall('create-paragraph', {
+        document_ID: docID,
+        section_ID: sectionID,
+        body: 'Carol Forbidden Paragraph'
+      })
+      expect(createParagraph.error).to.exist
+      const forbiddenParagraph = await SELECT.one.from(srv.entities.Paragraphs.drafts).where({
+        body: 'Carol Forbidden Paragraph'
+      })
+      expect(forbiddenParagraph).to.not.exist
+
+      const updateParagraph = await carolCall('update-paragraph', {
+        document_ID: docID,
+        section_ID: sectionID,
+        ID: paragraphID,
+        body: 'Carol Forbidden Paragraph Update'
+      })
+      expect(updateParagraph.error).to.exist
+      const paragraph = await SELECT.one
+        .from(srv.entities.Paragraphs.drafts)
+        .where({ ID: paragraphID })
+      expect(paragraph.body).to.equal('Alice Protected Paragraph')
+
+      await aliceCall('discard-documents', { ID: docID })
+    })
+  })
+
   describe('prefix handling', () => {
     it('draft tools are prefixed when cds.env.mcp.prefix is enabled', async () => {
       const originalValue = cds.env.mcp?.prefix
