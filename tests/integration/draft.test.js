@@ -753,17 +753,16 @@ describe('Draft Tools', () => {
   })
 
   describe('readonly entities', () => {
-    it('does not register create tool for @readonly draft-enabled entities', async () => {
+    it('does not register draft tools for @readonly draft-enabled entities', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map((t) => t.name)
-      // ReadOnlyAuthors is @readonly @odata.draft.enabled — no create tool
+      // ReadOnlyAuthors is @readonly @odata.draft.enabled — no draft tools
       expect(toolNames).to.not.include('create-read-only-author')
-      // But other draft tools should still exist (activate, edit, update, discard)
-      expect(toolNames).to.include('activate-read-only-authors')
-      expect(toolNames).to.include('edit-read-only-authors')
-      expect(toolNames).to.include('update-read-only-authors')
-      expect(toolNames).to.include('discard-read-only-authors')
+      expect(toolNames).to.not.include('activate-read-only-authors')
+      expect(toolNames).to.not.include('edit-read-only-authors')
+      expect(toolNames).to.not.include('update-read-only-authors')
+      expect(toolNames).to.not.include('discard-read-only-authors')
     })
 
     it('still registers create tool for non-readonly draft-enabled entities', async () => {
@@ -814,28 +813,11 @@ describe('Draft Tools', () => {
       expect(tool.inputSchema.properties).to.have.property('author_ID')
     })
 
-    // Entity-level backlink: Authors.books = "Association to many Books on books.author = $self"
-    it('update tool schema for entity with unmanaged backlink omits the backlink property', async () => {
+    it('readonly entity draft tools are not registered', async () => {
       const { mcp } = client()
       const response = await mcp('tools/list')
-      const tool = response.result.tools.find((t) => t.name === 'update-read-only-authors')
-      expect(tool).to.exist
-      expect(tool.inputSchema.properties).to.have.property('name')
-      expect(tool.inputSchema.properties).to.not.have.property('books')
-    })
-
-    it('backlink is not exposed as key parameter in tools', async () => {
-      const { mcp } = client()
-      const response = await mcp('tools/list')
-      for (const name of [
-        'activate-read-only-authors',
-        'edit-read-only-authors',
-        'discard-read-only-authors'
-      ]) {
-        const tool = response.result.tools.find((t) => t.name === name)
-        expect(tool, `${name} should exist`).to.exist
-        expect(tool.inputSchema.properties).to.not.have.property('books')
-      }
+      const toolNames = response.result.tools.map((t) => t.name)
+      expect(toolNames.filter((name) => name.includes('read-only-authors'))).to.be.empty
     })
 
     describe('_isCompositionParentBacklink helper', () => {
@@ -894,6 +876,153 @@ describe('Draft Tools', () => {
         const fake = { _isBacklink: true, target: 'Unknown.Entity' }
         expect(_isCompositionParentBacklink(sections, fake, model)).to.equal(false)
       })
+    })
+  })
+
+  describe('.drafts entity accessibility', () => {
+    it('describe overview lists .drafts entities for draft-enabled entities', async () => {
+      const { callTool } = client()
+      const { content, error } = await callTool('describe')
+      expect(error).to.be.null
+      expect(content.entities).to.have.property('Books.drafts')
+      expect(content.entities).to.have.property('Documents.drafts')
+      // Non-draft entities should not have .drafts
+      expect(content.entities).to.not.have.property('Authors.drafts')
+      expect(content.entities).to.not.have.property('Genres.drafts')
+    })
+
+    it('describe .drafts entity hides draft control fields', async () => {
+      const { callTool } = client()
+      const { content, error } = await callTool('describe', { entities: ['Books.drafts'] })
+      expect(error).to.be.null
+      const elements = content.entities['Books.drafts'].elements
+      expect(elements).to.exist
+      expect(elements).to.have.property('title')
+      expect(elements).to.have.property('stock')
+      expect(elements).to.not.have.property('IsActiveEntity')
+      expect(elements).to.not.have.property('HasActiveEntity')
+      expect(elements).to.not.have.property('HasDraftEntity')
+      expect(elements).to.not.have.property('DraftAdministrativeData')
+      expect(elements).to.not.have.property('DraftAdministrativeData_DraftUUID')
+      expect(elements).to.not.have.property('SiblingEntity')
+      expect(elements).to.not.have.property('DraftMessages')
+    })
+
+    it('describe active entity hides draft control fields', async () => {
+      const { callTool } = client()
+      const { content, error } = await callTool('describe', { entities: ['Books'] })
+      expect(error).to.be.null
+      const elements = content.entities.Books.elements
+      expect(elements).to.exist
+      expect(elements).to.have.property('title')
+      expect(elements).to.not.have.property('IsActiveEntity')
+      expect(elements).to.not.have.property('HasActiveEntity')
+      expect(elements).to.not.have.property('HasDraftEntity')
+      expect(elements).to.not.have.property('DraftAdministrativeData')
+      expect(elements).to.not.have.property('DraftAdministrativeData_DraftUUID')
+    })
+
+    it('CQN query can target .drafts entity', async () => {
+      const { callTool } = client()
+      // Create a draft so there's something to find
+      await callTool('create-books', { title: 'Drafts Query Test', stock: 1, author_ID: 101 })
+
+      const { content, error } = await callTool('query', { entity: 'Books.drafts' })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.be.greaterThan(0)
+      expect(content.data[0]).to.have.property('title')
+
+      // Cleanup
+      const srv = cds.services['AdminService']
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'Drafts Query Test'
+      })
+      if (draft) await callTool('discard-books', { ID: draft.ID })
+    })
+
+    it('CQN query can target child .drafts entities', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      await callTool('create-documents', { title: 'Child Draft Query Doc' })
+      const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
+        title: 'Child Draft Query Doc'
+      })
+      const docID = doc.ID
+
+      const sectionCreated = await callTool('create-section', {
+        document_ID: docID,
+        title: 'Queryable Section Draft'
+      })
+      const sectionID = sectionCreated.content.result[0].ID
+
+      await callTool('create-paragraph', {
+        document_ID: docID,
+        section_ID: sectionID,
+        body: 'Queryable Paragraph Draft'
+      })
+
+      const sectionQuery = await callTool('query', {
+        entity: 'Sections.drafts',
+        where: [{ ref: ['ID'] }, '=', { val: sectionID }]
+      })
+      expect(sectionQuery.error).to.be.null
+      expect(sectionQuery.content.data).to.be.an('array').with.lengthOf(1)
+      expect(sectionQuery.content.data[0].title).to.equal('Queryable Section Draft')
+
+      const paragraphQuery = await callTool('query', {
+        entity: 'Paragraphs.drafts',
+        where: [{ ref: ['body'] }, '=', { val: 'Queryable Paragraph Draft' }]
+      })
+      expect(paragraphQuery.error).to.be.null
+      expect(paragraphQuery.content.data).to.be.an('array').with.lengthOf(1)
+      expect(paragraphQuery.content.data[0].body).to.equal('Queryable Paragraph Draft')
+
+      await callTool('discard-documents', { ID: docID })
+    })
+
+    it('SQL query can target .drafts entity', async () => {
+      const { callTool } = client()
+      await callTool('create-books', { title: 'SQL Drafts Test', stock: 2, author_ID: 101 })
+
+      const originalFormat = cds.env.mcp?.format
+      cds.env.mcp ??= {}
+      cds.env.mcp.format = 'sql'
+      const { content, error } = await callTool('query', {
+        sql: "SELECT title, stock FROM AdminService.Books.drafts WHERE title = 'SQL Drafts Test'"
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.equal(1)
+      expect(content.data[0].title).to.equal('SQL Drafts Test')
+      if (originalFormat === undefined) delete cds.env.mcp.format
+      else cds.env.mcp.format = originalFormat
+
+      // Cleanup
+      const srv = cds.services['AdminService']
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'SQL Drafts Test'
+      })
+      if (draft) await callTool('discard-books', { ID: draft.ID })
+    })
+
+    it('entity enum in query tool includes .drafts', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const queryTool = response.result.tools.find((t) => t.name === 'query')
+      const entityEnum = queryTool.inputSchema.properties.entity.enum
+      expect(entityEnum).to.include('Books.drafts')
+      expect(entityEnum).to.include('Documents.drafts')
+    })
+
+    it('entities enum in describe tool includes .drafts', async () => {
+      const { mcp } = client()
+      const response = await mcp('tools/list')
+      const describeTool = response.result.tools.find((t) => t.name === 'describe')
+      const entityEnum = describeTool.inputSchema.properties.entities.items.enum
+      expect(entityEnum).to.include('Books.drafts')
+      expect(entityEnum).to.include('Documents.drafts')
     })
   })
 

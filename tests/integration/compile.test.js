@@ -83,4 +83,18 @@ describe('cds compile -2 mcp', () => {
     expect(toolNames).toContain('query')
     expect(toolNames).toContain('describe')
   })
+
+  it('includes .drafts entities in query and describe enums for draft-enabled entities', async () => {
+    const { stdout } = await execAsync('cds compile srv -2 mcp -s AdminService', {
+      cwd: bookshopPath
+    })
+    const result = JSON.parse(stdout)
+    const queryTool = result.tools.find((t) => t.name === 'query')
+    const describeTool = result.tools.find((t) => t.name === 'describe')
+
+    expect(queryTool.inputSchema.properties.entity.enum).toContain('Books.drafts')
+    expect(queryTool.inputSchema.properties.entity.enum).toContain('Documents.drafts')
+    expect(describeTool.inputSchema.properties.entities.items.enum).toContain('Books.drafts')
+    expect(describeTool.inputSchema.properties.entities.items.enum).toContain('Documents.drafts')
+  })
 })
