@@ -1,4 +1,6 @@
 const cds = require('@sap/cds')
+cds.env.mcp ??= {}
+cds.env.mcp.draft = true
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
