@@ -29,7 +29,8 @@
     "mcp": {
       "per_action_tool": false,
       "toon_format": true,
-      "prefix": false
+      "prefix": false,
+      "format": "cqn"
     },
     "hana": {
       "fuzzy": false
