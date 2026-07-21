@@ -1,6 +1,7 @@
 const cds = require('@sap/cds')
 cds.env.mcp ??= {}
 cds.env.mcp.draft = true
+cds.env.mcp.per_action_tool = true
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
@@ -194,6 +195,7 @@ describe('Draft Tools', () => {
       expect(error).to.be.null
       expect(content).to.exist
       expect(content.action).to.equal('create-books')
+      expect(content.result.ID).to.not.be.null
     })
 
     it('update tool invokes handler with correct args', async () => {
