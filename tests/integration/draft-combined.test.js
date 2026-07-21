@@ -294,7 +294,10 @@ describe('Draft Combined Tools (entity-independent)', () => {
       const { callTool } = client()
       const srv = cds.services['AdminService']
 
-      await callTool('create-draft', { entity: 'Documents', data: { title: 'Nested Combined Doc' } })
+      await callTool('create-draft', {
+        entity: 'Documents',
+        data: { title: 'Nested Combined Doc' }
+      })
       const [doc] = await SELECT.from(srv.entities.Documents.drafts).where({
         title: 'Nested Combined Doc'
       })
