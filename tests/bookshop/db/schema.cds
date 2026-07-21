@@ -52,3 +52,33 @@ entity Genres : cuid, sap.common.CodeList {
 }
 
 type Price : Decimal(9, 2);
+
+/**
+ * Test-only entities exercising composition patterns for draft tools.
+ *
+ * Documents → Sections (named entity, explicit backlink `document`)
+ *           → Sections → Paragraphs (2nd level, named, explicit backlink `section`)
+ * Documents → notes (inline anonymous composition, no explicit backlink)
+ */
+entity Documents {
+  key ID       : Integer;
+      title    : String;
+      sections : Composition of many Sections on sections.document = $self;
+      notes    : Composition of many {
+          key ID   : Integer;
+              text : String;
+      };
+}
+
+entity Sections {
+  key ID         : Integer;
+      title      : String;
+      document   : Association to Documents;
+      paragraphs : Composition of many Paragraphs on paragraphs.section = $self;
+}
+
+entity Paragraphs {
+  key ID      : Integer;
+      body    : String;
+      section : Association to Sections;
+}

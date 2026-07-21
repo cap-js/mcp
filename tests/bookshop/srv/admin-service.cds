@@ -3,6 +3,7 @@ using {sap.capire.bookshop as my} from '../db/schema';
 @odata @mcp
 @requires: 'admin'
 service AdminService {
+  @cds.redirection.target
   entity Authors as projection on my.Authors {
     *,
     years_between(dateOfBirth, dateOfDeath) as age: Integer,
@@ -11,6 +12,14 @@ service AdminService {
   @odata.draft.enabled
   entity Books   as projection on my.Books;
   entity Genres  as projection on my.Genres;
+
+  @readonly @odata.draft.enabled
+  entity ReadOnlyAuthors as projection on my.Authors;
+
+  @odata.draft.enabled
+  entity Documents as projection on my.Documents;
+  entity Sections as projection on my.Sections;
+  entity Paragraphs as projection on my.Paragraphs;
 
   @description: 'Add two integers (admin only)'
   function sum(x: Integer, y: Integer) returns Integer;
