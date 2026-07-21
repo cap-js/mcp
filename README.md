@@ -26,12 +26,12 @@ All configuration lives under `cds.mcp` in your `package.json`:
 }
 ```
 
-| Flag              | Default | Description                                                                                                                                                        |
-| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `per_action_tool` | `false`   | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool.                                                                   |
-| `toon_format`     | `true`    | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                        |
-| `prefix`          | `false`   | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`). |
-| `format`          | `"cql"`   | Experimental: Change the `query` input format. `"cql"` (default) uses structured CQN input. `"sql"` switches the `query` tool to accept a plain SQL `SELECT` statement |
+| Flag              | Default | Description                                                                                                                                                            |
+| ----------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool.                                                                       |
+| `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                            |
+| `prefix`          | `false` | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`).     |
+| `format`          | `"cql"` | Experimental: Change the `query` input format. `"cql"` (default) uses structured CQN input. `"sql"` switches the `query` tool to accept a plain SQL `SELECT` statement |
 
 For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
