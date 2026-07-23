@@ -352,14 +352,57 @@ describe('Draft Tools', () => {
       })
       const draftID = draft.ID
 
-      const { error } = await callTool('activate-books', { ID: draftID })
+      const { error, content } = await callTool('activate-books', { ID: draftID })
       expect(error).to.be.null
+
+      // activate must return a single entity, not an array
+      expect(content.result).to.be.an('object').and.not.an('array')
+      expect(content.result.ID).to.equal(draftID)
 
       const active = await SELECT.one.from(srv.entities.Books).where({ ID: draftID })
       const remainingDraft = await SELECT.one.from(srv.entities.Books.drafts).where({ ID: draftID })
       expect(active?.title).to.equal('To Be Activated')
       expect(remainingDraft).to.not.exist
       await DELETE.from(srv.entities.Books).where({ ID: draftID })
+    })
+
+    it('activate-books returns multiple errors as separate content entries', async () => {
+      const { callTool } = client()
+      const srv = cds.services['AdminService']
+
+      await callTool('create-books', {
+        title: 'Multi Error Activate',
+        stock: 5,
+        author_ID: 101
+      })
+      const [draft] = await SELECT.from(srv.entities.Books.drafts).where({
+        title: 'Multi Error Activate'
+      })
+      const draftID = draft.ID
+
+      // Register handler that throws multiple errors via req.error
+      const spy = (req) => {
+        req.error(400, 'Title must not contain special characters', 'title')
+        req.error(400, 'Stock must be greater than 10', 'stock')
+      }
+      srv.before('SAVE', srv.entities.Books, spy)
+
+      const { error, rawContent } = await callTool('activate-books', { ID: draftID })
+      expect(error).to.exist
+
+      // Each error should be a separate entry in content array
+      expect(rawContent).to.be.an('array').with.lengthOf(2)
+      expect(rawContent[0]).to.deep.include({ type: 'text' })
+      expect(rawContent[1]).to.deep.include({ type: 'text' })
+      expect(rawContent[0].text).to.include('Title must not contain special characters')
+      expect(rawContent[0].text).to.include('title')
+      expect(rawContent[1].text).to.include('Stock must be greater than 10')
+      expect(rawContent[1].text).to.include('stock')
+
+      const handlers = srv._handlers?.before || []
+      const idx = handlers.findIndex((h) => h.handler === spy)
+      if (idx !== -1) handlers.splice(idx, 1)
+      await callTool('discard-books', { ID: draftID })
     })
 
     it('activate-documents includes full draft tree in req.data', async () => {
@@ -386,8 +429,13 @@ describe('Draft Tools', () => {
       srv.before('SAVE', srv.entities.Documents, spy)
 
       try {
-        const { error } = await callTool('activate-documents', { ID: docID })
+        const { error, content } = await callTool('activate-documents', { ID: docID })
         expect(error).to.be.null
+
+        // activate must return a single entity, not an array
+        expect(content.result).to.be.an('object').and.not.an('array')
+        expect(content.result.ID).to.equal(docID)
+
         expect(saveData).to.exist
         // Draft tree should include composition children
         expect(saveData.notes).to.be.an('array').with.lengthOf(1)
@@ -565,7 +613,7 @@ describe('Draft Tools', () => {
           })
           expect(error).to.be.null
           expect(content).to.exist
-          expect(content.result[0].ID).to.be.a('number')
+          expect(content.result.ID).to.be.a('number')
           expect(seenParams).to.deep.equal([{ ID: docID }])
           expect(seenQuery?.INSERT).to.exist
         } finally {
@@ -583,7 +631,7 @@ describe('Draft Tools', () => {
           document_ID: docID,
           text: 'Before update'
         })
-        const noteID = created.result[0].ID
+        const noteID = created.result.ID
 
         const { error } = await callTool('update-note', {
           document_ID: docID,
@@ -621,7 +669,7 @@ describe('Draft Tools', () => {
           document_ID: docID,
           text: 'To remove'
         })
-        const noteID = created.result[0].ID
+        const noteID = created.result.ID
 
         const { error } = await callTool('discard-note', {
           document_ID: docID,
@@ -677,7 +725,7 @@ describe('Draft Tools', () => {
             title: 'Section before update'
           })
           expect(sectionCreated.error).to.be.null
-          const sectionID = sectionCreated.content.result[0].ID
+          const sectionID = sectionCreated.content.result.ID
 
           const sectionUpdated = await callTool('update-section', {
             document_ID: docID,
@@ -696,7 +744,7 @@ describe('Draft Tools', () => {
             body: 'Paragraph before update'
           })
           expect(paragraphCreated.error).to.be.null
-          const paragraphID = paragraphCreated.content.result[0].ID
+          const paragraphID = paragraphCreated.content.result.ID
           expect(seenParagraphParams).to.deep.equal([{ ID: docID }, { ID: sectionID }])
           expect(seenParagraphQuery?.INSERT).to.exist
 
@@ -959,7 +1007,7 @@ describe('Draft Tools', () => {
         document_ID: docID,
         title: 'Queryable Section Draft'
       })
-      const sectionID = sectionCreated.content.result[0].ID
+      const sectionID = sectionCreated.content.result.ID
 
       await callTool('create-paragraph', {
         document_ID: docID,
@@ -1155,14 +1203,14 @@ describe('Draft Tools', () => {
         document_ID: docID,
         title: 'Alice Protected Section'
       })
-      const sectionID = sectionCreated.content.result[0].ID
+      const sectionID = sectionCreated.content.result.ID
 
       const paragraphCreated = await aliceCall('create-paragraph', {
         document_ID: docID,
         section_ID: sectionID,
         body: 'Alice Protected Paragraph'
       })
-      const paragraphID = paragraphCreated.content.result[0].ID
+      const paragraphID = paragraphCreated.content.result.ID
 
       const createSection = await carolCall('create-section', {
         document_ID: docID,

@@ -67,7 +67,8 @@ module.exports =
         return {
           ...res,
           content: res.result.isError ? null : parseContent(res.result.content[0].text),
-          error: res.result.isError ? res.result.content[0].text : null
+          error: res.result.isError ? res.result.content[0].text : null,
+          rawContent: res.result.content
         }
       } catch (err) {
         return { content: null, error: `callTool(${name}) failed: ${err.message}` }
