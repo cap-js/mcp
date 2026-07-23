@@ -95,7 +95,7 @@ describe('@cds.api.ignore annotation', () => {
     it('hides ignored action from tools/list action enum', async () => {
       const { mcp } = mcpClient('/mcp/api-ignore-test')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
 
       expect(actionEnum).to.include('visibleAction')
@@ -120,7 +120,7 @@ describe('@cds.api.ignore annotation', () => {
 
       // Try to call the hidden action
       // MCP SDK validates enum and returns an error
-      const { error } = await callTool('call_action', {
+      const { error } = await callTool('call', {
         action: 'hiddenAction',
         parameters: {}
       })

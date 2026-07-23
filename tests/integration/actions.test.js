@@ -3,12 +3,12 @@ const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
-describe('call_action tool', () => {
+describe('call tool', () => {
   describe('tool listing', () => {
-    it('includes call_action tool with proper schema', async () => {
+    it('includes call tool with proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       expect(callActionTool).to.have.property('description')
       expect(callActionTool).to.have.property('inputSchema')
       expect(callActionTool.inputSchema.properties).to.have.property('action')
@@ -18,7 +18,7 @@ describe('call_action tool', () => {
     it('lists available actions in action enum', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('sum')
       expect(actionEnum).to.include('stock')
@@ -30,7 +30,7 @@ describe('call_action tool', () => {
   describe('calling functions', () => {
     it('calls sum function with two integers', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'sum',
         parameters: { x: 3, y: 5 }
       })
@@ -42,7 +42,7 @@ describe('call_action tool', () => {
 
     it('sum returns 0 with no parameters', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'sum'
       })
       expect(error).to.be.null
@@ -51,7 +51,7 @@ describe('call_action tool', () => {
 
     it('sum handles partial parameters', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'sum',
         parameters: { x: 10 }
       })
@@ -61,7 +61,7 @@ describe('call_action tool', () => {
 
     it('calls stock function to get book stock', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'stock',
         parameters: { id: 201 }
       })
@@ -73,7 +73,7 @@ describe('call_action tool', () => {
 
     it('stock returns 0 for non-existent book', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'stock',
         parameters: { id: 9999 }
       })
@@ -85,7 +85,7 @@ describe('call_action tool', () => {
   describe('calling actions', () => {
     it('calls add action', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'add',
         parameters: { x: 10, to: 5 }
       })
@@ -97,7 +97,7 @@ describe('call_action tool', () => {
 
     it('add returns 0 with no parameters', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'add'
       })
       expect(error).to.be.null
@@ -108,7 +108,7 @@ describe('call_action tool', () => {
   describe('error handling', () => {
     it('returns error for unknown action', async () => {
       const { callTool } = mcpClient()
-      const { error } = await callTool('call_action', {
+      const { error } = await callTool('call', {
         action: 'nonExistentAction'
       })
       expect(error).to.match(/not found|invalid/i)
@@ -116,7 +116,7 @@ describe('call_action tool', () => {
 
     it('returns all error details when handler reports multiple errors', async () => {
       const { callTool } = mcpClient()
-      const { error } = await callTool('call_action', {
+      const { error } = await callTool('call', {
         action: 'validateOrder',
         parameters: { book: 0, quantity: 0, email: 'invalid' }
       })
@@ -135,7 +135,7 @@ describe('call_action tool', () => {
     it('lists withMany, withManyCustomTypes, withCustomTypes in action enum', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('withMany')
       expect(actionEnum).to.include('withManyCustomTypes')
@@ -144,7 +144,7 @@ describe('call_action tool', () => {
 
     it('calls withMany action with array param', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'withMany',
         parameters: { updates: [{ ID: 'foo' }, { ID: 'bar' }] }
       })
@@ -156,7 +156,7 @@ describe('call_action tool', () => {
 
     it('calls withManyCustomTypes action with array of typed objects', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'withManyCustomTypes',
         parameters: { updates: [{ ID: '1', abc: 'val', def: '2024-06-01T12:00:00Z', prop1: 'p' }] }
       })
@@ -170,7 +170,7 @@ describe('call_action tool', () => {
 
     it('calls withCustomTypes action with scalar custom type param', async () => {
       const { callTool } = mcpClient()
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'withCustomTypes',
         parameters: { prop1: 'myval' }
       })
@@ -183,12 +183,12 @@ describe('call_action tool', () => {
   })
 })
 
-describe('call_action authorization', () => {
+describe('call authorization', () => {
   describe('AdminService (requires admin role)', () => {
     it('includes sum, stock, add actions for admin user', async () => {
       const { mcp } = mcpClient('/mcp/admin', 'alice:')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('sum')
       expect(actionEnum).to.include('stock')
@@ -197,7 +197,7 @@ describe('call_action authorization', () => {
 
     it('admin can call sum function', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'sum',
         parameters: { x: 100, y: 200 }
       })
@@ -208,7 +208,7 @@ describe('call_action authorization', () => {
 
     it('admin can call stock function', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'stock',
         parameters: { id: 252 }
       })
@@ -219,7 +219,7 @@ describe('call_action authorization', () => {
 
     it('admin can call add action', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'alice:')
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'add',
         parameters: { x: 7, to: 3 }
       })
@@ -228,10 +228,10 @@ describe('call_action authorization', () => {
       expect(content.result).to.equal(10)
     })
 
-    it('rejects unauthenticated call_action with 401', async () => {
+    it('rejects unauthenticated call with 401', async () => {
       const { mcp } = mcpClient('/mcp/admin')
       const response = await mcp('tools/call', {
-        name: 'call_action',
+        name: 'call',
         arguments: { action: 'sum', parameters: { x: 1, y: 2 } }
       })
       expect(response.error).to.exist
@@ -239,9 +239,9 @@ describe('call_action authorization', () => {
       expect(response.error.message).to.match(/401/i)
     })
 
-    it('rejects unauthorized user call_action with 403', async () => {
+    it('rejects unauthorized user call with 403', async () => {
       const { callTool } = mcpClient('/mcp/admin', 'bob:')
-      const { error } = await callTool('call_action', {
+      const { error } = await callTool('call', {
         action: 'sum',
         parameters: { x: 1, y: 2 }
       })
@@ -258,24 +258,24 @@ describe('RestrictedService action authorization', () => {
     it('includes add in action enum for admin', async () => {
       const { mcp } = mcpClient('/mcp/restricted', 'alice:')
       const response = await mcp('tools/list')
-      const callActionTool = response.result.tools.find((t) => t.name === 'call_action')
+      const callActionTool = response.result.tools.find((t) => t.name === 'call')
       const actionEnum = callActionTool.inputSchema.properties.action.enum
       expect(actionEnum).to.include('add')
     })
 
-    it('does not list call_action tool for non-admin user (bob)', async () => {
+    it('does not list call tool for non-admin user (bob)', async () => {
       // bob has editor role but add requires admin
       const { mcp } = mcpClient('/mcp/restricted', 'bob:')
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map((t) => t.name)
-      expect(toolNames).to.not.include('call_action')
+      expect(toolNames).to.not.include('call')
     })
   })
 
   describe('action execution', () => {
     it('admin (alice) can call add action', async () => {
       const { callTool } = mcpClient('/mcp/restricted', 'alice:')
-      const { content, error } = await callTool('call_action', {
+      const { content, error } = await callTool('call', {
         action: 'add',
         parameters: { x: 25, to: 75 }
       })
@@ -284,12 +284,12 @@ describe('RestrictedService action authorization', () => {
       expect(content.result).to.equal(100)
     })
 
-    it('unauthenticated user cannot see call_action tool', async () => {
+    it('unauthenticated user cannot see call tool', async () => {
       // Unauthenticated users have no accessible actions
       const { mcp } = mcpClient('/mcp/restricted')
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map((t) => t.name)
-      expect(toolNames).to.not.include('call_action')
+      expect(toolNames).to.not.include('call')
     })
   })
 })
