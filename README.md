@@ -2,6 +2,11 @@
 
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
+> [!IMPORTANT]
+> **SAP API Policy Applies**
+>
+> The [SAP API Policy](https://api.sap.com/api-policy) remains applicable even when exposing data via MCP. Before exposing any SAP service or data through an MCP endpoint, ensure your use case complies with the SAP API Policy and any applicable licensing terms.
+
 ## Requirements and Setup
 
 We use the @capire/bookshop as a running sample hereinafter. Clone it and open it in VSCode as follows:
