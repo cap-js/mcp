@@ -23,10 +23,10 @@ describe('Tool Name Prefix (global prefix: true)', () => {
     const toolNames = response.result.tools.map((t) => t.name)
     expect(toolNames).to.include('catalog_query')
     expect(toolNames).to.include('catalog_describe')
-    expect(toolNames).to.include('catalog_call_action')
+    expect(toolNames).to.include('catalog_call')
     expect(toolNames).to.not.include('query')
     expect(toolNames).to.not.include('describe')
-    expect(toolNames).to.not.include('call_action')
+    expect(toolNames).to.not.include('call')
   })
 
   it('prefixed tools are callable', async () => {
@@ -45,8 +45,8 @@ describe('Tool Name Prefix (global prefix: true)', () => {
     expect(content.data.length).to.be.greaterThan(0)
   })
 
-  it('prefixed call_action tool works', async () => {
-    const { content, error } = await callTool('catalog_call_action', {
+  it('prefixed call tool works', async () => {
+    const { content, error } = await callTool('catalog_call', {
       action: 'sum',
       parameters: { x: 3, y: 4 }
     })
@@ -64,7 +64,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   it('custom @mcp.instructions are not modified by prefix', async () => {
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.'
+      'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call to place orders or perform calculations.'
     )
   })
 })

@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "supportedProtocolVersions": ["2025-11-25"],
   "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
-  "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.",
+  "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call to place orders or perform calculations.",
   "remotes": [
     {
       "type": "streamable-http",
@@ -612,7 +612,7 @@
       }
     },
     {
-      "name": "call_action",
+      "name": "call",
       "description": "Call an unbound action or function in CatalogService service. Use describe to discover available actions and their parameters.",
       "inputSchema": {
         "$schema": "http://json-schema.org/draft-07/schema#",

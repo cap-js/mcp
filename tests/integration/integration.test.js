@@ -22,7 +22,7 @@ describe('MCP Protocol', () => {
     const { initialize } = mcpClient()
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.'
+      'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call to place orders or perform calculations.'
     )
   })
 
@@ -30,7 +30,7 @@ describe('MCP Protocol', () => {
     const { initialize } = mcpClient('/mcp/admin', 'alice:')
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call_action' to invoke actions or functions."
+      "Use the 'describe' tool to explore the data model and available actions/functions. Then use 'query' to read data or 'call' to invoke actions or functions."
     )
   })
 

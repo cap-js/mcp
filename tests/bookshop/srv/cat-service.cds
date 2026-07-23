@@ -79,4 +79,4 @@ annotate CatalogService.Books with {
 };
 
 annotate CatalogService with @mcp @odata;
-annotate CatalogService with @mcp.instructions: 'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call_action to place orders or perform calculations.';
+annotate CatalogService with @mcp.instructions: 'Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call to place orders or perform calculations.';
