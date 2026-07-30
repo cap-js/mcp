@@ -10,6 +10,7 @@
 
 - Renamed the `call_action` tool to `call`
 - `cds.mcp.prefix` now creates a prefix from the full service name
+- Experimental SQL input for the `query` tool changed to CQL
 
 ## Version 1.2.0 - 2026-07-21
 
