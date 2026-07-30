@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "supportedProtocolVersions": ["2025-11-25"],
   "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
-  "instructions": "Use describe to explore available books, genres, and actions. Use query to search the catalog. Use call to place orders or perform calculations.",
+  "instructions": "Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` to place orders or perform calculations.",
   "remotes": [
     {
       "type": "streamable-http",
