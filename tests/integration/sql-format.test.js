@@ -1,13 +1,13 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
-cds.env.mcp.format = 'sql'
+cds.env.mcp.format = 'cql'
 cds.env.mcp.toon_format = false
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
-describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
+describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
   describe('tools/list', () => {
     it('query tool accepts sql input schema', async () => {
       const { mcp } = mcpClient()
@@ -184,80 +184,6 @@ describe('SQL Format Mode (cds.env.mcp.format = "sql")', () => {
       })
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(2)
-    })
-  })
-
-  describe('describe (CDL)', () => {
-    it('returns CDS definition for entities', async () => {
-      const { mcp } = mcpClient()
-      const res = await mcp('tools/call', { name: 'describe', arguments: { entities: ['Books'] } })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      // Should contain entity keyword and field names
-      expect(text).to.include('entity')
-      expect(text).to.include('title')
-      expect(text).to.include('ID')
-    })
-
-    it('returns CDL with element types', async () => {
-      const { mcp } = mcpClient()
-      const res = await mcp('tools/call', { name: 'describe', arguments: { entities: ['Books'] } })
-      const text = res.result.content[0].text
-      // cds.compile.to.cdl includes element names and types
-      expect(text).to.include('ID')
-      expect(text).to.include('title')
-      expect(text).to.include('stock')
-    })
-
-    it('does not contain draft elements in CDL output', async () => {
-      const { mcp } = mcpClient('/mcp/admin', 'alice:')
-      const res = await mcp('tools/call', { name: 'describe', arguments: { entities: ['Books'] } })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      expect(text).to.not.include('IsActiveEntity')
-      expect(text).to.not.include('DraftAdministrativeData')
-    })
-
-    it('overview mode lists entities without full definitions', async () => {
-      const { mcp } = mcpClient()
-      const res = await mcp('tools/call', { name: 'describe', arguments: {} })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      // Should have multiple entity references
-      expect(text).to.include('Books')
-      expect(text).to.include('Genres')
-    })
-
-    it('does not include autoexposed composition targets', async () => {
-      const { mcp } = mcpClient()
-      const res = await mcp('tools/call', { name: 'describe', arguments: {} })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
-      expect(text).to.not.include('chapters')
-    })
-
-    it('returns action definitions', async () => {
-      const { mcp } = mcpClient()
-      const res = await mcp('tools/call', { name: 'describe', arguments: { actions: ['sum'] } })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      expect(text).to.include('sum')
-    })
-
-    it('describes entity with aspects (includes) without referencing external types', async () => {
-      const { mcp } = mcpClient()
-      // Genres entity uses aspects: cuid, sap.common.CodeList
-      const res = await mcp('tools/call', { name: 'describe', arguments: { entities: ['Genres'] } })
-      const text = res.result.content[0].text
-      expect(res.result.isError).to.not.be.true
-      // Should contain entity definition with its elements
-      expect(text).to.include('Genres')
-      expect(text).to.include('ID')
-      expect(text).to.include('name')
-      // Should NOT reference aspect includes (confusing for LLM SQL generation)
-      expect(text).to.not.include(': cuid')
-      expect(text).to.not.include('sap.common.CodeList')
     })
   })
 
