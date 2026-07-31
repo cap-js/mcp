@@ -37,7 +37,7 @@ describe('MCP Protocol', () => {
   it('handles invalid JSON body gracefully', async () => {
     const response = await fetch(`${test.url}/mcp/catalog`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
       body: 'this is not valid json {'
     })
 
