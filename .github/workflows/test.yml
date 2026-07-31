@@ -2,8 +2,7 @@ name: CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+  merge_group:
   pull_request:
     branches: [main]
 
@@ -63,6 +62,12 @@ jobs:
       matrix:
         node-version: [22, 24]
         cds-version: [9, latest]
+        # On PRs only latest/Node 24 runs; the merge queue runs the full matrix.
+        exclude: ${{ github.event_name == 'merge_group' && fromJSON('[]') || fromJSON('[
+          {"node-version": 22, "cds-version": 9},
+          {"node-version": 24, "cds-version": 9},
+          {"node-version": 22, "cds-version": "latest"}
+        ]') }}
     env:
       HANA_SERVICE: cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-${{ matrix.cds-version }}-${{ matrix.node-version }}
     steps:
