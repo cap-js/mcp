@@ -22,7 +22,7 @@ describe('MCP Protocol', () => {
     const { initialize } = mcpClient()
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` action to place orders or perform calculations.'
+      'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` to place orders or perform calculations.'
     )
   })
 
