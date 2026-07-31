@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22, 24]
         cds-version: [9, latest]
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22, 24]
         cds-version: [9, latest]
     env:
       HANA_SERVICE: cap-js-mcp-hana-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}-${{ matrix.cds-version }}-${{ matrix.node-version }}
