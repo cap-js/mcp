@@ -12,7 +12,7 @@ describe('Per-Action Tools', () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
       const toolNames = response.result.tools.map((t) => t.name)
-      expect(toolNames).to.not.include('call_action')
+      expect(toolNames).to.not.include('call')
       expect(toolNames).to.include('sum')
       expect(toolNames).to.include('stock')
       expect(toolNames).to.include('add')

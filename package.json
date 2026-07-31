@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@toon-format/toon": "^2.3.0",
+    "@toon-format/toon": ">=2.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
   "scripts": {
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
-    "inspect": "npx @modelcontextprotocol/inspector --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
+    "inspect": "npx @modelcontextprotocol/inspector@v1 --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "test:hybrid": "cds bind --exec -- npm run test",
     "test:reporting": "NODE_OPTIONS=--experimental-vm-modules npx jest --silent --ci --collectCoverage --reporters=default --coverageReporters=text --coverageReporters=cobertura",
