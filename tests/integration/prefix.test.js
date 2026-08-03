@@ -38,7 +38,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
 
   it('prefixed query tool works', async () => {
     const { content, error } = await callTool('CatalogService-query', {
-      sql: 'SELECT ID, title FROM CatalogService.Books LIMIT 5'
+      cql: 'SELECT ID, title FROM CatalogService.Books LIMIT 5'
     })
     expect(error).to.be.null
     expect(content.data).to.be.an('array')
