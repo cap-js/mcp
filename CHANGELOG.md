@@ -6,6 +6,10 @@
 
 ## Version 1.4.0 - 2026-08-03
 
+### Changed
+
+- Default mode for the `query` tool changed to CQL
+
 ### Fixed
 
 - Set tool prefix as optional parameter
