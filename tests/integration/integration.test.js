@@ -1734,51 +1734,33 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
 })
 
 describe('No Accessible Entities (FullyRestrictedService)', () => {
-  describe('alice (admin role)', () => {
-    it('can access Books entity plus autoexpose entities', async () => {
-      const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
-      const response = await mcp('tools/list')
-      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
-      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      // alice (admin) can access Books (restricted to admin) + entities with @cds.autoexpose
-      expect(entityEnum).to.include('Books')
-      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
-      // Composition-only autoexposed entities should be filtered out
-      expect(entityEnum).to.not.include('Books.chapters')
-      // Authors is restricted to editor, so alice cannot access it
-      expect(entityEnum).to.not.include('Authors')
-    })
+
+  it('can access Books entity with admin role (alice)', async () => {
+    const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
+    const response = await mcp('tools/list')
+    const readQueryTool = response.result.tools.find((t) => t.name === 'query')
+    const entityEnum = readQueryTool.inputSchema.properties.entity.enum
+    // alice (admin) can access Books (restricted to admin)
+    expect(entityEnum).to.include('Books')
+    // Composition-only autoexposed entities should be filtered out
+    expect(entityEnum).to.not.include('Books.chapters')
+    // Authors is restricted to editor, so alice cannot access it
+    expect(entityEnum).to.not.include('Authors')
   })
 
-  describe('bob (no roles) - only autoexpose entities accessible', () => {
-    it('returns tools with only autoexpose entities', async () => {
-      const { mcp } = mcpClient('/mcp/fully-restricted', 'bob:')
-      const response = await mcp('tools/list')
-      expect(response.error).to.not.exist
-      // bob has no roles but can still access entities with @cds.autoexpose
-      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
-      expect(readQueryTool).to.exist
-      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
-      expect(entityEnum).to.not.include('Books.chapters')
-      expect(entityEnum).to.not.include('Books')
-      expect(entityEnum).to.not.include('Authors')
-    })
+  it('returns empty tools when authenticated but no entities are accessible (bob)', async () => {
+    const { mcp } = mcpClient('/mcp/fully-restricted', 'bob:')
+    const response = await mcp('tools/list')
+    expect(response.error).to.not.exist
+    // bob has no roles and cannot access any entities, so no tools are exposed
+    expect(response.result.tools).to.deep.equal([]);
   })
 
-  describe('unauthenticated - only autoexpose entities accessible', () => {
-    it('returns tools with only autoexpose entities', async () => {
-      const { mcp } = mcpClient('/mcp/fully-restricted')
-      const response = await mcp('tools/list')
-      expect(response.error).to.not.exist
-      // unauthenticated users can still access entities with @cds.autoexpose
-      const readQueryTool = response.result.tools.find((t) => t.name === 'query')
-      expect(readQueryTool).to.exist
-      const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
-      expect(entityEnum).to.not.include('Books.chapters')
-      expect(entityEnum).to.not.include('Books')
-      expect(entityEnum).to.not.include('Authors')
-    })
+  it('returns empty tools when unauthenticated', async () => {
+    const { mcp } = mcpClient('/mcp/fully-restricted')
+    const response = await mcp('tools/list')
+    expect(response.error).to.not.exist
+    // Genres and Currencies are restricted to admin, so unauthenticated users get no tools
+    expect(response.result.tools).to.deep.equal([])
   })
 })
