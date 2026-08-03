@@ -4,11 +4,15 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.4.0 - 2026-08-??
+## Version 1.4.0 - 2026-08-03
 
-#### Changed
+### Changed
 
 - Default mode for the `query` tool changed to CQL
+
+### Fixed
+
+- Set tool prefix as optional parameter
 
 ## Version 1.3.0 - 2026-07-31
 
