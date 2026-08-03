@@ -10,6 +10,10 @@
 
 - Migrated from `@modelcontextprotocol/sdk` to the new split packages `@modelcontextprotocol/server` and `@modelcontextprotocol/node` (SDK 2.0.0)
 
+### Fixed
+
+- Set tool prefix as optional parameter
+
 ## Version 1.3.0 - 2026-07-31
 
 ### Changed
