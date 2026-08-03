@@ -6,6 +6,12 @@
 
 ## Version 1.3.0 - 2026-07-31
 
+### Fixed
+
+- Set tool prefix as optional parameter
+
+## Version 1.3.0 - 2026-07-31
+
 ### Changed
 
 - Renamed the `call_action` tool to `call`
