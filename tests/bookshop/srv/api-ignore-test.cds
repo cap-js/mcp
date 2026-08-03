@@ -11,7 +11,7 @@ service ApiIgnoreTestService {
     price,
     @cds.api.ignore
     currency
-  };
+  } where ID < 1000; // exclude test-seed range
 
   @cds.api.ignore
   entity HiddenEntity {

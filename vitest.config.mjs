@@ -7,9 +7,8 @@ export default defineConfig({
     include: ['**/tests/**/*.test.js'],
     silent: true,
     setupFiles: ['./tests/setup.js'],
-    coverage: {
-      include: ['lib/**', 'cds-plugin.js'],
-      reporter: ['json']
+    sequence: {
+      hooks: 'list'
     }
   }
 })
