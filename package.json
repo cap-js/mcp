@@ -55,6 +55,7 @@
       "docs": true
     },
     "mcp": {
+      "format": "cql",
       "autowire": true
     }
   },

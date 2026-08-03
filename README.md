@@ -38,7 +38,7 @@ All configuration lives under `cds.mcp` in your `package.json`:
 | `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call` tool.                                                                           |
 | `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                         |
 | `prefix`          | `false` | Prefix tool names with the service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `CatalogService-query`, `AdminService-query`). |
-| `format`          | `"cqn"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
+| `format`          | `"cql"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
 
 For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 

@@ -10,6 +10,10 @@
 
 - Migrated from `@modelcontextprotocol/sdk` to the new split packages `@modelcontextprotocol/server` and `@modelcontextprotocol/node` (SDK 2.0.0)
 
+### Changed
+
+- Default mode for the `query` tool changed to CQL
+
 ### Fixed
 
 - Set tool prefix as optional parameter
