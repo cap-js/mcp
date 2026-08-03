@@ -4,6 +4,14 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 1.3.0 - 2026-08-??
+
+#### Changed
+
+- `cds.mcp.prefix` now creates a prefix from the full service name
+- Renamed the `call_action` tool to `call`
+- Default mode for the `query` tool changed to CQL
+
 ## Version 1.3.0 - 2026-07-31
 
 ### Changed
