@@ -15,7 +15,7 @@ service CatalogService {
     excluding {
       createdBy,
       modifiedBy
-    };
+    } where ID < 1000; // exclude test-seed range
 
   @description: 'Add two integers'
   function sum(

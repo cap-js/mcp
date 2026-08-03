@@ -2,7 +2,7 @@ using {sap.capire.bookshop as my} from '../db/schema';
 
 @mcp
 service FullyRestrictedService {
-  entity Books   as projection on my.Books;
+  entity Books   as projection on my.Books where ID < 1000; // exclude test-seed range
   entity Authors as projection on my.Authors;
 }
 
