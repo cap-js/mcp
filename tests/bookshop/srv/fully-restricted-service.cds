@@ -15,3 +15,13 @@ annotate FullyRestrictedService.Authors with @(restrict: [{
   grant: 'READ',
   to   : 'editor'
 }]);
+
+annotate FullyRestrictedService.Genres with @(restrict: [{
+  grant: 'READ',
+  to   : 'admin'
+}]);
+
+annotate FullyRestrictedService.Currencies with @(restrict: [{
+  grant: 'READ',
+  to   : 'admin'
+}]);
