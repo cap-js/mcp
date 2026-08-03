@@ -7,6 +7,7 @@
 ## Version 1.4.0 - tbd
 
 ### Changed
+
 - Migrated from `@modelcontextprotocol/sdk` to the new split packages `@modelcontextprotocol/server` and `@modelcontextprotocol/node` (SDK 2.0.0)
 
 ## Version 1.3.0 - 2026-07-31

@@ -37,7 +37,10 @@ describe('MCP Protocol', () => {
   it('handles invalid JSON body gracefully', async () => {
     const response = await fetch(`${test.url}/mcp/catalog`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream'
+      },
       body: 'this is not valid json {'
     })
 
@@ -1734,7 +1737,6 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
 })
 
 describe('No Accessible Entities (FullyRestrictedService)', () => {
-
   it('can access Books entity with admin role (alice)', async () => {
     const { mcp } = mcpClient('/mcp/fully-restricted', 'alice:')
     const response = await mcp('tools/list')
@@ -1753,7 +1755,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
     const response = await mcp('tools/list')
     expect(response.error).to.not.exist
     // bob has no roles and cannot access any entities, so no tools are exposed
-    expect(response.result.tools).to.deep.equal([]);
+    expect(response.result.tools).to.deep.equal([])
   })
 
   it('returns empty tools when unauthenticated', async () => {
