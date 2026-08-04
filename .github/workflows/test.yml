@@ -120,3 +120,12 @@ jobs:
             echo "HDI container delete failed, retrying ($i/3)..."
             sleep 10
           done
+
+  results:
+    if: always()
+    runs-on: ubuntu-latest
+    name: Summary
+    needs: [test, integration-tests]
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
