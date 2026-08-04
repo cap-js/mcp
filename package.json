@@ -16,8 +16,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cap-js/cds-test": "^1.0.1",
-    "vitest": "^2.1.0"
+    "@cap-js/cds-test": "^1.0.1"
   },
   "peerDependencies": {
     "@sap/cds": ">=8",
@@ -27,7 +26,7 @@
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
     "inspect": "npx @modelcontextprotocol/inspector@v1 --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
-    "test": "vitest run",
+    "test": "npx vitest run",
     "test:hybrid": "cds bind --exec -- npm run test",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
     "lint": "npx eslint .",
