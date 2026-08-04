@@ -4,6 +4,20 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 1.4.0 - 2026-08-03
+
+### Changed
+
+- Migrated from `@modelcontextprotocol/sdk` to the new split packages `@modelcontextprotocol/server` and `@modelcontextprotocol/node` (SDK 2.0.0)
+
+### Changed
+
+- Default mode for the `query` tool changed to CQL
+
+### Fixed
+
+- Set tool prefix as optional parameter
+
 ## Version 1.3.0 - 2026-07-31
 
 ### Changed

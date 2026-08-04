@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "repository": "cap-js/mcp",
   "files": [
@@ -10,7 +10,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "@toon-format/toon": ">=2.3",
     "zod": "^4.3.6"
   },
@@ -25,9 +26,8 @@
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
     "inspect": "npx @modelcontextprotocol/inspector@v1 --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test": "npx vitest run",
     "test:hybrid": "cds bind --exec -- npm run test",
-    "test:reporting": "NODE_OPTIONS=--experimental-vm-modules npx jest --silent --ci --collectCoverage --reporters=default --coverageReporters=text --coverageReporters=cobertura",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
     "lint": "npx eslint .",
     "prettier": "npx -y prettier@3 --write .",
@@ -54,6 +54,7 @@
       "docs": true
     },
     "mcp": {
+      "format": "cql",
       "autowire": true
     }
   },
