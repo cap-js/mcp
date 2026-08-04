@@ -15,7 +15,7 @@ service CatalogService {
     excluding {
       createdBy,
       modifiedBy
-    };
+    } where ID < 1000; // exclude test-seed range
 
   @description: 'Add two integers'
   function sum(
@@ -79,4 +79,4 @@ annotate CatalogService.Books with {
 };
 
 annotate CatalogService with @mcp @odata;
-annotate CatalogService with @mcp.instructions: 'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` action to place orders or perform calculations.';
+annotate CatalogService with @mcp.instructions: 'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` to place orders or perform calculations.';

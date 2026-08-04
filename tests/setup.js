@@ -1,25 +1,14 @@
 /**
- * Jest setup file to make ESM-only @toon-format/toon available via require()
+ * Vitest setup file to make ESM-only @toon-format/toon available via require()
+ *
+ * The library under test calls `require('@toon-format/toon')`, but toon is an
+ * ESM-only module. Vitest can resolve ESM natively, so we mock the module with
+ * an async factory that imports the real ESM module and returns its namespace.
  */
 
-let mockToonModule
+import { vi } from 'vitest'
 
-// Load the ESM module before all tests
-beforeAll(async () => {
-  mockToonModule = await import('@toon-format/toon')
-})
-
-// Mock @toon-format/toon to return the dynamically imported module
-jest.mock('@toon-format/toon', () => {
-  return new Proxy(
-    {},
-    {
-      get(target, prop) {
-        if (!mockToonModule) {
-          throw new Error('@toon-format/toon not yet loaded - ensure beforeAll has run')
-        }
-        return mockToonModule[prop]
-      }
-    }
-  )
+vi.mock('@toon-format/toon', async () => {
+  const actual = await vi.importActual('@toon-format/toon')
+  return { ...actual, default: actual.default ?? actual }
 })

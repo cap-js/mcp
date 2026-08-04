@@ -1,7 +1,7 @@
 const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
-cds.env.mcp.format = 'sql'
+cds.env.mcp.format = 'cql'
 cds.env.mcp.prefix = true
 cds.env.mcp.toon_format = false
 
@@ -38,7 +38,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
 
   it('prefixed query tool works', async () => {
     const { content, error } = await callTool('CatalogService-query', {
-      sql: 'SELECT ID, title FROM CatalogService.Books LIMIT 5'
+      cql: 'SELECT ID, title FROM CatalogService.Books LIMIT 5'
     })
     expect(error).to.be.null
     expect(content.data).to.be.an('array')
@@ -64,7 +64,7 @@ describe('Tool Name Prefix (global prefix: true)', () => {
   it('custom @mcp.instructions are not modified by prefix', async () => {
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` action to place orders or perform calculations.'
+      'Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` to place orders or perform calculations.'
     )
   })
 })

@@ -3,9 +3,9 @@ const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
-describe('call action tool', () => {
+describe('call tool', () => {
   describe('tool listing', () => {
-    it('includes call action tool with proper schema', async () => {
+    it('includes call tool with proper schema', async () => {
       const { mcp } = mcpClient()
       const response = await mcp('tools/list')
       const callActionTool = response.result.tools.find((t) => t.name === 'call')
