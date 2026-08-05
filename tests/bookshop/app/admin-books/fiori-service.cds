@@ -87,19 +87,6 @@ annotate AdminService.Books.texts with @(UI: {
   ]
 });
 
-annotate AdminService.Books.texts with {
-  ID       @UI.Hidden;
-  ID_texts @UI.Hidden;
-};
-
-// Add Value Help for Locales
-annotate AdminService.Books.texts {
-  locale @(
-    ValueList.entity: 'Languages',
-    Common.ValueListWithFixedValues, //show as drop down, not a dialog
-  )
-};
-
 // In addition we need to expose Languages through AdminService as a target for ValueList
 using {sap} from '@sap/cds/common';
 

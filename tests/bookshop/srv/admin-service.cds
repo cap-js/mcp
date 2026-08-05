@@ -10,7 +10,7 @@ service AdminService {
     year(dateOfBirth) || ' – ' || year(dateOfDeath) as lifetime : String
   };
   @odata.draft.enabled
-  entity Books   as projection on my.Books;
+  entity Books   as projection on my.Books where ID < 1000; // exclude test-seed range
   entity Genres  as projection on my.Genres;
 
   @readonly @odata.draft.enabled

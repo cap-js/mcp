@@ -2,6 +2,11 @@
 
 This is a protocol adapter for the MCP protocol to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
+> [!IMPORTANT]
+> **SAP API Policy Applies**
+>
+> The [SAP API Policy](https://help.sap.com/doc/sap-api-policy) remains applicable even when exposing data via MCP. Before exposing any SAP service or data through an MCP endpoint, ensure your use case complies with the SAP API Policy and any applicable licensing terms.
+
 ## Requirements and Setup
 
 We use the @capire/bookshop as a running sample hereinafter. Clone it and open it in VSCode as follows:
@@ -20,17 +25,20 @@ All configuration lives under `cds.mcp` in your `package.json`:
   "cds": {
     "mcp": {
       "per_action_tool": false,
-      "toon_format": true
+      "toon_format": true,
+      "prefix": false,
+      "format": "cqn"
     }
   }
 }
 ```
 
-| Flag              | Default | Description                                                                                                                                                        |
-| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call_action` tool.                                                                   |
-| `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                        |
-| `prefix`          | `false` | Prefix tool names with the slugified service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `catalog_query`, `admin_describe`). |
+| Flag              | Default | Description                                                                                                                                                         |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call` tool.                                                                           |
+| `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                         |
+| `prefix`          | `false` | Prefix tool names with the service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `CatalogService-query`, `AdminService-query`). |
+| `format`          | `"cql"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
 
 For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
 
