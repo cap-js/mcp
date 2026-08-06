@@ -3,9 +3,7 @@
   "name": "sap.cds.services/catalog",
   "title": "CatalogService",
   "version": "1.0.0",
-  "supportedProtocolVersions": [
-    "2025-11-25"
-  ],
+  "supportedProtocolVersions": ["2025-11-25"],
   "description": "Catalog service for browsing books.\nProvides read access to the book catalog including genres and au",
   "instructions": "Use `describe` to explore available books, genres, and actions. Use `query` to search the catalog. Use `call` to place orders or perform calculations.",
   "remotes": [
@@ -30,9 +28,7 @@
             "description": "CAP CQL statement to execute queries; only SELECT statements are allowed. CQL is a superset of SQL, that supports - path expressions to follow associations instead of JOINs, e.g. SELECT author.name from Books, - postfix projection syntax, with nested expands, e.g. SELECT from Authors { ID, name, books { ID, title }}, - standard CAP/OData functions and aggregates (count, sum, avg, min, max, lower, upper, substring, year, month, day, etc.). Database functions (CURRENT_USER, SESSION_USER, SYSUUID, CURRENT_SCHEMA) are not supported. LIMIT is auto-injected to the service max."
           }
         },
-        "required": [
-          "cql"
-        ],
+        "required": ["cql"],
         "additionalProperties": false
       },
       "annotations": {
@@ -53,11 +49,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Books",
-                "Genres",
-                "Currencies"
-              ]
+              "enum": ["Books", "Genres", "Currencies"]
             }
           },
           "actions": {
@@ -120,9 +112,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "action"
-        ],
+        "required": ["action"],
         "additionalProperties": false
       },
       "annotations": {
