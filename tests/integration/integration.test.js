@@ -30,7 +30,7 @@ describe('MCP Protocol', () => {
     const { initialize } = mcpClient('/mcp/admin', 'alice:')
     const response = await initialize()
     expect(response.result.instructions).to.equal(
-      'Use the `describe` tool to explore the data model and available actions/functions. Then use `query` to read data or `call` to invoke actions or functions.'
+      'Always use the `describe` tool to explore the data model and available actions/functions. Only then use `query` to read data or `call` to invoke actions or functions.'
     )
   })
 
