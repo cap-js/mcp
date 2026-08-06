@@ -27,7 +27,7 @@ All configuration lives under `cds.mcp` in your `package.json`:
       "per_action_tool": false,
       "toon_format": true,
       "prefix": false,
-      "format": "cqn"
+      "format": "cql"
     }
   }
 }
