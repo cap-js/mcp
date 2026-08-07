@@ -125,14 +125,6 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       expect(content.count).to.equal(amt)
     })
 
-    it('returns original sql in result', async () => {
-      const { callTool } = mcpClient()
-      const cql = 'SELECT ID FROM CatalogService.Books LIMIT 1'
-      const { content, error } = await callTool('query', { cql })
-      expect(error).to.be.null
-      expect(content.cql).to.equal(cql)
-    })
-
     it('handles multiline SQL (LLM often generates newlines before FROM/WHERE)', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {

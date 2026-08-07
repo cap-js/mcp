@@ -2,6 +2,9 @@ const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
+cds.env.mcp.toon_format = false
 
 // F1/F2 fix verification + CQN function allowlist
 describe('CQN function allowlist (unified with SQL mode)', () => {

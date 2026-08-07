@@ -3,6 +3,10 @@ const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)
 
+cds.env.mcp ??= {}
+cds.env.mcp.format = 'cqn'
+cds.env.mcp.toon_format = false
+
 /**
  * F3 fix: expand into inaccessible entities via associations is blocked.
  * Without the fix, alice (admin) could read Authors (editor-only) by expanding
