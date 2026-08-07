@@ -9,6 +9,7 @@
 ### Changed
 
 - Clarified server instructions and `query` tool description to emphasize using `describe` before querying
+- `query` tool response no longer echoes the executed CQL string
 
 ## Version 1.4.0 - 2026-08-03
 
