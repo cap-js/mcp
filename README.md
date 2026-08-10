@@ -9,7 +9,7 @@ This is a protocol adapter for the [Model Context Protocol](https://modelcontext
 
 ## Feature Flags
 
-All configuration live under `cds.mcp` in your `package.json`:
+All configuration lives under `cds.mcp` in your `package.json`:
 
 ```json
 {
