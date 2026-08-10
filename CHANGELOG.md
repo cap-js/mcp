@@ -7,6 +7,7 @@
 ## Version 1.4.2 - 2026-08-11
 
 ### Fixed
+
 - Use `format: cql` as default if the `cds.mcp.format` option is not applied
 
 ## Version 1.4.1 - 2026-08-07
