@@ -13,7 +13,7 @@
 
 ### Removed
 
-- Removed the `toon_format` flag, toon is now always the output format 
+- Removed the `toon_format` flag, toon is now always the output format
 
 ## Version 1.4.1 - 2026-08-07
 
