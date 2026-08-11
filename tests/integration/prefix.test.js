@@ -3,7 +3,6 @@ const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
 cds.env.mcp.format = 'cql'
 cds.env.mcp.prefix = true
-cds.env.mcp.toon_format = false
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)

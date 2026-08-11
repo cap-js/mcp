@@ -16,7 +16,6 @@ All configuration lives under `cds.mcp` in your `package.json`:
   "cds": {
     "mcp": {
       "per_action_tool": false,
-      "toon_format": true,
       "prefix": false,
       "format": "cql"
     }
@@ -27,7 +26,6 @@ All configuration lives under `cds.mcp` in your `package.json`:
 | Flag              | Default | Description                                                                                                                                                         |
 | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call` tool.                                                                           |
-| `toon_format`     | `true`  | Return query results in [TOON](https://www.npmjs.com/package/@toon-format/toon) format. Set to `false` to use JSON instead.                                         |
 | `prefix`          | `false` | Prefix tool names with the service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `CatalogService-query`, `AdminService-query`). |
 | `format`          | `"cql"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
 
