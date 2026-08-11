@@ -4,6 +4,12 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 1.4.2 - 2026-08-11
+
+### Fixed
+
+- Use `format: cql` as default if the `cds.mcp.format` option is not applied
+
 ## Version 1.4.1 - 2026-08-07
 
 ### Changed
