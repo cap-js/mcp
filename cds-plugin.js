@@ -13,19 +13,14 @@ cds.on('bootstrap', (app) => {
   const MCP_BLOCK = /(<div id="[^"]+-mcp">[\s\S]*?<\/h3>)[\s\S]*?<\/ul>\s*<\/div>/g
 
   app.get('/', (_req, res, next) => {
-    try {
-      const { path, isfile } = cds.utils
-      const staticIndex = path.join(cds.root, cds.env.folders?.app || 'app/', 'index.html')
-      if (isfile(staticIndex)) return next() // user-provided index.html wins
-      const html = require('@sap/cds/app/index').html.replace(
-        MCP_BLOCK,
-        (_m, head) => `${head}\n      </div>`
-      )
-      return res.type('html').send(html)
-    } catch (e) {
-      DEBUG?.('failed to render patched welcome page:', e.message)
-      return next()
+    const origSend = res.send.bind(res)
+    res.send = (body) => {
+      if (typeof body === 'string') {
+        body = body.replace(MCP_BLOCK, (_m, head) => `${head}\n      </div>`)
+      }
+      return origSend(body)
     }
+    next()
   })
 })
 
