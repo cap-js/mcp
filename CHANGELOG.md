@@ -11,6 +11,10 @@
 - Use `format: cql` as default if the `cds.mcp.format` option is not applied
 - Entities from MCP-enabled services are not shown on index page
 
+### Removed
+
+- Removed the `toon_format` flag, toon is now always the output format 
+
 ## Version 1.4.1 - 2026-08-07
 
 ### Changed
