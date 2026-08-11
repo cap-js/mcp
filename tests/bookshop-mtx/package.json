@@ -20,8 +20,7 @@
   "private": true,
   "cds": {
     "mcp": {
-      "per_action_tool": true,
-      "toon_format": true
+      "per_action_tool": true
     },
     "hana": {
       "fuzzy": false

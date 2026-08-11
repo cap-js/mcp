@@ -2,7 +2,6 @@ const cds = require('@sap/cds')
 const test = cds.test(__dirname + '/../bookshop')
 cds.env.mcp ??= {}
 cds.env.mcp.format = 'cql'
-cds.env.mcp.toon_format = false
 
 const { expect } = test
 const mcpClient = require('./mcp-test-client')(test)

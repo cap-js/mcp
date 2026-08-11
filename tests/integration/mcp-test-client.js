@@ -1,5 +1,3 @@
-const cds = require('@sap/cds')
-
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
   const line = str.split('\n').find((l) => l.startsWith('data: '))
@@ -8,11 +6,7 @@ async function parseResponseStream(data) {
 }
 
 function parseContent(text) {
-  // Check if TOON format is disabled
-  if (cds.env.mcp?.toon_format === false) {
-    return JSON.parse(text)
-  }
-  // Use toon format (default) - require works via Jest mock in tests/setup.js
+  // require works via Vitest mock in tests/setup.js
   const toon = require('@toon-format/toon')
   return toon.decode(text)
 }

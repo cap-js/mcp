@@ -5,7 +5,6 @@ const mcpClient = require('./mcp-test-client')(test)
 
 cds.env.mcp ??= {}
 cds.env.mcp.format = 'cqn'
-cds.env.mcp.toon_format = false
 
 /**
  * F3 fix: expand into inaccessible entities via associations is blocked.
