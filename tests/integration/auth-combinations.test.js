@@ -74,7 +74,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('alice:'),
         odataGet('RequiresAdmin', 'alice:'),
-        mcpQuery('RequiresAdmin', 'alice:'),
+        mcpQuery('RequiresAdmin', 'alice:')
       ])
       expect(entities).to.include('RequiresAdmin')
       expect(odataStatus).to.equal(200)
@@ -85,7 +85,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('eve:'),
         odataGet('RequiresAdmin', 'eve:'),
-        mcpCqlQuery('RequiresAdmin', 'eve:'),
+        mcpCqlQuery('RequiresAdmin', 'eve:')
       ])
       expect(entities).to.not.include('RequiresAdmin')
       expect(odataStatus).to.equal(403)
@@ -96,7 +96,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('bob:'),
         odataGet('RequiresAdmin', 'bob:'),
-        mcpCqlQuery('RequiresAdmin', 'bob:'),
+        mcpCqlQuery('RequiresAdmin', 'bob:')
       ])
       expect(entities).to.not.include('RequiresAdmin')
       expect(odataStatus).to.equal(403)
@@ -107,7 +107,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum(null),
         odataGet('RequiresAdmin', null),
-        mcpCqlQuery('RequiresAdmin', null),
+        mcpCqlQuery('RequiresAdmin', null)
       ])
       expect(entities).to.not.include('RequiresAdmin')
       expect(odataStatus).to.equal(401)
@@ -120,7 +120,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('alice:'),
         odataGet('RequiresAdminOrEditor', 'alice:'),
-        mcpQuery('RequiresAdminOrEditor', 'alice:'),
+        mcpQuery('RequiresAdminOrEditor', 'alice:')
       ])
       expect(entities).to.include('RequiresAdminOrEditor')
       expect(odataStatus).to.equal(200)
@@ -131,7 +131,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('eve:'),
         odataGet('RequiresAdminOrEditor', 'eve:'),
-        mcpQuery('RequiresAdminOrEditor', 'eve:'),
+        mcpQuery('RequiresAdminOrEditor', 'eve:')
       ])
       expect(entities).to.include('RequiresAdminOrEditor')
       expect(odataStatus).to.equal(200)
@@ -142,7 +142,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('bob:'),
         odataGet('RequiresAdminOrEditor', 'bob:'),
-        mcpCqlQuery('RequiresAdminOrEditor', 'bob:'),
+        mcpCqlQuery('RequiresAdminOrEditor', 'bob:')
       ])
       expect(entities).to.not.include('RequiresAdminOrEditor')
       expect(odataStatus).to.equal(403)
@@ -153,7 +153,7 @@ describe('@requires on entity', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum(null),
         odataGet('RequiresAdminOrEditor', null),
-        mcpCqlQuery('RequiresAdminOrEditor', null),
+        mcpCqlQuery('RequiresAdminOrEditor', null)
       ])
       expect(entities).to.not.include('RequiresAdminOrEditor')
       expect(odataStatus).to.equal(401)
@@ -170,7 +170,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('alice:'),
         odataGet('RestrictReadAdmin', 'alice:'),
-        mcpQuery('RestrictReadAdmin', 'alice:'),
+        mcpQuery('RestrictReadAdmin', 'alice:')
       ])
       expect(entities).to.include('RestrictReadAdmin')
       expect(odataStatus).to.equal(200)
@@ -181,7 +181,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('eve:'),
         odataGet('RestrictReadAdmin', 'eve:'),
-        mcpCqlQuery('RestrictReadAdmin', 'eve:'),
+        mcpCqlQuery('RestrictReadAdmin', 'eve:')
       ])
       expect(entities).to.not.include('RestrictReadAdmin')
       expect(odataStatus).to.equal(403)
@@ -192,7 +192,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum(null),
         odataGet('RestrictReadAdmin', null),
-        mcpCqlQuery('RestrictReadAdmin', null),
+        mcpCqlQuery('RestrictReadAdmin', null)
       ])
       expect(entities).to.not.include('RestrictReadAdmin')
       expect(odataStatus).to.equal(401)
@@ -205,7 +205,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('eve:'),
         odataGet('RestrictReadEditor', 'eve:'),
-        mcpQuery('RestrictReadEditor', 'eve:'),
+        mcpQuery('RestrictReadEditor', 'eve:')
       ])
       expect(entities).to.include('RestrictReadEditor')
       expect(odataStatus).to.equal(200)
@@ -216,7 +216,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum('alice:'),
         odataGet('RestrictReadEditor', 'alice:'),
-        mcpCqlQuery('RestrictReadEditor', 'alice:'),
+        mcpCqlQuery('RestrictReadEditor', 'alice:')
       ])
       expect(entities).to.not.include('RestrictReadEditor')
       expect(odataStatus).to.equal(403)
@@ -227,7 +227,7 @@ describe('@restrict: [{ grant: "READ", to: role }]', () => {
       const [entities, odataStatus, mcpError] = await Promise.all([
         getMcpEntityEnum(null),
         odataGet('RestrictReadEditor', null),
-        mcpCqlQuery('RestrictReadEditor', null),
+        mcpCqlQuery('RestrictReadEditor', null)
       ])
       expect(entities).to.not.include('RestrictReadEditor')
       expect(odataStatus).to.equal(401)
@@ -243,7 +243,7 @@ describe('@restrict: [{ grant: "*", to: "admin" }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('alice:'),
       odataGet('RestrictStarAdmin', 'alice:'),
-      mcpQuery('RestrictStarAdmin', 'alice:'),
+      mcpQuery('RestrictStarAdmin', 'alice:')
     ])
     expect(entities).to.include('RestrictStarAdmin')
     expect(odataStatus).to.equal(200)
@@ -254,7 +254,7 @@ describe('@restrict: [{ grant: "*", to: "admin" }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('eve:'),
       odataGet('RestrictStarAdmin', 'eve:'),
-      mcpCqlQuery('RestrictStarAdmin', 'eve:'),
+      mcpCqlQuery('RestrictStarAdmin', 'eve:')
     ])
     expect(entities).to.not.include('RestrictStarAdmin')
     expect(odataStatus).to.equal(403)
@@ -265,7 +265,7 @@ describe('@restrict: [{ grant: "*", to: "admin" }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum(null),
       odataGet('RestrictStarAdmin', null),
-      mcpCqlQuery('RestrictStarAdmin', null),
+      mcpCqlQuery('RestrictStarAdmin', null)
     ])
     expect(entities).to.not.include('RestrictStarAdmin')
     expect(odataStatus).to.equal(401)
@@ -280,7 +280,7 @@ describe('@restrict: [{ grant: "WRITE", to: "admin" }] — no READ grant, READ d
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('alice:'),
       odataGet('RestrictWriteAdmin', 'alice:'),
-      mcpCqlQuery('RestrictWriteAdmin', 'alice:'),
+      mcpCqlQuery('RestrictWriteAdmin', 'alice:')
     ])
     expect(entities).to.not.include('RestrictWriteAdmin')
     expect(odataStatus).to.equal(403)
@@ -291,7 +291,7 @@ describe('@restrict: [{ grant: "WRITE", to: "admin" }] — no READ grant, READ d
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('eve:'),
       odataGet('RestrictWriteAdmin', 'eve:'),
-      mcpCqlQuery('RestrictWriteAdmin', 'eve:'),
+      mcpCqlQuery('RestrictWriteAdmin', 'eve:')
     ])
     expect(entities).to.not.include('RestrictWriteAdmin')
     expect(odataStatus).to.equal(403)
@@ -302,7 +302,7 @@ describe('@restrict: [{ grant: "WRITE", to: "admin" }] — no READ grant, READ d
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum(null),
       odataGet('RestrictWriteAdmin', null),
-      mcpCqlQuery('RestrictWriteAdmin', null),
+      mcpCqlQuery('RestrictWriteAdmin', null)
     ])
     expect(entities).to.not.include('RestrictWriteAdmin')
     expect(odataStatus).to.equal(401)
@@ -317,7 +317,7 @@ describe('@restrict: [{ grant: "READ" }] — no "to", defaults to "any"', () => 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('alice:'),
       odataGet('RestrictNoTo', 'alice:'),
-      mcpQuery('RestrictNoTo', 'alice:'),
+      mcpQuery('RestrictNoTo', 'alice:')
     ])
     expect(entities).to.include('RestrictNoTo')
     expect(odataStatus).to.equal(200)
@@ -328,7 +328,7 @@ describe('@restrict: [{ grant: "READ" }] — no "to", defaults to "any"', () => 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('bob:'),
       odataGet('RestrictNoTo', 'bob:'),
-      mcpQuery('RestrictNoTo', 'bob:'),
+      mcpQuery('RestrictNoTo', 'bob:')
     ])
     expect(entities).to.include('RestrictNoTo')
     expect(odataStatus).to.equal(200)
@@ -339,7 +339,7 @@ describe('@restrict: [{ grant: "READ" }] — no "to", defaults to "any"', () => 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum(null),
       odataGet('RestrictNoTo', null),
-      mcpQuery('RestrictNoTo', null),
+      mcpQuery('RestrictNoTo', null)
     ])
     expect(entities).to.include('RestrictNoTo')
     expect(odataStatus).to.equal(200)
@@ -354,7 +354,7 @@ describe('@restrict: [{ grant: "READ", to: ["admin", "editor"] }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('alice:'),
       odataGet('RestrictMultiRole', 'alice:'),
-      mcpQuery('RestrictMultiRole', 'alice:'),
+      mcpQuery('RestrictMultiRole', 'alice:')
     ])
     expect(entities).to.include('RestrictMultiRole')
     expect(odataStatus).to.equal(200)
@@ -365,7 +365,7 @@ describe('@restrict: [{ grant: "READ", to: ["admin", "editor"] }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('eve:'),
       odataGet('RestrictMultiRole', 'eve:'),
-      mcpQuery('RestrictMultiRole', 'eve:'),
+      mcpQuery('RestrictMultiRole', 'eve:')
     ])
     expect(entities).to.include('RestrictMultiRole')
     expect(odataStatus).to.equal(200)
@@ -376,7 +376,7 @@ describe('@restrict: [{ grant: "READ", to: ["admin", "editor"] }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('bob:'),
       odataGet('RestrictMultiRole', 'bob:'),
-      mcpCqlQuery('RestrictMultiRole', 'bob:'),
+      mcpCqlQuery('RestrictMultiRole', 'bob:')
     ])
     expect(entities).to.not.include('RestrictMultiRole')
     expect(odataStatus).to.equal(403)
@@ -387,7 +387,7 @@ describe('@restrict: [{ grant: "READ", to: ["admin", "editor"] }]', () => {
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum(null),
       odataGet('RestrictMultiRole', null),
-      mcpCqlQuery('RestrictMultiRole', null),
+      mcpCqlQuery('RestrictMultiRole', null)
     ])
     expect(entities).to.not.include('RestrictMultiRole')
     expect(odataStatus).to.equal(401)
@@ -402,7 +402,7 @@ describe('@restrict: [{ grant:"READ", to:"admin" }, { grant:"READ", to:"editor" 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('alice:'),
       odataGet('RestrictMultiPrivilege', 'alice:'),
-      mcpQuery('RestrictMultiPrivilege', 'alice:'),
+      mcpQuery('RestrictMultiPrivilege', 'alice:')
     ])
     expect(entities).to.include('RestrictMultiPrivilege')
     expect(odataStatus).to.equal(200)
@@ -413,7 +413,7 @@ describe('@restrict: [{ grant:"READ", to:"admin" }, { grant:"READ", to:"editor" 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('eve:'),
       odataGet('RestrictMultiPrivilege', 'eve:'),
-      mcpQuery('RestrictMultiPrivilege', 'eve:'),
+      mcpQuery('RestrictMultiPrivilege', 'eve:')
     ])
     expect(entities).to.include('RestrictMultiPrivilege')
     expect(odataStatus).to.equal(200)
@@ -424,7 +424,7 @@ describe('@restrict: [{ grant:"READ", to:"admin" }, { grant:"READ", to:"editor" 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum('viewer:'),
       odataGet('RestrictMultiPrivilege', 'viewer:'),
-      mcpCqlQuery('RestrictMultiPrivilege', 'viewer:'),
+      mcpCqlQuery('RestrictMultiPrivilege', 'viewer:')
     ])
     expect(entities).to.not.include('RestrictMultiPrivilege')
     expect(odataStatus).to.equal(403)
@@ -435,7 +435,7 @@ describe('@restrict: [{ grant:"READ", to:"admin" }, { grant:"READ", to:"editor" 
     const [entities, odataStatus, mcpError] = await Promise.all([
       getMcpEntityEnum(null),
       odataGet('RestrictMultiPrivilege', null),
-      mcpCqlQuery('RestrictMultiPrivilege', null),
+      mcpCqlQuery('RestrictMultiPrivilege', null)
     ])
     expect(entities).to.not.include('RestrictMultiPrivilege')
     expect(odataStatus).to.equal(401)
@@ -461,7 +461,7 @@ describe('RequiresAndRestrictAdmin — @requires: "admin" (cross-check with Rest
   it('alice: OData status matches between @requires and @restrict[grant:"*"]', async () => {
     const [r1, r2] = await Promise.all([
       odataGet('RequiresAndRestrictAdmin', 'alice:'),
-      odataGet('RestrictStarAdmin', 'alice:'),
+      odataGet('RestrictStarAdmin', 'alice:')
     ])
     expect(r1).to.equal(r2).and.equal(200)
   })
@@ -469,7 +469,7 @@ describe('RequiresAndRestrictAdmin — @requires: "admin" (cross-check with Rest
   it('bob: OData status matches between @requires and @restrict[grant:"*"]', async () => {
     const [r1, r2] = await Promise.all([
       odataGet('RequiresAndRestrictAdmin', 'bob:'),
-      odataGet('RestrictStarAdmin', 'bob:'),
+      odataGet('RestrictStarAdmin', 'bob:')
     ])
     expect(r1).to.equal(r2).and.equal(403)
   })
@@ -477,7 +477,7 @@ describe('RequiresAndRestrictAdmin — @requires: "admin" (cross-check with Rest
   it('unauthenticated: OData status matches between @requires and @restrict[grant:"*"]', async () => {
     const [r1, r2] = await Promise.all([
       odataGet('RequiresAndRestrictAdmin', null),
-      odataGet('RestrictStarAdmin', null),
+      odataGet('RestrictStarAdmin', null)
     ])
     expect(r1).to.equal(r2).and.equal(401)
   })
@@ -511,19 +511,37 @@ describe('@requires on actions', () => {
     })
 
     it('alice (admin): OData action call returns 200', async () => {
-      const headers = { Authorization: `Basic ${Buffer.from('alice:').toString('base64')}`, 'Content-Type': 'application/json' }
-      const res = await fetch(`${test.url}${ODATA}/adminAction`, { method: 'POST', headers, body: JSON.stringify({ x: 1 }) })
+      const headers = {
+        Authorization: `Basic ${Buffer.from('alice:').toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+      const res = await fetch(`${test.url}${ODATA}/adminAction`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ x: 1 })
+      })
       expect(res.status).to.equal(200)
     })
 
     it('bob (no roles): OData action call returns 403', async () => {
-      const headers = { Authorization: `Basic ${Buffer.from('bob:').toString('base64')}`, 'Content-Type': 'application/json' }
-      const res = await fetch(`${test.url}${ODATA}/adminAction`, { method: 'POST', headers, body: JSON.stringify({ x: 1 }) })
+      const headers = {
+        Authorization: `Basic ${Buffer.from('bob:').toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+      const res = await fetch(`${test.url}${ODATA}/adminAction`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ x: 1 })
+      })
       expect(res.status).to.equal(403)
     })
 
     it('unauthenticated: OData action call returns 401', async () => {
-      const res = await fetch(`${test.url}${ODATA}/adminAction`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ x: 1 }) })
+      const res = await fetch(`${test.url}${ODATA}/adminAction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ x: 1 })
+      })
       expect(res.status).to.equal(401)
     })
   })
@@ -581,14 +599,28 @@ describe('@restrict on actions (grant ignored, only "to" enforced)', () => {
     })
 
     it('alice (admin): OData action call returns 200', async () => {
-      const headers = { Authorization: `Basic ${Buffer.from('alice:').toString('base64')}`, 'Content-Type': 'application/json' }
-      const res = await fetch(`${test.url}${ODATA}/restrictedAction`, { method: 'POST', headers, body: JSON.stringify({ x: 1 }) })
+      const headers = {
+        Authorization: `Basic ${Buffer.from('alice:').toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+      const res = await fetch(`${test.url}${ODATA}/restrictedAction`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ x: 1 })
+      })
       expect(res.status).to.equal(200)
     })
 
     it('eve (editor): OData action call returns 403', async () => {
-      const headers = { Authorization: `Basic ${Buffer.from('eve:').toString('base64')}`, 'Content-Type': 'application/json' }
-      const res = await fetch(`${test.url}${ODATA}/restrictedAction`, { method: 'POST', headers, body: JSON.stringify({ x: 1 }) })
+      const headers = {
+        Authorization: `Basic ${Buffer.from('eve:').toString('base64')}`,
+        'Content-Type': 'application/json'
+      }
+      const res = await fetch(`${test.url}${ODATA}/restrictedAction`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ x: 1 })
+      })
       expect(res.status).to.equal(403)
     })
   })
