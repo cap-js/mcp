@@ -4,6 +4,12 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Version 1.4.3 - TBD
+
+### Fixed
+
+- Entity `@requires` and action `@restrict` annotations are now respected when filtering tool context
+
 ## Version 1.4.2 - 2026-08-11
 
 ### Fixed
