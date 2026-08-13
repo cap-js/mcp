@@ -645,3 +645,213 @@ describe('MCP call tool presence rules', () => {
     expect(actions).to.include('openAction')
   })
 })
+
+// ─── Service-level @requires / @restrict ─────────────────────────────────────
+//
+// Mirrors CAP HTTP protocol adapter's `authorize` semantics
+// (@sap/cds/lib/srv/protocols/http.js — `get authorize()`):
+//
+//   - @requires on service          → all requests must match a role
+//   - @restrict on service          → 'to' roles across all clauses; if none,
+//                                     falls through to env fallback:
+//                                       prod + restrict_all_services !== false
+//                                         → ['authenticated-user']
+//                                       otherwise → public
+//
+// Both MCP (via checkServiceAccess) and OData (via CAP's HttpAdapter) must
+// enforce these gates identically.
+
+async function mcpRawStatus(path, auth) {
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/event-stream'
+  }
+  if (auth) headers['Authorization'] = `Basic ${Buffer.from(auth).toString('base64')}`
+  const res = await fetch(`${test.url}${path}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} })
+  })
+  return res.status
+}
+
+async function odataRootStatus(path, auth) {
+  const headers = { Accept: 'application/json' }
+  if (auth) headers['Authorization'] = `Basic ${Buffer.from(auth).toString('base64')}`
+  const res = await fetch(`${test.url}${path}/Books`, { headers })
+  return res.status
+}
+
+describe('Service-level @requires — @requires: "admin"', () => {
+  const MCP_PATH = '/mcp/service-requires-admin'
+  const ODATA_PATH = '/odata/v4/service-requires-admin'
+
+  it('alice (admin): MCP and OData both grant access', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, 'alice:'),
+      odataRootStatus(ODATA_PATH, 'alice:')
+    ])
+    expect(mcp).to.equal(200)
+    expect(odata).to.equal(200)
+  })
+
+  it('bob (no roles): both surfaces return 403', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, 'bob:'),
+      odataRootStatus(ODATA_PATH, 'bob:')
+    ])
+    expect(mcp).to.equal(403)
+    expect(odata).to.equal(403)
+  })
+
+  it('unauthenticated: both surfaces return 401', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, null),
+      odataRootStatus(ODATA_PATH, null)
+    ])
+    expect(mcp).to.equal(401)
+    expect(odata).to.equal(401)
+  })
+})
+
+describe('Service-level @restrict — @restrict: [{ grant: "READ", to: "admin" }]', () => {
+  const MCP_PATH = '/mcp/service-restrict-admin'
+  const ODATA_PATH = '/odata/v4/service-restrict-admin'
+
+  it('alice (admin): MCP and OData both grant access', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, 'alice:'),
+      odataRootStatus(ODATA_PATH, 'alice:')
+    ])
+    expect(mcp).to.equal(200)
+    expect(odata).to.equal(200)
+  })
+
+  it('bob (no roles): both surfaces return 403', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, 'bob:'),
+      odataRootStatus(ODATA_PATH, 'bob:')
+    ])
+    expect(mcp).to.equal(403)
+    expect(odata).to.equal(403)
+  })
+
+  it('unauthenticated: both surfaces return 401', async () => {
+    const [mcp, odata] = await Promise.all([
+      mcpRawStatus(MCP_PATH, null),
+      odataRootStatus(ODATA_PATH, null)
+    ])
+    expect(mcp).to.equal(401)
+    expect(odata).to.equal(401)
+  })
+})
+
+describe('Service-level @restrict — multiple "to" roles', () => {
+  const MCP_PATH = '/mcp/service-restrict-admin-or-editor'
+  const ODATA_PATH = '/odata/v4/service-restrict-admin-or-editor'
+
+  it('alice (admin): granted', async () => {
+    expect(await mcpRawStatus(MCP_PATH, 'alice:')).to.equal(200)
+    expect(await odataRootStatus(ODATA_PATH, 'alice:')).to.equal(200)
+  })
+
+  it('eve (editor): granted', async () => {
+    expect(await mcpRawStatus(MCP_PATH, 'eve:')).to.equal(200)
+    expect(await odataRootStatus(ODATA_PATH, 'eve:')).to.equal(200)
+  })
+
+  it('bob (no roles): 403', async () => {
+    expect(await mcpRawStatus(MCP_PATH, 'bob:')).to.equal(403)
+    expect(await odataRootStatus(ODATA_PATH, 'bob:')).to.equal(403)
+  })
+
+  it('unauthenticated: 401', async () => {
+    expect(await mcpRawStatus(MCP_PATH, null)).to.equal(401)
+    expect(await odataRootStatus(ODATA_PATH, null)).to.equal(401)
+  })
+})
+
+describe('Service-level @restrict without "to" — env fallback', () => {
+  const MCP_PATH = '/mcp/service-restrict-no-to'
+  const ODATA_PATH = '/odata/v4/service-restrict-no-to'
+
+  describe('dev (NODE_ENV !== "production"): public — everyone including anonymous', () => {
+    // Base config: development. NODE_ENV is not explicitly set to production here.
+    it('alice (admin): 200', async () => {
+      expect(await mcpRawStatus(MCP_PATH, 'alice:')).to.equal(200)
+      expect(await odataRootStatus(ODATA_PATH, 'alice:')).to.equal(200)
+    })
+
+    it('bob (no roles): 200', async () => {
+      expect(await mcpRawStatus(MCP_PATH, 'bob:')).to.equal(200)
+      expect(await odataRootStatus(ODATA_PATH, 'bob:')).to.equal(200)
+    })
+
+    it('unauthenticated: 200 on MCP (OData may still gate via other middleware)', async () => {
+      // MCP has no outer auth middleware — anonymous reaches checkServiceAccess and passes.
+      expect(await mcpRawStatus(MCP_PATH, null)).to.equal(200)
+    })
+  })
+
+  describe('prod (NODE_ENV === "production"): authenticated-user fallback', () => {
+    let savedNodeEnv
+    let savedRestrictAll
+    let restrictAllWasSet
+
+    beforeAll(() => {
+      savedNodeEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'production'
+      cds.env.requires ??= {}
+      cds.env.requires.auth ??= {}
+      restrictAllWasSet = 'restrict_all_services' in cds.env.requires.auth
+      savedRestrictAll = cds.env.requires.auth.restrict_all_services
+      cds.env.requires.auth.restrict_all_services = true
+    })
+
+    afterAll(() => {
+      if (savedNodeEnv === undefined) delete process.env.NODE_ENV
+      else process.env.NODE_ENV = savedNodeEnv
+      if (restrictAllWasSet) cds.env.requires.auth.restrict_all_services = savedRestrictAll
+      else delete cds.env.requires.auth.restrict_all_services
+    })
+
+    it('alice (admin): 200 (authenticated-user is satisfied)', async () => {
+      expect(await mcpRawStatus(MCP_PATH, 'alice:')).to.equal(200)
+    })
+
+    it('bob (no roles): 200 (authenticated-user is satisfied)', async () => {
+      expect(await mcpRawStatus(MCP_PATH, 'bob:')).to.equal(200)
+    })
+
+    it('unauthenticated: 401 on MCP', async () => {
+      expect(await mcpRawStatus(MCP_PATH, null)).to.equal(401)
+    })
+  })
+
+  describe('prod with restrict_all_services=false: public again', () => {
+    let savedNodeEnv
+    let savedRestrictAll
+    let restrictAllWasSet
+
+    beforeAll(() => {
+      savedNodeEnv = process.env.NODE_ENV
+      process.env.NODE_ENV = 'production'
+      cds.env.requires ??= {}
+      cds.env.requires.auth ??= {}
+      restrictAllWasSet = 'restrict_all_services' in cds.env.requires.auth
+      savedRestrictAll = cds.env.requires.auth.restrict_all_services
+      cds.env.requires.auth.restrict_all_services = false
+    })
+
+    afterAll(() => {
+      if (savedNodeEnv === undefined) delete process.env.NODE_ENV
+      else process.env.NODE_ENV = savedNodeEnv
+      if (restrictAllWasSet) cds.env.requires.auth.restrict_all_services = savedRestrictAll
+      else delete cds.env.requires.auth.restrict_all_services
+    })
+
+    it('unauthenticated: 200 on MCP (opt-out disables the prod fallback)', async () => {
+      expect(await mcpRawStatus(MCP_PATH, null)).to.equal(200)
+    })
+  })
+})
