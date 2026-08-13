@@ -4,6 +4,10 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+### Fixed
+
+- Correctly access target name when executing generic read CQL
+
 ## Version 1.4.2 - 2026-08-13
 
 ### Fixed
