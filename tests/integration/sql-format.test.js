@@ -176,6 +176,21 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(2)
     })
+
+    it('supports infix filter on FROM entity', async () => {
+      const { callTool } = mcpClient('/mcp/admin', 'alice:')
+      const { content, error } = await callTool('query', {
+        cql: "select from Authors[contains(placeOfBirth,'Thornton')] { name, books { title, price } }"
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      // Emily and Charlotte Brontë were both born in Thornton, Yorkshire
+      const names = content.data.map((a) => a.name)
+      expect(names).to.include('Emily Brontë')
+      expect(names).to.include('Charlotte Brontë')
+      // expand into books must be present as an array
+      content.data.forEach((a) => expect(a.books).to.be.an('array'))
+    })
   })
 
   describe('Security — cross-service access prevention', () => {
