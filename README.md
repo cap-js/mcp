@@ -1,3 +1,5 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/cap-js/mcp)](https://api.reuse.software/info/github.com/cap-js/mcp)
+
 # About this project
 
 This is a protocol adapter for the [Model Context Protocol](https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro) to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
