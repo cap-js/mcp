@@ -41,7 +41,7 @@
     "agent"
   ],
   "author": "SAP SE (https://www.sap.com)",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "Apache-2.0",
   "cds": {
     "protocols": {
       "mcp": {
