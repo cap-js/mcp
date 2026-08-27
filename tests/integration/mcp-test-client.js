@@ -1,5 +1,3 @@
-const { decode } = require('@toon-format/toon');
-
 async function parseResponseStream(data) {
   const str = typeof data === 'string' ? data : await new Response(data).text()
   const line = str.split('\n').find((l) => l.startsWith('data: '))
@@ -7,62 +5,68 @@ async function parseResponseStream(data) {
   return JSON.parse(line.slice(6))
 }
 
+function parseContent(text) {
+  // require works via Vitest mock in tests/setup.js
+  const toon = require('@toon-format/toon')
+  return toon.decode(text)
+}
+
 module.exports =
   (test) =>
-    (endpoint = '/mcp/catalog', auth = null, locale = null) => {
-      let requestId = 0
+  (endpoint = '/mcp/catalog', auth = null, locale = null) => {
+    let requestId = 0
 
-      const getHeaders = () => {
-        const headers = {
-          'Content-Type': 'application/json',
-          Accept: 'application/json, text/event-stream'
-        }
-        if (auth) {
-          headers['Authorization'] = `Basic ${Buffer.from(auth).toString('base64')}`
-        }
-        if (locale) {
-          headers['Accept-Language'] = locale
-        }
-        return headers
+    const getHeaders = () => {
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream'
       }
-
-      const mcp = async (method, params = {}) => {
-        try {
-          const response = await test.POST(
-            endpoint,
-            { jsonrpc: '2.0', id: ++requestId, method, params },
-            { headers: getHeaders() }
-          )
-          return parseResponseStream(response.data)
-        } catch (err) {
-          // Handle HTTP errors (401, 403) from authorization failures
-          if (err.response?.data) return err.response.data
-          return { error: { message: err.message } }
-        }
+      if (auth) {
+        headers['Authorization'] = `Basic ${Buffer.from(auth).toString('base64')}`
       }
-
-      const initialize = () =>
-        mcp('initialize', {
-          protocolVersion: '2025-11-25',
-          capabilities: {},
-          clientInfo: { name: 'test-client', version: '1.0.0' }
-        })
-
-      const callTool = async (name, args = {}) => {
-        try {
-          const res = await mcp('tools/call', { name, arguments: args })
-          if (res.error) {
-            return { ...res, content: null, error: res.error.message }
-          }
-          return {
-            ...res,
-            content: res.result.isError ? null : decode(res.result.content[0].text),
-            error: res.result.isError ? res.result.content[0].text : null
-          }
-        } catch (err) {
-          return { content: null, error: `callTool(${name}) failed: ${err.message}` }
-        }
+      if (locale) {
+        headers['Accept-Language'] = locale
       }
-
-      return { mcp, callTool, initialize }
+      return headers
     }
+
+    const mcp = async (method, params = {}) => {
+      try {
+        const response = await test.POST(
+          endpoint,
+          { jsonrpc: '2.0', id: ++requestId, method, params },
+          { headers: getHeaders() }
+        )
+        return parseResponseStream(response.data)
+      } catch (err) {
+        // Handle HTTP errors (401, 403) from authorization failures
+        if (err.response?.data) return err.response.data
+        return { error: { message: err.message } }
+      }
+    }
+
+    const initialize = () =>
+      mcp('initialize', {
+        protocolVersion: '2025-11-25',
+        capabilities: {},
+        clientInfo: { name: 'test-client', version: '1.0.0' }
+      })
+
+    const callTool = async (name, args = {}) => {
+      try {
+        const res = await mcp('tools/call', { name, arguments: args })
+        if (res.error) {
+          return { ...res, content: null, error: res.error.message }
+        }
+        return {
+          ...res,
+          content: res.result.isError ? null : parseContent(res.result.content[0].text),
+          error: res.result.isError ? res.result.content[0].text : null
+        }
+      } catch (err) {
+        return { content: null, error: `callTool(${name}) failed: ${err.message}` }
+      }
+    }
+
+    return { mcp, callTool, initialize }
+  }
