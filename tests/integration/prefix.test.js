@@ -44,6 +44,13 @@ describe('Tool Name Prefix (global prefix: true)', () => {
     expect(content.data.length).to.be.greaterThan(0)
   })
 
+  it('query tool description considers prefix for describe', async () => {
+    const response = await mcp('tools/list')
+    const queryTool = response.result.tools.find((t) => t.name === 'CatalogService-query')
+    expect(queryTool).to.exist
+    expect(queryTool.description).to.include('CatalogService-describe')
+  })
+
   it('prefixed call tool works', async () => {
     const { content, error } = await callTool('CatalogService-call', {
       action: 'sum',
