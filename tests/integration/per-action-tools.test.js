@@ -194,6 +194,17 @@ describe('Per-Action Tools', () => {
       expect(tool.inputSchema.properties).to.have.property('prop1')
       expect(tool.inputSchema.properties.prop1.type).to.equal('string')
     })
+
+    it('should not expose describe tool when no entities are exposed', async () => {
+      // ActionOnlyService only exposes the action 'myAction'
+      const { mcp } = mcpClient('/mcp/action-only')
+      const response = await mcp('tools/list')
+      const toolNames = response.result.tools.map((t) => t.name)
+      expect(toolNames).to.include('myAction')
+      expect(toolNames).not.to.include('describe')
+      expect(toolNames).not.to.include('query')
+      expect(toolNames).not.to.include('call')
+    })
   })
 
   describe('calling per-action tools with complex types', () => {

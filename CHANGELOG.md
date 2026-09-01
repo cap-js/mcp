@@ -4,11 +4,15 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.4.4 - tbd
+## Version 1.4.4 - tdb
+
+### Changed
+
+- Skip `describe` tool when `per_action_tool` is enabled and the service exposes only actions/functions (no entities)
 
 ### Fixed
 
-- Consider the prefix in description of the `query` tool
+- Consider the prefix in the `query` tool description
 
 ## Version 1.4.3 - 2026-08-14
 
