@@ -18,7 +18,7 @@
   "tools": [
     {
       "name": "query",
-      "description": "Query any entity in CatalogService service.Ensure to first use the `describe` tool to discover an entity's available fields.",
+      "description": "Query any entity in CatalogService service. Ensure to first use the describe tool to discover an entity's available fields.",
       "inputSchema": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",

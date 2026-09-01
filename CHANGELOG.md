@@ -10,6 +10,10 @@
 
 - Skip `describe` tool when `per_action_tool` is enabled and the service exposes only actions/functions (no entities)
 
+### Fixed
+
+- Consider the prefix in the `query` tool description
+
 ## Version 1.4.3 - 2026-08-14
 
 ### Fixed
