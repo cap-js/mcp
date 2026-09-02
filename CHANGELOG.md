@@ -13,6 +13,7 @@
 ### Fixed
 
 - Consider the prefix in the `query` tool description
+- `query` tool resolves unqualified entity names in CQL (e.g. `SELECT from User` instead of `SELECT from TsService.User`)
 
 ## Version 1.4.3 - 2026-08-14
 

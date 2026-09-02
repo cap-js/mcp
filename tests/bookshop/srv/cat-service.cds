@@ -65,6 +65,12 @@ service CatalogService {
     quantity: Integer,
     email: String
   );
+
+  // Directly-defined entity (not a projection) — used to test unqualified CQL resolution.
+  entity Note {
+    key ID   : UUID;
+        text : String;
+  }
 }
 
 annotate CatalogService.Books with {
