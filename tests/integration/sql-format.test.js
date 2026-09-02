@@ -86,6 +86,16 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       expect(error).to.not.be.null
     })
 
+    it('returns clear error when FROM clause is missing', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('query', {
+        cql: 'SELECT Books'
+      })
+      expect(error).to.not.be.null
+      expect(error).to.match(/missing a FROM clause/i)
+      expect(error).to.not.match(/Cannot read properties of undefined/i)
+    })
+
     it('returns count in result', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
