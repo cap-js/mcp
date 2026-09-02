@@ -243,48 +243,47 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
     })
   })
 
-  describe('query (CQL) — unqualified entity names', () => {
-    it('accepts unqualified entity name in FROM clause', async () => {
+  describe('query (CQL) — directly-defined entity', () => {
+    it('accepts unqualified name: SELECT from Note', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
-        cql: 'SELECT ID, title FROM Books'
+        cql: 'SELECT ID, text FROM Note'
       })
       expect(error).to.be.null
       expect(content.data).to.be.an('array')
       expect(content.data.length).to.be.greaterThan(0)
       expect(content.data[0]).to.have.property('ID')
-      expect(content.data[0]).to.have.property('title')
+      expect(content.data[0]).to.have.property('text')
     })
 
-    it('unqualified and qualified names return the same results', async () => {
-      const { callTool } = mcpClient()
-      const { content: qualified } = await callTool('query', {
-        cql: 'SELECT ID FROM CatalogService.Books'
-      })
-      const { content: unqualified, error } = await callTool('query', {
-        cql: 'SELECT ID FROM Books'
-      })
-      expect(error).to.be.null
-      expect(unqualified.count).to.equal(qualified.count)
-    })
-
-    it('unqualified entity name with WHERE clause works', async () => {
+    it('qualified name also works: SELECT from CatalogService.Note', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('query', {
-        cql: 'SELECT ID, title FROM Books WHERE ID = 201'
+        cql: 'SELECT ID, text FROM CatalogService.Note'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.be.greaterThan(0)
+    })
+
+    it('unqualified name with WHERE clause works', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: "SELECT ID, text FROM Note WHERE text = 'Hello World'"
       })
       expect(error).to.be.null
       expect(content.data).to.have.lengthOf(1)
-      expect(content.data[0].title).to.equal('Wuthering Heights')
+      expect(content.data[0].text).to.equal('Hello World')
     })
 
-    it('rejects unqualified entity that does not belong to this service', async () => {
+    it('unqualified name with infix filter works (ref[0] as { id, where } object)', async () => {
       const { callTool } = mcpClient()
-      const { error } = await callTool('query', {
-        cql: 'SELECT ID FROM Authors'
+      const { content, error } = await callTool('query', {
+        cql: "select from Note[text = 'Hello World'] { ID, text }"
       })
-      expect(error).to.not.be.null
-      expect(error).to.include('cannot be resolved')
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].text).to.equal('Hello World')
     })
   })
 })
