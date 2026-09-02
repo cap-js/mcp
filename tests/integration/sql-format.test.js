@@ -242,4 +242,49 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       }
     })
   })
+
+  describe('query (CQL) — unqualified entity names', () => {
+    it('accepts unqualified entity name in FROM clause', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: 'SELECT ID, title FROM Books'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.be.greaterThan(0)
+      expect(content.data[0]).to.have.property('ID')
+      expect(content.data[0]).to.have.property('title')
+    })
+
+    it('unqualified and qualified names return the same results', async () => {
+      const { callTool } = mcpClient()
+      const { content: qualified } = await callTool('query', {
+        cql: 'SELECT ID FROM CatalogService.Books'
+      })
+      const { content: unqualified, error } = await callTool('query', {
+        cql: 'SELECT ID FROM Books'
+      })
+      expect(error).to.be.null
+      expect(unqualified.count).to.equal(qualified.count)
+    })
+
+    it('unqualified entity name with WHERE clause works', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: 'SELECT ID, title FROM Books WHERE ID = 201'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].title).to.equal('Wuthering Heights')
+    })
+
+    it('rejects unqualified entity that does not belong to this service', async () => {
+      const { callTool } = mcpClient()
+      const { error } = await callTool('query', {
+        cql: 'SELECT ID FROM Authors'
+      })
+      expect(error).to.not.be.null
+      expect(error).to.include('cannot be resolved')
+    })
+  })
 })
