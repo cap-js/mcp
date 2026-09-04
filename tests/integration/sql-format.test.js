@@ -252,4 +252,48 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       }
     })
   })
+
+  describe('query (CQL) — directly-defined entity', () => {
+    it('accepts unqualified name: SELECT from User', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: 'SELECT ID, text FROM User'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.be.greaterThan(0)
+      expect(content.data[0]).to.have.property('ID')
+      expect(content.data[0]).to.have.property('text')
+    })
+
+    it('qualified name also works: SELECT from CatalogService.User', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: 'SELECT ID, text FROM CatalogService.User'
+      })
+      expect(error).to.be.null
+      expect(content.data).to.be.an('array')
+      expect(content.data.length).to.be.greaterThan(0)
+    })
+
+    it('unqualified name with WHERE clause works', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: "SELECT ID, text FROM User WHERE text = 'Hello World'"
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].text).to.equal('Hello World')
+    })
+
+    it('unqualified name with infix filter works (ref[0] as { id, where } object)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('query', {
+        cql: "select from User[text = 'Hello World'] { ID, text }"
+      })
+      expect(error).to.be.null
+      expect(content.data).to.have.lengthOf(1)
+      expect(content.data[0].text).to.equal('Hello World')
+    })
+  })
 })
