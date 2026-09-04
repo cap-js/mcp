@@ -66,8 +66,8 @@ service CatalogService {
     email: String
   );
 
-  // Directly-defined entity (not a projection) — used to test unqualified CQL resolution.
-  entity Note {
+  // Entity named `User` — same as the built-in type in cds.common - used to test unqualified CQL resolution.
+  entity User {
     key ID   : UUID;
         text : String;
   }
