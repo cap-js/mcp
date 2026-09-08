@@ -65,6 +65,12 @@ service CatalogService {
     quantity: Integer,
     email: String
   );
+
+  // Entity named `User` — same as the built-in type in cds.common - used to test unqualified CQL resolution.
+  entity User {
+    key ID   : UUID;
+        text : String;
+  }
 }
 
 annotate CatalogService.Books with {
