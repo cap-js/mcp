@@ -9,39 +9,11 @@ This is a protocol adapter for the [Model Context Protocol](https://modelcontext
 >
 > The [SAP API Policy](https://help.sap.com/doc/sap-api-policy) remains applicable even when exposing data via MCP. Before exposing any SAP service or data through an MCP endpoint, ensure your use case complies with the SAP API Policy and any applicable licensing terms.
 
-## Feature Flags
 
-All configuration lives under `cds.mcp` in your `package.json`:
+## Usage
 
-```json
-{
-  "cds": {
-    "mcp": {
-      "per_action_tool": false,
-      "prefix": false,
-      "format": "cql"
-    }
-  }
-}
-```
+For detailed instructions about setup and usage, refer to the [official documentation](https://cap.cloud.sap/docs/guides/ai/cap-mcp).
 
-| Flag              | Default | Description                                                                                                                                                         |
-| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `per_action_tool` | `false` | Expose each action/function as its own dedicated tool instead of the generic `call` tool.                                                                           |
-| `prefix`          | `false` | Prefix tool names with the service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `CatalogService-query`, `AdminService-query`). |
-| `format`          | `"cql"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
-
-For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/ai/cap-mcp).
-
-## Custom Server Instructions
-
-You can customize the MCP server instructions sent to agents during initialization using the `@mcp.instructions` annotation:
-
-```cds
-annotate MyService with @mcp.instructions: 'Use describe to explore the product catalog. Use query to search products by name or category.';
-```
-
-If not set, a default instruction is used. The annotation also supports i18n references (`{i18n>key}`).
 
 ## Support, Feedback, Contributing
 
