@@ -2,7 +2,7 @@
 
 # About this project
 
-This is a protocol adapter for the [Model Context Protocol](https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro) to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
+This is a protocol adapter for the [Model Context Protocol](https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro) to expose CAP services for agent consumption. For more information, check the official [documentation](https://cap.cloud.sap/docs/guides/ai/cap-mcp).
 
 > [!IMPORTANT]
 > **SAP API Policy Applies**
@@ -31,7 +31,7 @@ All configuration lives under `cds.mcp` in your `package.json`:
 | `prefix`          | `false` | Prefix tool names with the service name to avoid collisions when a MCP client connects to multiple MCP servers (e.g. `CatalogService-query`, `AdminService-query`). |
 | `format`          | `"cql"` | Change the `query` input format. `"cqn"` uses structured CQN input. `"cql"` uses CQL `SELECT` statement                                                             |
 
-For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/protocols/mcp).
+For all other configuration options, refer to the official [documentation](https://cap.cloud.sap/docs/guides/ai/cap-mcp).
 
 ## Custom Server Instructions
 
