@@ -24,7 +24,6 @@ cds.on('bootstrap', () => {
 
 const test = cds.test(__dirname + '/../bookshop')
 const { expect } = test
-const { executePerActionTool } = require('../../lib/tools')
 
 describe('Custom MCP Client Registration', () => {
   describe('export()', () => {

@@ -6,7 +6,6 @@ const execAsync = promisify(exec)
 const bookshopPath = path.join(__dirname, '../bookshop')
 
 describe('cds compile -2 mcp', () => {
-
   // REVISIT: Skip test as it relies on auto-exposed entity Genres
   // BTW: Snapshots are really bad practice!
   it.skip('matches expected server card snapshot', async () => {
