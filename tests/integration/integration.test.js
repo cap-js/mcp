@@ -1729,7 +1729,8 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // Genres and Currencies have @cds.autoexpose - READ is allowed
-      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      expect(entityEnum).to.include.members(['Genres'])
+      expect(entityEnum).to.not.include.members(['Currencies'])
       // Composition-only autoexposed entities should be filtered out
       expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
