@@ -9,11 +9,9 @@ This is a protocol adapter for the [Model Context Protocol](https://modelcontext
 >
 > The [SAP API Policy](https://help.sap.com/doc/sap-api-policy) remains applicable even when exposing data via MCP. Before exposing any SAP service or data through an MCP endpoint, ensure your use case complies with the SAP API Policy and any applicable licensing terms.
 
-
 ## Usage
 
 For detailed instructions about setup and usage, refer to the [official documentation](https://cap.cloud.sap/docs/guides/ai/cap-mcp).
-
 
 ## Support, Feedback, Contributing
 
