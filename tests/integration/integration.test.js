@@ -1696,8 +1696,10 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const response = await mcp('tools/list')
       const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
-      // Genres and Currencies have @cds.autoexpose - READ is allowed
-      expect(entityEnum).to.include.members(['Genres', 'Currencies'])
+      // Genres are explicitly exposed
+      expect(entityEnum).to.include.members(['Genres'])
+      // Currencies are @cds.autoexposed
+      expect(entityEnum).to.not.include.members(['Currencies'])
       // Composition-only autoexposed entities should be filtered out
       expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
@@ -1710,7 +1712,8 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const { content, error } = await callTool('describe')
       expect(error).to.be.null
       const entityNames = Object.keys(content.entities)
-      expect(entityNames).to.include.members(['Genres', 'Currencies'])
+      expect(entityNames).to.include.members(['Genres'])
+      expect(entityNames).to.not.include.members(['Currencies'])
       expect(entityNames).to.not.include('Books.chapters')
       expect(entityNames).to.not.include('Books')
       expect(entityNames).to.not.include('Authors')
