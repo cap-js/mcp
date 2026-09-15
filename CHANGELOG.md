@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Compiler-generated `.drafts` and `.texts` entities were erroneously exposed via MCP. They are skipped now, as intended.
 - Consider the prefix in the `query` tool description
 - `query` tool resolves unqualified entity names in CQL (e.g. `SELECT from User` instead of `SELECT from TsService.User`)
 - `query` tool returns a clear error when a `SELECT` statement is missing its `FROM` clause
