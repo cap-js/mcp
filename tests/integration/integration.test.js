@@ -88,8 +88,9 @@ describe('describe', () => {
     const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
     const chapterElement = content.entities.Books.elements.chapters
-    expect(chapterElement.type).to.equal('Composition (1-*)')
+    expect(chapterElement.type).to.equal('Composition')
     expect(chapterElement).to.have.property('target')
+    expect(chapterElement).to.have.property('many',true)
   })
 
   it('excludes draft elements from draft-enabled entities', async () => {
@@ -124,11 +125,11 @@ describe('describe', () => {
     const { content, error } = await callTool('describe')
     expect(error).to.be.null
     const entityNames = Object.keys(content.entities)
-    // Books.chapters is @cds.autoexposed (composition target) - should be filtered out
-    expect(entityNames).to.not.include('Books.chapters')
-    // Entities with @cds.autoexpose (CodeLists) should still be present
-    // expect(entityNames).to.include('Genres')
-    // expect(entityNames).to.include('Currencies')
+    // Books.chapters is a composition target -> should be served
+    expect(entityNames).to.include('Books.chapters')
+    // Entities with @cds.autoexpose (CodeLists) should be skipped
+    expect(entityNames).to.not.include('Genres')
+    expect(entityNames).to.not.include('Currencies')
   })
 
   it('lists actions in describe output', async () => {
@@ -1697,9 +1698,9 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // Genres are explicitly exposed
-      expect(entityEnum).to.include.members(['Genres'])
+      expect(entityEnum).to.include('Genres')
       // Currencies are @cds.autoexposed
-      expect(entityEnum).to.not.include.members(['Currencies'])
+      expect(entityEnum).to.not.include('Currencies')
       // Composition-only autoexposed entities should be filtered out
       expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
@@ -1712,8 +1713,8 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const { content, error } = await callTool('describe')
       expect(error).to.be.null
       const entityNames = Object.keys(content.entities)
-      expect(entityNames).to.include.members(['Genres'])
-      expect(entityNames).to.not.include.members(['Currencies'])
+      expect(entityNames).to.include('Genres')
+      expect(entityNames).to.not.include('Currencies')
       expect(entityNames).to.not.include('Books.chapters')
       expect(entityNames).to.not.include('Books')
       expect(entityNames).to.not.include('Authors')
@@ -1729,8 +1730,8 @@ describe('Entity-Level Authorization (RestrictedService)', () => {
       const readQueryTool = response.result.tools.find((t) => t.name === 'query')
       const entityEnum = readQueryTool.inputSchema.properties.entity.enum
       // Genres and Currencies have @cds.autoexpose - READ is allowed
-      expect(entityEnum).to.include.members(['Genres'])
-      expect(entityEnum).to.not.include.members(['Currencies'])
+      expect(entityEnum).to.include('Genres')
+      expect(entityEnum).to.not.include('Currencies')
       // Composition-only autoexposed entities should be filtered out
       expect(entityEnum).to.not.include('Books.chapters')
       // Books and Authors have @restrict so should NOT be visible
@@ -1749,7 +1750,7 @@ describe('No Accessible Entities (FullyRestrictedService)', () => {
     // alice (admin) can access Books (restricted to admin)
     expect(entityEnum).to.include('Books')
     // Composition-only autoexposed entities should be filtered out
-    expect(entityEnum).to.not.include('Books.chapters')
+    expect(entityEnum).to.include('Books.chapters')
     // Authors is restricted to editor, so alice cannot access it
     expect(entityEnum).to.not.include('Authors')
   })

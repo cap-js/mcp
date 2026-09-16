@@ -33,8 +33,9 @@ describe('Context Resolution', () => {
     // Should have queryLimits
     expect(content.entities.Books.queryLimits).to.exist
     // Associations should have type, target, cardinality
-    expect(content.entities.Books.elements.genre.type).to.equal('Association (1-1)')
-    expect(content.entities.Books.elements.genre.target).to.equal('CatalogService.Genres')
+    expect(content.entities.Books.elements.genre.type).to.equal('Association')
+    expect(content.entities.Books.elements.genre.target).to.be.undefined
+    expect(content.entities.Books.elements.genre.many).to.be.undefined
 
     // Should not have isAssociation or key fields on elements
     expect(content.entities.Books.elements.ID.isAssociation).to.be.undefined
