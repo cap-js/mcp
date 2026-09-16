@@ -108,9 +108,8 @@ describe('describe', () => {
     expect(elementNames).to.not.include('SiblingEntity')
   })
 
-  // REVISIT: Skip test as it relies on auto-exposed entity Genres
-  it.skip('excludes localized elements from entities', async () => {
-    const { callTool } = mcpClient()
+  it('excludes localized elements from entities', async () => {
+    const { callTool } = mcpClient('/mcp/no-service-limit')
     // Genres inherits from sap.common.CodeList which has localized name/descr
     const { content, error } = await callTool('describe', { entities: ['Genres'] })
     expect(error).to.be.null
@@ -255,9 +254,8 @@ describe('query', () => {
       expect(titles.some((t) => t.startsWith('The Raven'))).to.be.true
     })
 
-    // REVISIT: Skip test as it relies on auto-exposed entity Genres
-    it.skip('queries Genres entity and returns genre hierarchy', async () => {
-      const { callTool } = mcpClient()
+    it('queries Genres entity and returns genre hierarchy', async () => {
+      const { callTool } = mcpClient('/mcp/no-service-limit')
       const { content, error } = await callTool('query', { entity: 'Genres', limit: 50 })
       expect(error).to.be.null
       expect(content.entity).to.equal('Genres')

@@ -47,18 +47,16 @@ describe('global config (cds.env.query.limit)', () => {
     expect(content.entities.Books.queryLimits.max).to.equal(200)
   })
 
-  // REVISIT: Skip test as it relies on auto-exposed entity Genres
-  it.skip('applies global default in query execution', async () => {
-    const { callTool } = mcpClient('/mcp/catalog')
+  it('applies global default in query execution', async () => {
+    const { callTool } = mcpClient('/mcp/no-service-limit')
     const { content, error } = await callTool('query', { entity: 'Genres' })
     expect(error).to.be.null
     // Global default: 15
     expect(content.count).to.equal(15)
   })
 
-  // REVISIT: Skip test as it relies on auto-exposed entity Genres
-  it.skip('enforces global max when user limit exceeds it', async () => {
-    const { callTool } = mcpClient('/mcp/catalog')
+  it('enforces global max when user limit exceeds it', async () => {
+    const { callTool } = mcpClient('/mcp/no-service-limit')
     const { content, error } = await callTool('query', { entity: 'Genres', limit: 500 })
     expect(error).to.be.null
     // Global max: 200, but Genres has 42 entries so we get all of them

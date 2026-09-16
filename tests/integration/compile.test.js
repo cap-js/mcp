@@ -6,12 +6,12 @@ const execAsync = promisify(exec)
 const bookshopPath = path.join(__dirname, '../bookshop')
 
 describe('cds compile -2 mcp', () => {
-  // REVISIT: Skip test as it relies on auto-exposed entity Genres
-  // BTW: Snapshots are really bad practice!
-  it.skip('matches expected server card snapshot', async () => {
+
+  it('matches expected server card snapshot', async () => {
+    // to regenerate snapshots: npm run generate:snapshots
     const { stdout } = await execAsync('cds c srv -s CatalogService -2 mcp', { cwd: bookshopPath })
     const result = JSON.parse(stdout)
-    const expected = require('./__snapshots__/catalog-service-card.json')
+    const expected = require(path.join(bookshopPath, '__snapshots__/catalog-service-card.json'))
 
     expect(result).toEqual(expected)
   })
