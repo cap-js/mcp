@@ -298,11 +298,15 @@ describe('Context Resolution', () => {
     // English locale - Books.author has @description: '{i18n>Authors_Description}'
     const { callTool: callToolEn } = mcpClient('/mcp/catalog', null, 'en')
     const { content: contentEn } = await callToolEn('describe', { entities: ['Books'] })
-    expect(contentEn.entities.Books.elements.author.description).to.include('Writers and their biographical information')
+    expect(contentEn.entities.Books.elements.author.description).to.include(
+      'Writers and their biographical information'
+    )
 
     // German locale
     const { callTool: callToolDe } = mcpClient('/mcp/catalog', null, 'de')
     const { content: contentDe } = await callToolDe('describe', { entities: ['Books'] })
-    expect(contentDe.entities.Books.elements.author.description).to.include('Autoren und ihre biografischen Informationen')
+    expect(contentDe.entities.Books.elements.author.description).to.include(
+      'Autoren und ihre biografischen Informationen'
+    )
   })
 })

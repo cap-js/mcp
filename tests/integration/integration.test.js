@@ -90,7 +90,7 @@ describe('describe', () => {
     const chapterElement = content.entities.Books.elements.chapters
     expect(chapterElement.type).to.equal('Composition')
     expect(chapterElement).to.have.property('target')
-    expect(chapterElement).to.have.property('many',true)
+    expect(chapterElement).to.have.property('many', true)
   })
 
   it('excludes draft elements from draft-enabled entities', async () => {
