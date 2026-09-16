@@ -64,12 +64,11 @@ describe('Context Resolution', () => {
     expect(content.description).to.include('Catalog service for browsing books')
   })
 
-  // REVISIT: Skip test as it relies on auto-exposed entity Genres
-  it.skip('resolves doc comment on entities', async () => {
+  it('resolves doc comment on entities', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entities: ['Genres'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
-    expect(content.entities.Genres.description).to.include('Hierarchical classification system')
+    expect(content.entities.Books.description).to.include('Books doc comment')
   })
 
   it('resolves @description on elements', async () => {

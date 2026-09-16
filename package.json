@@ -29,6 +29,7 @@
     "test": "npx vitest run",
     "test:hybrid": "cds bind --exec -- npm run test",
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
+    "generate:snapshots": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > __snapshots__/catalog-service-card.json",
     "lint": "npx eslint .",
     "prettier": "npx -y prettier@3 --write .",
     "prettier:check": "npx -y prettier@3 --check ."
