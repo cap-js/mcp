@@ -165,10 +165,11 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       expect(content.data[0].title).to.equal('Wuthering Heights')
     })
 
+    // REVISIT: This test is not really useful
     it('supports implicit aliases with JOIN', async () => {
-      const { callTool } = mcpClient()
+      const { callTool } = mcpClient('/mcp/no-service-limit')
       const { error } = await callTool('query', {
-        cql: 'SELECT b.ID, b.title FROM CatalogService.Books b INNER JOIN CatalogService.Genres g ON b.genre_ID = g.ID'
+        cql: 'SELECT b.ID, b.title FROM NoServiceLimitService.NormalBooks b INNER JOIN NoServiceLimitService.Genres g ON b.genre_ID = g.ID'
       })
       // Should not fail with parse/alias error — implicit aliases are SQL standard
       // (may fail at CAP runtime for other reasons like unsupported JOIN)
@@ -240,10 +241,11 @@ describe('SQL Format Mode (cds.env.mcp.format = "cql")', () => {
       expect(error).to.include('cannot be resolved')
     })
 
+    // REVISIT: This test is not really useful
     it('allows JOIN within same service (passes validation)', async () => {
-      const { callTool } = mcpClient()
+      const { callTool } = mcpClient('/mcp/no-service-limit')
       const { error } = await callTool('query', {
-        cql: 'SELECT b.ID, b.title FROM CatalogService.Books as b INNER JOIN CatalogService.Genres as g ON b.genre_ID = g.ID'
+        cql: 'SELECT b.ID, b.title FROM NoServiceLimitService.NormalBooks as b INNER JOIN NoServiceLimitService.Genres as g ON b.genre_ID = g.ID'
       })
       // Should NOT be blocked by our cross-service validation
       // (may still fail at CAP runtime level for other reasons)

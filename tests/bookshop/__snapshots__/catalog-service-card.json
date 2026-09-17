@@ -17,27 +17,6 @@
   },
   "tools": [
     {
-      "name": "query",
-      "description": "Query any entity in CatalogService service. Ensure to first use the describe tool to discover an entity's available fields.",
-      "inputSchema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-          "cql": {
-            "type": "string",
-            "description": "CAP CQL statement to execute queries; only SELECT statements are allowed. CQL is a superset of SQL, that supports - path expressions to follow associations instead of JOINs, e.g. SELECT author.name from Books, - postfix projection syntax, with nested expands, e.g. SELECT from Authors { ID, name, books { ID, title }}, - standard CAP/OData functions and aggregates (count, sum, avg, min, max, lower, upper, substring, year, month, day, etc.). Database functions (CURRENT_USER, SESSION_USER, SYSUUID, CURRENT_SCHEMA) are not supported. LIMIT is auto-injected to the service max. Do not guess element names, ALWAYS use the describe tool. NEVER call this tool in the same message as the describe tool — always wait for describe results before querying."
-          }
-        },
-        "required": ["cql"],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "idempotentHint": true,
-        "openWorldHint": false
-      }
-    },
-    {
       "name": "describe",
       "description": "Describe the data model of CatalogService service. Returns an overview of all entities and actions with descriptions. Specify 'entity' to get element details, or 'action' to get parameter details.",
       "inputSchema": {
@@ -49,7 +28,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["Books", "User", "Genres", "Currencies"]
+              "enum": ["Books", "User", "Books.chapters"]
             }
           },
           "actions": {
@@ -79,6 +58,27 @@
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true
+      }
+    },
+    {
+      "name": "query",
+      "description": "Query any entity in CatalogService service. Ensure to first use the describe tool to discover an entity's available fields.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "cql": {
+            "type": "string",
+            "description": "CAP CQL statement to execute queries; only SELECT statements are allowed. CQL is a superset of SQL, that supports - path expressions to follow associations instead of JOINs, e.g. SELECT author.name from Books, - postfix projection syntax, with nested expands, e.g. SELECT from Authors { ID, name, books { ID, title }}, - standard CAP/OData functions and aggregates (count, sum, avg, min, max, lower, upper, substring, year, month, day, etc.). Database functions (CURRENT_USER, SESSION_USER, SYSUUID, CURRENT_SCHEMA) are not supported. LIMIT is auto-injected to the service max. Do not guess element names, ALWAYS use the describe tool. NEVER call this tool in the same message as the describe tool — always wait for describe results before querying."
+          }
+        },
+        "required": ["cql"],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
       }
     },
     {

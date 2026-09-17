@@ -4,7 +4,7 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Version 1.4.4 - tbd
+## Version 1.5.0 - tbd
 
 ### Changed
 
@@ -12,6 +12,11 @@
 
 ### Fixed
 
+- Streamlined the output of the `describe` tool to focus on relevant entity and action details
+- Fixed the output of `describe` tool to correctly handle dangling associations as struct of foreign keys.
+- Target entities of `Composition` relationships were erroneously skipped, now they are correctly served by MCP tools.
+- CodeLists entities marked as `@cds.autoexpose` and `@cds.autoexposed` were erroneously served via MCP tools, now correctly skipped.
+- Compiler-generated `.drafts` and `.texts` entities were erroneously exposed via MCP. They are skipped now, as intended.
 - Consider the prefix in the `query` tool description
 - `query` tool resolves unqualified entity names in CQL (e.g. `SELECT from User` instead of `SELECT from TsService.User`)
 - `query` tool returns a clear error when a `SELECT` statement is missing its `FROM` clause
