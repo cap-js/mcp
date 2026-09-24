@@ -1,6 +1,6 @@
 {
   "name": "@cap-js/mcp",
-  "version": "1.5.0",
+  "version": "1.115.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
   "repository": "cap-js/mcp",
   "files": [
@@ -56,7 +56,11 @@
     },
     "mcp": {
       "format": "cql",
-      "autowire": true
+      "autowire": true,
+      "auth": {
+        "static_dcr": false,
+        "xsuaa_scopes": false
+      }
     }
   },
   "workspaces": [

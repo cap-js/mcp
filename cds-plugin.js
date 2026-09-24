@@ -4,10 +4,11 @@ const DEBUG = cds.debug('mcp')
 // Register compile targets (cds compile -2 mcp)
 require('./lib/api').registerCompileTargets()
 
-cds.on('bootstrap', (app) => {
-  const profiles = cds.env.profiles || []
-  const isDev = profiles.includes('development') && !profiles.includes('production')
-  if (!isDev) return
+const profiles = cds.env.profiles || []
+const isProd = profiles.includes('production')
+const isTest = profiles.includes('test')
+
+!isProd && cds.on('bootstrap', (app) => {
   if (cds.env.server?.index === false) return
 
   const MCP_BLOCK = /(<div id="[^"]+-mcp">[\s\S]*?<\/h3>)[\s\S]*?<\/ul>\s*<\/div>/g
@@ -24,10 +25,7 @@ cds.on('bootstrap', (app) => {
   })
 })
 
-cds.once('listening', ({ url }) => {
-  const profiles = cds.env.profiles || []
-  const isDev = profiles.includes('development') && !profiles.includes('test')
-  if (!isDev) return
+!isTest && !isProd && cds.once('listening', ({ url }) => {
   if (cds.env.mcp?.autowire === false) return
 
   const mcpServices = cds.service.providers.filter((srv) =>
@@ -41,3 +39,27 @@ cds.once('listening', ({ url }) => {
     require('./lib/clients').exportAll(mcpServices, url)
   }
 })
+
+if (cds.env.mcp.auth !== false) {
+  isProd && cds.on('bootstrap', (app) => {
+    const kind = cds.env.requires?.auth?.kind
+    if (!kind) throw new Error('Unable to detect auth kind')
+  
+    const auth_router = require(`./lib/auth/${kind}`)
+    app.use(auth_router)
+
+    cds.middlewares.after.splice(0,0,(err,req,res,next) => {
+      req._login = () => {
+        const base = `https://${req.get('host')}`
+        const resourcePath = req.baseUrl
+        const prm = `${base}/.well-known/oauth-protected-resource${resourcePath}`
+        res.set(
+            'WWW-Authenticate',
+            `Bearer resource_metadata="${prm}", error="invalid_token"`
+        )
+      }
+      next(err)
+    })
+  })
+}
+
