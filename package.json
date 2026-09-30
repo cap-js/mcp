@@ -2,13 +2,37 @@
   "name": "@cap-js/mcp",
   "version": "1.5.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
+  "keywords": [
+    "agent",
+    "ai",
+    "cap",
+    "mcp",
+    "model-context-protocol"
+  ],
+  "license": "Apache-2.0",
+  "author": "SAP SE (https://www.sap.com)",
   "repository": "cap-js/mcp",
+  "workspaces": [
+    "tests/*"
+  ],
   "files": [
     "lib",
     "cds-plugin.js",
     "README.md",
     "CHANGELOG.md"
   ],
+  "scripts": {
+    "watch:sample": "cds w tests/bookshop",
+    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
+    "inspect": "npx @modelcontextprotocol/inspector@v1 --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
+    "test": "npx vitest run",
+    "test:hybrid": "cds bind --exec -- npm run test",
+    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
+    "generate:snapshots": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > __snapshots__/catalog-service-card.json",
+    "lint": "npx eslint .",
+    "format": "npx -y oxfmt@0.70.0",
+    "format:check": "npx -y oxfmt@0.70.0 --check"
+  },
   "dependencies": {
     "@modelcontextprotocol/node": "^2.0.0",
     "@modelcontextprotocol/server": "^2.0.0",
@@ -22,27 +46,6 @@
     "@sap/cds": ">=8",
     "express": ">=4"
   },
-  "scripts": {
-    "watch:sample": "cds w tests/bookshop",
-    "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
-    "inspect": "npx @modelcontextprotocol/inspector@v1 --transport \"http\" --server-url \"http://localhost:4004/mcp/catalog\"",
-    "test": "npx vitest run",
-    "test:hybrid": "cds bind --exec -- npm run test",
-    "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
-    "generate:snapshots": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > __snapshots__/catalog-service-card.json",
-    "lint": "npx eslint .",
-    "prettier": "npx -y prettier@3 --write .",
-    "prettier:check": "npx -y prettier@3 --check ."
-  },
-  "keywords": [
-    "cap",
-    "mcp",
-    "model-context-protocol",
-    "ai",
-    "agent"
-  ],
-  "author": "SAP SE (https://www.sap.com)",
-  "license": "Apache-2.0",
   "cds": {
     "protocols": {
       "mcp": {
@@ -58,8 +61,5 @@
       "format": "cql",
       "autowire": true
     }
-  },
-  "workspaces": [
-    "tests/*"
-  ]
+  }
 }
