@@ -59,6 +59,16 @@ describe('call tool', () => {
       expect(content.result).to.equal(10)
     })
 
+    it('accepts numeric string parameters (robust to clients that send numbers as strings)', async () => {
+      const { callTool } = mcpClient()
+      const { content, error } = await callTool('call', {
+        action: 'sum',
+        parameters: { x: '3', y: '5' }
+      })
+      expect(error).to.be.null
+      expect(content.result).to.equal(8)
+    })
+
     it('calls stock function to get book stock', async () => {
       const { callTool } = mcpClient()
       const { content, error } = await callTool('call', {

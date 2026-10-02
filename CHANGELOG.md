@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Numeric tool parameters (`Integer`, `Int16/32/64`, `Decimal`, `Double`) now also accept numeric strings (e.g. `"271"`), making the tool layer more robust for clients or LLMs that serialize numbers as strings
 - Skip `describe` tool when `per_action_tool` is enabled and the service exposes only actions/functions (no entities)
 
 ### Fixed
