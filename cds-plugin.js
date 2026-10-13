@@ -25,10 +25,10 @@ cds.on('bootstrap', (app) => {
 })
 
 cds.once('listening', ({ url }) => {
+  if (!cds.env.mcp?.autowire) return
   const profiles = cds.env.profiles || []
   const isDev = profiles.includes('development') && !profiles.includes('test')
   if (!isDev) return
-  if (cds.env.mcp?.autowire === false) return
 
   const mcpServices = cds.service.providers.filter((srv) =>
     srv.endpoints.some((ep) => ep.kind === 'mcp')
