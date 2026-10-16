@@ -8,6 +8,7 @@ default-*.json
 gen/
 node_modules/
 target/
+package-lock.json
 
 # Web IDE, App Studio
 .che/
