@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- When starting two servers simultaneously, autowire corrupted OpenCode and Claude configs
 - Streamlined the output of the `describe` tool to focus on relevant entity and action details
 - Fixed the output of `describe` tool to correctly handle dangling associations as struct of foreign keys.
 - Target entities of `Composition` relationships were erroneously skipped, now they are correctly served by MCP tools.
