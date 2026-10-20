@@ -41,6 +41,28 @@
         "auth": "xsuaa"
       },
       "application-logging": true
+    },
+    "[ias-st]": {
+      "requires": {
+        "db": { 
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
+        "auth": {
+          "kind": "ias",
+          "credentials": {
+            "url": "https://abc.accounts400.ondemand.com"
+          },
+          "config": {
+            "validation": { "enabled": false }
+          }
+        }
+      },
+      "mcp": {
+        "auth": true
+      }
     }
   }
 }
