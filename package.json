@@ -56,11 +56,7 @@
     },
     "mcp": {
       "format": "cql",
-      "autowire": true,
-      "auth": {
-        "static_dcr": false,
-        "xsuaa_scopes": false
-      }
+      "autowire": true
     }
   },
   "workspaces": [

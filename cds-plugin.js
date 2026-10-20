@@ -40,8 +40,8 @@ const isTest = profiles.includes('test')
   }
 })
 
-if (cds.env.mcp.auth !== false) {
-  isProd && cds.on('bootstrap', (app) => {
+if (cds.env.mcp.auth && isProd) {
+  cds.on('bootstrap', (app) => {
     const kind = cds.env.requires?.auth?.kind
     if (!kind) throw new Error('Unable to detect auth kind')
   
