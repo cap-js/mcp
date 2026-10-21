@@ -44,22 +44,29 @@ if (cds.env.mcp.auth && isProd) {
   cds.on('bootstrap', (app) => {
     const kind = cds.env.requires?.auth?.kind
     if (!kind) throw new Error('Unable to detect auth kind')
-  
+
     const auth_router = require(`./lib/auth/${kind}`)
     app.use(auth_router)
 
-    cds.middlewares.after.splice(0,0,(err,req,res,next) => {
+    // Exchange the openid-scoped token for a full-scoped one, directly after
+    // CAP's auth and only on MCP routes.
+    if (kind === 'xsuaa' && auth_router.exchangeToken && cds.env.mcp.auth.xsuaa_exchange !== false) {
+      const mcpPath = cds.env.protocols?.mcp?.path || '/mcp'
+      function exchange_for_mcp(req, res, next) {
+        if (!req.baseUrl?.startsWith(mcpPath)) return next()
+        auth_router.exchangeToken(req, res, next)
+      }
+      cds.middlewares.add(exchange_for_mcp, { after: 'auth' })
+    }
+
+    cds.middlewares.after.splice(0, 0, (err, req, res, next) => {
       req._login = () => {
         const base = `https://${req.get('host')}`
         const resourcePath = req.baseUrl
         const prm = `${base}/.well-known/oauth-protected-resource${resourcePath}`
-        res.set(
-            'WWW-Authenticate',
-            `Bearer resource_metadata="${prm}", error="invalid_token"`
-        )
+        res.set('WWW-Authenticate', `Bearer resource_metadata="${prm}", error="invalid_token"`)
       }
       next(err)
     })
   })
 }
-

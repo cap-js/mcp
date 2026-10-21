@@ -87,9 +87,7 @@
         }
       },
       "mcp": {
-        "auth": {
-          "xsuaa_exchange": false
-        }
+        "auth": true
       }
     }
   }
