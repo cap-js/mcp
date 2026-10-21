@@ -44,7 +44,7 @@
     },
     "[ias-st]": {
       "requires": {
-        "db": { 
+        "db": {
           "kind": "sqlite",
           "credentials": {
             "url": ":memory:"
@@ -62,6 +62,34 @@
       },
       "mcp": {
         "auth": true
+      }
+    },
+    "[xsuaa-st]": {
+      "requires": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
+        "auth": {
+          "kind": "xsuaa",
+          "credentials": {
+            "url": "https://abc.authentication.sap.hana.ondemand.com",
+            "clientid": "mock-xsuaa",
+            "clientsecret": "mock-secret",
+            "xsappname": "bookshop",
+            "tenantid": "1"
+          },
+          "config": {
+            "validation": { "enabled": false }
+          }
+        }
+      },
+      "mcp": {
+        "auth": {
+          "xsuaa_exchange": false
+        }
       }
     }
   }
