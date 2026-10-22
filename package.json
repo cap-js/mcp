@@ -2,26 +2,25 @@
   "name": "@cap-js/mcp",
   "version": "1.5.0",
   "description": "CAP plugin to expose services as MCP servers for AI agent consumption",
+  "keywords": [
+    "agent",
+    "ai",
+    "cap",
+    "mcp",
+    "model-context-protocol"
+  ],
+  "license": "Apache-2.0",
+  "author": "SAP SE (https://www.sap.com)",
   "repository": "cap-js/mcp",
+  "workspaces": [
+    "tests/*"
+  ],
   "files": [
     "lib",
     "cds-plugin.js",
     "README.md",
     "CHANGELOG.md"
   ],
-  "dependencies": {
-    "@modelcontextprotocol/node": "^2.0.0",
-    "@modelcontextprotocol/server": "^2.0.0",
-    "@toon-format/toon": ">=2.3",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@cap-js/cds-test": "^1.0.1"
-  },
-  "peerDependencies": {
-    "@sap/cds": ">=8",
-    "express": ">=4"
-  },
   "scripts": {
     "watch:sample": "cds w tests/bookshop",
     "watch:sample:hybrid": "cds bind --exec -- cds w tests/bookshop",
@@ -31,18 +30,23 @@
     "compile:sample": "cd tests/bookshop && cds compile srv/cat-service.cds -2 mcp",
     "generate:snapshots": "cd tests/bookshop && cds c srv -s CatalogService -2 mcp > __snapshots__/catalog-service-card.json",
     "lint": "npx eslint .",
-    "prettier": "npx -y prettier@3 --write .",
-    "prettier:check": "npx -y prettier@3 --check ."
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
-  "keywords": [
-    "cap",
-    "mcp",
-    "model-context-protocol",
-    "ai",
-    "agent"
-  ],
-  "author": "SAP SE (https://www.sap.com)",
-  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "@toon-format/toon": ">=2.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^1.0.1",
+    "oxfmt": ">=0.70.0"
+  },
+  "peerDependencies": {
+    "@sap/cds": ">=8",
+    "express": ">=4"
+  },
   "cds": {
     "protocols": {
       "mcp": {
@@ -58,8 +62,5 @@
       "format": "cql",
       "autowire": true
     }
-  },
-  "workspaces": [
-    "tests/*"
-  ]
+  }
 }
