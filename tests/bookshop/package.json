@@ -56,7 +56,9 @@
             "url": "https://abc.accounts400.ondemand.com"
           },
           "config": {
-            "validation": { "enabled": false }
+            "validation": {
+              "enabled": false
+            }
           }
         }
       },
@@ -82,12 +84,45 @@
             "tenantid": "1"
           },
           "config": {
-            "validation": { "enabled": false }
+            "validation": {
+              "enabled": false
+            }
           }
         }
       },
       "mcp": {
         "auth": true
+      }
+    },
+    "[xsuaa-cert-st]": {
+      "requires": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        },
+        "auth": {
+          "kind": "xsuaa",
+          "credentials": {
+            "url": "https://abc.authentication.sap.hana.ondemand.com",
+            "clientid": "mock-xsuaa",
+            "key": "mock-key",
+            "certificate": "mock-cert",
+            "xsappname": "bookshop",
+            "tenantid": "1"
+          },
+          "config": {
+            "validation": {
+              "enabled": false
+            }
+          }
+        }
+      },
+      "mcp": {
+        "auth": {
+          "static_client_registration": true
+        }
       }
     }
   }

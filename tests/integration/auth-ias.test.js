@@ -1,5 +1,7 @@
 const cds = require('@sap/cds')
-const t = cds.test('serve', 'all', '--in-memory?', '--profile', 'ias-st,production').in(__dirname + '/../bookshop')
+const t = cds
+  .test('serve', 'all', '--in-memory?', '--profile', 'ias-st,production')
+  .in(__dirname + '/../bookshop')
 const { expect, GET, defaults, POST } = t
 defaults.validateStatus = () => true
 
@@ -18,7 +20,6 @@ const IAS_CLAIMS = {
 }
 const jwt_token = `${b64url({ kid: 'test', alg: 'RS256' })}.${b64url(IAS_CLAIMS)}.sig`
 
-
 describe('IAS authentication', () => {
   describe('.well-known endpoints', () => {
     it('.well-known/oauth-protected-resource is served', async () => {
@@ -35,7 +36,8 @@ describe('IAS authentication', () => {
       expect(response.status).to.eq(404)
     })
 
-    it.skip('includes challenge if unauthenticated access', async () => { // TODO: requires 
+    it.skip('includes challenge if unauthenticated access', async () => {
+      // TODO: requires a change in mcp protocol adapter implementation
       const response = await POST(
         '/mcp/catalog',
         { jsonrpc: '2.0', id: 4711, method: 'tools/list', params: {} },
@@ -47,7 +49,9 @@ describe('IAS authentication', () => {
         }
       )
       expect(response.status).to.eq(401)
-      expect(response.headers['WWW-Authenticate']).to.eq(`Bearer resource_metadata="${t.url.replace('http', 'https')}/mcp/catalog", error="invalid_token"`)
+      expect(response.headers['WWW-Authenticate']).to.eq(
+        `Bearer resource_metadata="${t.url.replace('http', 'https')}/mcp/catalog", error="invalid_token"`
+      )
     })
 
     it('lists available tools if authenticated', async () => {
@@ -64,7 +68,7 @@ describe('IAS authentication', () => {
       )
 
       const toon = require('@toon-format/toon')
-      const {data} = toon.decode(await httpResponse.text())
+      const { data } = toon.decode(await httpResponse.text())
       expect(data).to.exist
     })
   })

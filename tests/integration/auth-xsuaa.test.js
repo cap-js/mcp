@@ -1,5 +1,7 @@
 const cds = require('@sap/cds')
-const t = cds.test('serve', 'all', '--in-memory?', '--profile', 'xsuaa-st,production').in(__dirname + '/../bookshop')
+const t = cds
+  .test('serve', 'all', '--in-memory?', '--profile', 'xsuaa-st,production')
+  .in(__dirname + '/../bookshop')
 const { expect, GET, defaults, POST } = t
 defaults.validateStatus = () => true
 
@@ -36,16 +38,25 @@ const exchanged_token = makeJwt({ scope: ['openid', 'bookshop.admin'] })
 // only intercept calls to XSUAA and pass everything else through to the server.
 const realFetch = globalThis.fetch
 const urlOf = (input) => String(typeof input === 'string' ? input : (input?.url ?? input))
-let fetchSpy
+let fetchSpy, xsuaa_throw
 const xsuaaCalls = () => fetchSpy.mock.calls.filter(([input]) => urlOf(input).startsWith(XSUAA_URL))
 beforeEach(() => {
   fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
     if (!urlOf(input).startsWith(XSUAA_URL)) return realFetch(input, init)
+    if (xsuaa_throw)
+      return Promise.resolve(new Response(JSON.stringify({ error: 'failed' }), { status: 400 }))
     // fresh Response per call: a Response body can only be read once
-    return Promise.resolve(new Response(JSON.stringify({ access_token: exchanged_token, expires_in: 3600 }), { status: 200 }))
+    return Promise.resolve(
+      new Response(JSON.stringify({ access_token: exchanged_token, expires_in: 3600 }), {
+        status: 200
+      })
+    )
   })
 })
-afterEach(() => fetchSpy.mockRestore())
+afterEach(() => {
+  fetchSpy.mockRestore()
+  xsuaa_throw = false
+})
 
 describe('XSUAA authentication', () => {
   describe('.well-known endpoints', () => {
@@ -54,8 +65,7 @@ describe('XSUAA authentication', () => {
       const base = t.url.replace('http', 'https')
       expect(response.data).to.deep.eq({
         resource: `${base}/mcp/catalog`,
-        authorization_servers: [base],
-        scopes_supported: ['openid']
+        authorization_servers: [base]
       })
     })
 
@@ -63,7 +73,8 @@ describe('XSUAA authentication', () => {
       const response = await GET('.well-known/oauth-authorization-server')
       const base = t.url.replace('http', 'https')
       expect(response.status).to.eq(200)
-      expect(response.data).to.deep.eq({ //TODO. which fields are required?
+      expect(response.data).to.deep.eq({
+        //TODO. which fields are required?
         issuer: base,
         authorization_endpoint: `${XSUAA_URL}/oauth/authorize`,
         token_endpoint: `${base}/oauth/token`,
@@ -71,12 +82,13 @@ describe('XSUAA authentication', () => {
         response_types_supported: ['code'],
         grant_types_supported: ['authorization_code', 'refresh_token'],
         code_challenge_methods_supported: ['S256'],
-        token_endpoint_auth_methods_supported: ['none'],
-        scopes_supported: ['openid']
+        token_endpoint_auth_methods_supported: ['none']
       })
     })
+  })
 
-    it('oauth/token sends a request to xsuaa', async () => {
+  describe('oauth/token endpoint', () => {
+    it('enriches request and sends it to xsuaa', async () => {
       const response = await POST(
         '/oauth/token',
         new URLSearchParams({
@@ -94,7 +106,9 @@ describe('XSUAA authentication', () => {
       expect(url).to.eq(`${XSUAA_URL}/oauth/token`)
       expect(options.method).to.eq('POST')
       // app credential injected via HTTP basic auth
-      expect(options.headers.Authorization).to.eq(`Basic ${Buffer.from('mock-xsuaa:mock-secret').toString('base64')}`)
+      expect(options.headers.Authorization).to.eq(
+        `Basic ${Buffer.from('mock-xsuaa:mock-secret').toString('base64')}`
+      )
       const body = new URLSearchParams(options.body)
       expect(body.get('grant_type')).to.eq('authorization_code')
       expect(body.get('code')).to.eq('the-auth-code')
@@ -102,9 +116,7 @@ describe('XSUAA authentication', () => {
       expect(body.get('client_id')).to.eq('mock-xsuaa')
     })
 
-    it('oauth/token only allows authorization_code and refresh_token grants', async () => {
-      // every grant other than authorization_code / refresh_token is rejected;
-      // notably jwt-bearer (used server-side for the exchange) is not brokered here
+    it('only allows authorization_code and refresh_token grants', async () => {
       for (const grant_type of [
         'client_credentials',
         'password',
@@ -119,10 +131,8 @@ describe('XSUAA authentication', () => {
         expect(denied.status, `grant_type=${grant_type}`).to.eq(400)
         expect(denied.data.error, `grant_type=${grant_type}`).to.eq('unsupported_grant_type')
       }
-      expect(xsuaaCalls()).to.have.length(0) // all rejected before proxying to xsuaa
+      expect(xsuaaCalls()).to.have.length(0)
 
-      // the two supported grants are not rejected as unsupported; they reach the
-      // (stubbed) xsuaa token endpoint instead
       for (const grant of [
         { grant_type: 'authorization_code', code: 'c', code_verifier: 'v' },
         { grant_type: 'refresh_token', refresh_token: 'r' }
@@ -132,6 +142,37 @@ describe('XSUAA authentication', () => {
         })
         expect(ok.status).to.eq(200)
       }
+    })
+
+    it('rejects request if params are missing', async () => {
+      for (const grant of [
+        { grant_type: 'authorization_code', code_verifier: 'v' },
+        { grant_type: 'authorization_code', code: 'c' },
+        { grant_type: 'refresh_token' }
+      ]) {
+        const denied = await POST('/oauth/token', new URLSearchParams(grant).toString(), {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+        expect(denied.status).to.eq(400)
+        expect(denied.data.error).to.eq('invalid_request')
+      }
+    })
+
+    it('rejects if xsuaa request fails', async () => {
+      xsuaa_throw = true
+      const denied = await POST(
+        '/oauth/token',
+        new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: 'c',
+          code_verifier: 'v'
+        }).toString(),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }
+      )
+      expect(denied.status).to.eq(400)
+      expect(denied.data.error).to.eq('token_fetch_failed')
     })
 
     it('id token is exchanged at runtime', async () => {
@@ -162,29 +203,55 @@ describe('XSUAA authentication', () => {
       // the exchanged token carries bookshop.admin, so the admin-gated `add`
       // action is now exposed as a `call` tool on the restricted service
       const payload = JSON.parse(
-        (await response.text()).split('\n').find((l) => l.startsWith('data: ')).slice(6)
+        (await response.text())
+          .split('\n')
+          .find((l) => l.startsWith('data: '))
+          .slice(6)
       )
       const call = payload.result.tools.find((tool) => tool.name === 'call')
       expect(call, 'admin-gated `call` tool should be exposed after exchange').to.exist
       expect(call.inputSchema.properties.action.enum).to.include('add')
     })
+  })
 
-    it('lists available tools if authenticated', async () => {
-      const httpResponse = await POST(
-        '/mcp/catalog',
-        { jsonrpc: '2.0', id: 4711, method: 'tools/list', params: {} },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json, text/event-stream',
-            authorization: `Bearer ${jwt_token}`
-          }
+  it('lists available tools if authenticated', async () => {
+    const httpResponse = await POST(
+      '/mcp/catalog',
+      { jsonrpc: '2.0', id: 4711, method: 'tools/list', params: {} },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          authorization: `Bearer ${jwt_token}`
         }
-      )
+      }
+    )
 
-      const toon = require('@toon-format/toon')
-      const { data } = toon.decode(await httpResponse.text())
-      expect(data).to.exist
-    })
+    const toon = require('@toon-format/toon')
+    const { data } = toon.decode(await httpResponse.text())
+    expect(data).to.exist
+  })
+
+  it('serves a repeated token from cache without re-hitting xsuaa', async () => {
+    // unique jti so this exact token was not already cached by another test
+    const token = makeJwt({ jti: 'cache-hit-test', user_name: 'cache@sap.com' })
+    const req = [
+      '/mcp/restricted',
+      { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json, text/event-stream',
+          authorization: `Bearer ${token}`
+        }
+      }
+    ]
+    const first = await POST(...req)
+    const second = await POST(...req)
+
+    expect(first.status).to.eq(200)
+    expect(second.status).to.eq(200)
+    // exchanged exactly once; the second request was served from the cache
+    expect(xsuaaCalls()).to.have.length(1)
   })
 })
