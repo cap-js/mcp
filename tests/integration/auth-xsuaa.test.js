@@ -74,7 +74,6 @@ describe('XSUAA authentication', () => {
       const base = t.url.replace('http', 'https')
       expect(response.status).to.eq(200)
       expect(response.data).to.deep.eq({
-        //TODO. which fields are required?
         issuer: base,
         authorization_endpoint: `${XSUAA_URL}/oauth/authorize`,
         token_endpoint: `${base}/oauth/token`,

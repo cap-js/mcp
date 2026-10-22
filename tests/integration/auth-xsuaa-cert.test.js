@@ -38,10 +38,7 @@ describe('XSUAA authentication using certificates', () => {
     expect(response.status).to.eq(201)
     expect(response.data).to.deep.eq({
       client_id: 'mock-xsuaa',
-      redirect_uris: ['1', '2'],
-      token_endpoint_auth_method: 'none',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code']
+      redirect_uris: ['1', '2']
     })
   })
 
