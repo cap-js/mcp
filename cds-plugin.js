@@ -46,7 +46,7 @@ cds.once('listening', ({ url }) => {
 
 cds.on('bootstrap', (app) => {
   // if the base url is injected, we serve it
-  if (!cds.env.protocols.mcp.auth.baseUrl) return
+  if (!cds.env.protocols.mcp.auth.base_url) return
   const kind = cds.env.requires?.auth?.kind
   if (!kind) throw new Error('Unable to detect auth kind')
   
@@ -108,7 +108,7 @@ cds.on('bootstrap', (app) => {
 
   cds.middlewares.after.splice(0, 0, (err, req, res, next) => {
     req._login = () => {
-      const base = cds.env.protocols.mcp.auth.baseUrl
+      const base = cds.env.protocols.mcp.auth.base_url
       const resourcePath = req.baseUrl
       const prm = `${base}/.well-known/oauth-protected-resource${resourcePath}`
       res.set('WWW-Authenticate', `Bearer resource_metadata="${prm}", error="invalid_token"`)

@@ -19,8 +19,8 @@ const IAS_CLAIMS = {
   exp: Math.floor(Date.now() / 1000) + 3600
 }
 const jwt_token = `${b64url({ kid: 'test', alg: 'RS256' })}.${b64url(IAS_CLAIMS)}.sig`
-let baseUrl
-before(() => { baseUrl = cds.env.protocols.mcp.auth.baseUrl = t.url.replace('http', 'https')})
+let base_url
+before(() => { base_url = cds.env.protocols.mcp.auth.base_url = t.url.replace('http', 'https')})
 
 describe('IAS authentication', () => {
   describe('.well-known endpoints', () => {
@@ -28,7 +28,7 @@ describe('IAS authentication', () => {
       const response = await GET('.well-known/oauth-protected-resource/mcp/catalog')
       expect(response.data).to.deep.eq({
         authorization_servers: ['https://abc.accounts400.ondemand.com'],
-        resource: `${baseUrl}/mcp/catalog`,
+        resource: `${base_url}/mcp/catalog`,
         scopes_supported: ['openid']
       })
     })
@@ -52,7 +52,7 @@ describe('IAS authentication', () => {
       )
       expect(response.status).to.eq(401)
       expect(response.headers['WWW-Authenticate']).to.eq(
-        `Bearer resource_metadata="${baseUrl}/mcp/catalog", error="invalid_token"`
+        `Bearer resource_metadata="${base_url}/mcp/catalog", error="invalid_token"`
       )
     })
 

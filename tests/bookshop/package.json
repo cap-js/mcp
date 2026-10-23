@@ -43,7 +43,7 @@
       "application-logging": true
     },
     "[ias-st]": {
-      "protocols": { "mcp": { "auth": { "baseUrl": "<replaced at test start>" }}},
+      "protocols": { "mcp": { "auth": { "base_url": "<replaced at test start>" }}},
       "requires": {
         "db": {
           "kind": "sqlite",
@@ -65,7 +65,7 @@
       }
     },
     "[xsuaa-st]": {
-      "protocols": { "mcp": { "auth": { "baseUrl": "<replaced at test start>" }}},
+      "protocols": { "mcp": { "auth": { "base_url": "<replaced at test start>" }}},
       "requires": {
         "db": {
           "kind": "sqlite",
@@ -91,7 +91,7 @@
       }
     },
     "[xsuaa-cert-st]": {
-      "protocols": { "mcp": { "auth": { "baseUrl": "<replaced at test start>", "static_client_registration": true }}},
+      "protocols": { "mcp": { "auth": { "base_url": "<replaced at test start>", "static_client_registration": true }}},
       "requires": {
         "db": {
           "kind": "sqlite",
