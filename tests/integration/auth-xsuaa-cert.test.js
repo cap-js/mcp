@@ -24,13 +24,14 @@ beforeEach(() => {
 afterEach(() => {
   fetchSpy.mockRestore()
 })
+let baseUrl
+before(() => { baseUrl = cds.env.protocols.mcp.auth.baseUrl = t.url.replace('http', 'https')})
 
 describe('XSUAA authentication using certificates', () => {
   it('.well-known/oauth-authorization-server promotes dcr', async () => {
-    const base = t.url.replace('http', 'https')
     const response = await GET('.well-known/oauth-authorization-server')
     expect(response.status).to.eq(200)
-    expect(response.data.registration_endpoint).to.eq(`${base}/oauth/register`)
+    expect(response.data.registration_endpoint).to.eq(`${baseUrl}/oauth/register`)
   })
 
   it('oauth/register mocks the registration', async () => {

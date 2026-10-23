@@ -45,18 +45,23 @@ cds.once('listening', ({ url }) => {
 })
 
 cds.on('bootstrap', (app) => {
-  const profiles = cds.env.profiles || []
-  const isProd = profiles.includes('production')
-  if (!cds.env.mcp.auth || !isProd) return
+  // if the base url is injected, we serve it
+  if (!cds.env.protocols.mcp.auth.baseUrl) return
   const kind = cds.env.requires?.auth?.kind
   if (!kind) throw new Error('Unable to detect auth kind')
+  
+  // TODO: better way for clean config in IAS
+  if (kind === 'ias') {
+    delete cds.env.protocols.mcp.auth.xsuaa_exchange
+    delete cds.env.protocols.mcp.auth.static_client_registration
+  }
 
   const { router: auth_router, xsuaa_token_fetch } = require(`./lib/auth/${kind}`)
   app.use(auth_router)
 
   // Exchange the openid-scoped token for a full-scoped one, directly after
   // CAP's auth and only on MCP routes.
-  if (kind === 'xsuaa' && cds.env.mcp.auth.xsuaa_exchange !== false) {
+  if (kind === 'xsuaa' && cds.env.protocols.mcp.auth.xsuaa_exchange) {
     const crypto = require('node:crypto')
     const LOG = cds.log('mcp-oauth')
     const mcpPath = cds.env.protocols?.mcp?.path || '/mcp'
@@ -103,7 +108,7 @@ cds.on('bootstrap', (app) => {
 
   cds.middlewares.after.splice(0, 0, (err, req, res, next) => {
     req._login = () => {
-      const base = `https://${req.get('host')}`
+      const base = cds.env.protocols.mcp.auth.baseUrl
       const resourcePath = req.baseUrl
       const prm = `${base}/.well-known/oauth-protected-resource${resourcePath}`
       res.set('WWW-Authenticate', `Bearer resource_metadata="${prm}", error="invalid_token"`)

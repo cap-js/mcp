@@ -38,7 +38,7 @@ const exchanged_token = makeJwt({ scope: ['openid', 'bookshop.admin'] })
 // only intercept calls to XSUAA and pass everything else through to the server.
 const realFetch = globalThis.fetch
 const urlOf = (input) => String(typeof input === 'string' ? input : (input?.url ?? input))
-let fetchSpy, xsuaa_throw
+let fetchSpy, xsuaa_throw, baseUrl
 const xsuaaCalls = () => fetchSpy.mock.calls.filter(([input]) => urlOf(input).startsWith(XSUAA_URL))
 beforeEach(() => {
   fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
@@ -57,15 +57,15 @@ afterEach(() => {
   fetchSpy.mockRestore()
   xsuaa_throw = false
 })
+before(() => { baseUrl = cds.env.protocols.mcp.auth.baseUrl = t.url.replace('http', 'https')})
 
 describe('XSUAA authentication', () => {
   describe('.well-known endpoints', () => {
     it('.well-known/oauth-protected-resource is served', async () => {
       const response = await GET('.well-known/oauth-protected-resource/mcp/catalog')
-      const base = t.url.replace('http', 'https')
       expect(response.data).to.deep.eq({
-        resource: `${base}/mcp/catalog`,
-        authorization_servers: [base]
+        resource: `${baseUrl}/mcp/catalog`,
+        authorization_servers: [baseUrl]
       })
     })
 
