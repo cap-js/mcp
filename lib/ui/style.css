@@ -1,0 +1,124 @@
+:root {
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  color-scheme: light dark;
+}
+body {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+h1 {
+  margin-bottom: 0.5rem;
+}
+#endpoint {
+  overflow-wrap: anywhere;
+  margin-top: 0;
+  opacity: 0.7;
+}
+main {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 2rem;
+}
+label {
+  display: block;
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+}
+input,
+textarea,
+button {
+  font: inherit;
+  border: 1px solid #8888;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+}
+input,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+textarea,
+pre {
+  font:
+    0.875rem/1.5 ui-monospace,
+    monospace;
+}
+textarea {
+  resize: vertical;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+pre:focus-visible {
+  outline: 2px solid #287be1;
+  outline-offset: 2px;
+}
+#tools {
+  list-style: none;
+  padding: 0;
+}
+#tools button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+#tools button[aria-pressed='true'] {
+  border-color: #287be1;
+  background: #287be122;
+}
+#run {
+  margin-top: 0.75rem;
+  background: #1767bf;
+  color: white;
+  border-color: #1767bf;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #8885;
+  padding: 1rem;
+  border-radius: 6px;
+  max-height: 32rem;
+  overflow: auto;
+}
+summary {
+  cursor: pointer;
+}
+[data-error='true'] {
+  color: light-dark(#a51818, #ff9494);
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  main {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  body {
+    margin: 1rem auto;
+  }
+}

@@ -9,6 +9,18 @@ This is a protocol adapter for the [Model Context Protocol](https://modelcontext
 >
 > The [SAP API Policy](https://help.sap.com/doc/sap-api-policy) remains applicable even when exposing data via MCP. Before exposing any SAP service or data through an MCP endpoint, ensure your use case complies with the SAP API Policy and any applicable licensing terms.
 
+## Tool UI
+
+During development, open **Tools** on a service in the CDS index page, or visit
+the MCP endpoint followed by `/-/ui/` (for example, `/mcp/catalog/-/ui/`).
+The UI lists tools available to the current user, shows their input schemas,
+and lets you run them with JSON arguments. Results and errors appear below the
+editor. Calls use the same MCP endpoint and authorization as other clients.
+
+Entity and action links open the relevant tool with its target selected when
+using a CDS version that supports primary index links. Older CDS versions show
+the service-level Tools link. The UI is unavailable under the production profile.
+
 ## Feature Flags
 
 All configuration lives under `cds.mcp` in your `package.json`:

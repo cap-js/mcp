@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mcp-authorization" content="{{authorization}}" />
+    <title>MCP Tools</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="ui.js"></script>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>MCP Tools</h1>
+        <p id="endpoint"></p>
+      </div>
+      <button id="reload" type="button">Reload tools</button>
+    </header>
+    <p id="status" role="status" aria-live="polite">Connecting…</p>
+    <main>
+      <nav aria-label="Tools">
+        <label for="search">Find a tool</label>
+        <input id="search" type="search" placeholder="Name or description" />
+        <ul id="tools"></ul>
+      </nav>
+      <section id="runner" hidden aria-label="Tool runner">
+        <h2 id="name"></h2>
+        <p id="description"></p>
+        <details>
+          <summary>Input schema</summary>
+          <pre id="schema"></pre>
+        </details>
+        <form id="form">
+          <label for="arguments">Arguments (JSON object)</label>
+          <textarea id="arguments" rows="12" spellcheck="false">{}</textarea>
+          <button id="run" type="submit">Run tool</button>
+        </form>
+        <h3>Result</h3>
+        <pre id="result" tabindex="0" aria-label="Tool result">Run the tool to see its result.</pre>
+      </section>
+    </main>
+  </body>
+</html>

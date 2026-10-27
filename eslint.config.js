@@ -3,6 +3,18 @@ import cds from '@sap/cds/eslint.config.mjs'
 export default [
   ...cds,
   {
+    files: ['lib/ui/ui.js'],
+    languageOptions: {
+      globals: { document: 'readonly', location: 'readonly' }
+    }
+  },
+  {
+    files: ['lib/ui/client.mjs', 'tests/unit/ui-client.test.js'],
+    languageOptions: {
+      globals: { TextDecoder: 'readonly', TextEncoder: 'readonly' }
+    }
+  },
+  {
     files: ['**/*.js'],
     languageOptions: {
       globals: {
