@@ -45,15 +45,27 @@ cds.once('listening', ({ url }) => {
 })
 
 cds.on('bootstrap', (app) => {
-  // if the base url is injected, we serve it
-  if (!cds.env.protocols.mcp.auth.base_url) return
+  if (!cds.env.protocols.mcp.auth) return
   const kind = cds.env.requires?.auth?.kind
   if (!kind) throw new Error('Unable to detect auth kind')
   
-  // TODO: better way for clean config in IAS
+  if (cds.env.protocols.mcp.auth === true) {
+    cds.env.protocols.mcp.auth = {}
+  }
+
+  if (!cds.env.protocols.mcp.auth.base_url && !cds.env.requires.multitenancy) {
+    const vcapApplication = process.env.VCAP_APPLICATION && JSON.parse(process.env.VCAP_APPLICATION)
+    const uri = vcapApplication?.application_uris.length === 1 && vcapApplication?.application_uris[0]
+    if (uri) cds.env.protocols.mcp.auth.base_url = uri
+    else throw new Error ('Unable to determine own url. Provide it through cds.protocols.mcp.auth.base_url')
+  }
+  // sanitize configs
   if (kind === 'ias') {
     delete cds.env.protocols.mcp.auth.xsuaa_exchange
     delete cds.env.protocols.mcp.auth.static_client_registration
+  } else if (kind === 'xsuaa') {
+    cds.env.protocols.mcp.auth.xsuaa_exchange ??= true
+    cds.env.protocols.mcp.auth.static_client_registration ??= false
   }
 
   const { router: auth_router, xsuaa_token_fetch } = require(`./lib/auth/${kind}`)

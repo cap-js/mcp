@@ -49,10 +49,7 @@
       "mcp": {
         "path": "/mcp",
         "impl": "@cap-js/mcp/lib",
-        "auth": {
-          "static_client_registration": false,
-          "xsuaa_exchange": true
-        },
+        "auth": false,
         "clients": {}
       }
     },
