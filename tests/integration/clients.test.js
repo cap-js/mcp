@@ -48,7 +48,7 @@ describe('Custom MCP Client Registration', () => {
     it('is called once on shutdown with correct services', async () => {
       await test
 
-      cds.emit('shutdown')
+      await cds.shutdown()
 
       expect(purgeCalls.length).to.equal(1)
 
