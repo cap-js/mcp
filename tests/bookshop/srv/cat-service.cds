@@ -28,6 +28,9 @@ service CatalogService {
   @description: 'Get current stock for a book'
   function stock(id: Integer) returns Integer;
 
+  @description: 'Returns the protocol of the inbound request (e.g. mcp, odata)'
+  function whoami() returns String;
+
   @description: 'Add a value to an accumulator'
   action add(x: Integer, to: Integer) returns Integer;
 

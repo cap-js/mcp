@@ -22,6 +22,14 @@ module.exports = class CatalogService extends cds.ApplicationService {
       return book?.stock ?? 0
     })
 
+    // Report the protocol of the inbound request — used to verify MCP tagging
+    this.on('whoami', (req) => req.protocol ?? null)
+
+    // Capture the protocol seen on reads so the query path can be asserted
+    this.before('READ', Books, (req) => {
+      this.lastReadProtocol = req.protocol ?? null
+    })
+
     // Action: add x to accumulator 'to'
     this.on('add', (req) => {
       const { x, to } = req.data
