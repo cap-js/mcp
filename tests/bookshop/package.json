@@ -9,7 +9,7 @@
   "dependencies": {
     "@cap-js/hana": ">=2",
     "@cap-js/mcp": "file:../../",
-    "@sap/cds": ">=9",
+    "@sap/cds": "^10.2.2",
     "@sap/hana-client": "^2.29.23",
     "@sap/xssec": "^4",
     "zod": "^4.3.6"
