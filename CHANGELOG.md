@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Tests no longer automatically modify MCP client configurations, even when autowiring is enabled.
 - When starting two servers simultaneously, autowire corrupted OpenCode and Claude configs
 - Streamlined the output of the `describe` tool to focus on relevant entity and action details
 - Fixed the output of `describe` tool to correctly handle dangling associations as struct of foreign keys.
