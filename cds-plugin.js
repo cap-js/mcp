@@ -25,6 +25,7 @@ cds.on('bootstrap', (app) => {
 })
 
 cds.once('listening', ({ url }) => {
+  if (process.env.NODE_ENV === 'test' || global.it) return
   if (!cds.env.mcp?.autowire) return
   const profiles = cds.env.profiles || []
   const isDev = profiles.includes('development') && !profiles.includes('test')
