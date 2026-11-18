@@ -22,6 +22,7 @@
 - `query` tool resolves unqualified entity names in CQL (e.g. `SELECT from User` instead of `SELECT from TsService.User`)
 - `query` tool returns a clear error when a `SELECT` statement is missing its `FROM` clause
 - Updated `query` tool description to more consistently use `describe` for element names
+- Enums on actions are now properly handled
 
 ## Version 1.4.3 - 2026-08-14
 
