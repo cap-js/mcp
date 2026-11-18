@@ -58,10 +58,11 @@ module.exports =
         if (res.error) {
           return { ...res, content: null, error: res.error.message }
         }
+        if (typeof res === 'string') return { error: res }
         return {
           ...res,
-          content: res.result.isError ? null : parseContent(res.result.content[0].text),
-          error: res.result.isError ? res.result.content[0].text : null
+          content: res.result?.isError ? null : parseContent(res.result.content[0].text),
+          error: res.result?.isError ? res.result.content[0].text : null
         }
       } catch (err) {
         return { content: null, error: `callTool(${name}) failed: ${err.message}` }

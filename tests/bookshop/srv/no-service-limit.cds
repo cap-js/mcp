@@ -5,6 +5,8 @@ service NoServiceLimitService {
   entity DisabledBooks as projection on my.Books;
 
   entity NormalBooks as projection on my.Books;
+
+  entity Genres as projection on my.Genres;
 }
 
 annotate NoServiceLimitService with @mcp;

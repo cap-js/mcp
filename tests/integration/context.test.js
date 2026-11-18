@@ -33,8 +33,9 @@ describe('Context Resolution', () => {
     // Should have queryLimits
     expect(content.entities.Books.queryLimits).to.exist
     // Associations should have type, target, cardinality
-    expect(content.entities.Books.elements.genre.type).to.equal('Association (1-1)')
-    expect(content.entities.Books.elements.genre.target).to.equal('CatalogService.Genres')
+    expect(content.entities.Books.elements.genre.type).to.equal('Association')
+    expect(content.entities.Books.elements.genre.target).to.be.undefined
+    expect(content.entities.Books.elements.genre.many).to.be.undefined
 
     // Should not have isAssociation or key fields on elements
     expect(content.entities.Books.elements.ID.isAssociation).to.be.undefined
@@ -65,9 +66,9 @@ describe('Context Resolution', () => {
 
   it('resolves doc comment on entities', async () => {
     const { callTool } = mcpClient()
-    const { content, error } = await callTool('describe', { entities: ['Genres'] })
+    const { content, error } = await callTool('describe', { entities: ['Books'] })
     expect(error).to.be.null
-    expect(content.entities.Genres.description).to.include('Hierarchical classification system')
+    expect(content.entities.Books.description).to.include('Books doc comment')
   })
 
   it('resolves @description on elements', async () => {
@@ -291,5 +292,21 @@ describe('Context Resolution', () => {
     const { callTool: callToolDe } = mcpClient('/mcp/catalog', null, 'de')
     const { content: contentDe } = await callToolDe('describe', { entities: ['Books'] })
     expect(contentDe.entities.Books.description).to.include('Bücher')
+  })
+
+  it('resolves {i18n>key} in @description and respects Accept-Language header', async () => {
+    // English locale - Books.author has @description: '{i18n>Authors_Description}'
+    const { callTool: callToolEn } = mcpClient('/mcp/catalog', null, 'en')
+    const { content: contentEn } = await callToolEn('describe', { entities: ['Books'] })
+    expect(contentEn.entities.Books.elements.author.description).to.include(
+      'Writers and their biographical information'
+    )
+
+    // German locale
+    const { callTool: callToolDe } = mcpClient('/mcp/catalog', null, 'de')
+    const { content: contentDe } = await callToolDe('describe', { entities: ['Books'] })
+    expect(contentDe.entities.Books.elements.author.description).to.include(
+      'Autoren und ihre biografischen Informationen'
+    )
   })
 })

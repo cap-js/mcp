@@ -82,6 +82,9 @@ annotate CatalogService.Books with {
 
   @description: 'Current inventory count'
   stock;
+
+  @description: '{i18n>Authors_Description}'
+  author;
 };
 
 annotate CatalogService with @mcp @odata;

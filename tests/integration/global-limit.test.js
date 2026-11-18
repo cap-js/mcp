@@ -48,7 +48,7 @@ describe('global config (cds.env.query.limit)', () => {
   })
 
   it('applies global default in query execution', async () => {
-    const { callTool } = mcpClient('/mcp/catalog')
+    const { callTool } = mcpClient('/mcp/no-service-limit')
     const { content, error } = await callTool('query', { entity: 'Genres' })
     expect(error).to.be.null
     // Global default: 15
@@ -56,7 +56,7 @@ describe('global config (cds.env.query.limit)', () => {
   })
 
   it('enforces global max when user limit exceeds it', async () => {
-    const { callTool } = mcpClient('/mcp/catalog')
+    const { callTool } = mcpClient('/mcp/no-service-limit')
     const { content, error } = await callTool('query', { entity: 'Genres', limit: 500 })
     expect(error).to.be.null
     // Global max: 200, but Genres has 42 entries so we get all of them
