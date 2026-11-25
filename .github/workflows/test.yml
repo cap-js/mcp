@@ -67,7 +67,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup CF CLI and authenticate
-        uses: cap-js/cf-setup@d9f989795c045b8ba9f80103ae4979de71131844 # v2.0.2
+        uses: cap-js/cf-setup@c52742d9cfff538a77265af25c054758da9813da # v2.1.0
         with:
           api: ${{ secrets.CF_API }}
           org: ${{ secrets.CF_ORG }}
